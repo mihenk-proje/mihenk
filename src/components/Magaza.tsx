@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { ArrowLeft, Clock, ShoppingBag } from "lucide-react"
 import { useStore } from "@/lib/store/kanca"
 import {
@@ -70,6 +70,40 @@ export function Magaza({ onBack }: { onBack: () => void }) {
 
   const filtrelenmis = state.magaza.filter((u) => u.kategori === aktifKategori)
 
+  /*
+    WAI-ARIA sekme kalibi: yalnizca secili sekme sira icinde (roving
+    tabIndex), ok tuslari secimi ve odagi birlikte tasir, Home/End uclara
+    gider. Boylece sekmeler arasinda Tab'a basarak dolasmak gerekmez.
+  */
+  const sekmeRefleri = useRef<Array<HTMLButtonElement | null>>([])
+
+  const sekmeKlavye = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    const son = KATEGORILER.length - 1
+    const simdiki = KATEGORILER.findIndex((k) => k.id === aktifKategori)
+    let hedef: number
+
+    switch (e.key) {
+      case 'ArrowRight':
+        hedef = simdiki === son ? 0 : simdiki + 1
+        break
+      case 'ArrowLeft':
+        hedef = simdiki === 0 ? son : simdiki - 1
+        break
+      case 'Home':
+        hedef = 0
+        break
+      case 'End':
+        hedef = son
+        break
+      default:
+        return
+    }
+
+    e.preventDefault()
+    setAktifKategori(KATEGORILER[hedef].id)
+    sekmeRefleri.current[hedef]?.focus()
+  }
+
   return (
     <div className="fixed inset-0 z-40 bg-page flex flex-col mihenk-sagdan">
       <div className="flex-1 w-full max-w-4xl mx-auto flex flex-col h-full bg-card border-x border-line overflow-hidden">
@@ -98,13 +132,20 @@ export function Magaza({ onBack }: { onBack: () => void }) {
           role="tablist"
           aria-label="Ürün kategorileri"
         >
-          {KATEGORILER.map((kat) => (
+          {KATEGORILER.map((kat, i) => (
             <button
               key={kat.id}
+              ref={(el) => {
+                sekmeRefleri.current[i] = el
+              }}
               type="button"
               role="tab"
+              id={`sekme-${kat.id}`}
               aria-selected={aktifKategori === kat.id}
+              aria-controls={`panel-${kat.id}`}
+              tabIndex={aktifKategori === kat.id ? 0 : -1}
               onClick={() => setAktifKategori(kat.id)}
+              onKeyDown={sekmeKlavye}
               className={`flex-1 py-4 px-6 font-bold text-sm sm:text-base whitespace-nowrap transition-colors border-b-2 ${
                 aktifKategori === kat.id
                   ? 'border-brand text-brand'
@@ -125,7 +166,14 @@ export function Magaza({ onBack }: { onBack: () => void }) {
           </div>
         )}
 
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-page">
+        <div
+          role="tabpanel"
+          id={`panel-${aktifKategori}`}
+          aria-labelledby={`sekme-${aktifKategori}`}
+          /* Kaydirilabilir bolge klavyeyle de gezilebilmeli */
+          tabIndex={0}
+          className="flex-1 overflow-y-auto p-4 sm:p-6 bg-page"
+        >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {filtrelenmis.map((urun) => {
               const { sahipMi, aktif, kalan } = sahiplikDurumu(urun)
