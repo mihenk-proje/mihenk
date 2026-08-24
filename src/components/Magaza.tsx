@@ -302,9 +302,23 @@ function UrunOnizleme({
       </div>
 
       <div className="p-4 bg-card border-t border-line">
-        {bakiyeYetersiz && (
+        {/*
+          Bakiye yeterliyse satin almanin bakiyeye etkisi, degilse eksik
+          miktar gosterilir. Ikisi ayni satiri paylasir.
+        */}
+        {bakiyeYetersiz ? (
           <p id="onizleme-eksik" className="mb-3 text-sm text-secondary text-center">
             {urun.fiyat - state.kullanici.jetonBakiyesi} jeton daha gerekiyor.
+          </p>
+        ) : (
+          <p className="mb-3 text-sm text-secondary text-center">
+            Bakiye:{' '}
+            <span className="font-mono text-primary">{state.kullanici.jetonBakiyesi}</span>
+            <span aria-hidden="true"> → </span>
+            <span className="sr-only"> şu değere düşecek: </span>
+            <span className="font-mono text-brand font-bold">
+              {state.kullanici.jetonBakiyesi - urun.fiyat}
+            </span>
           </p>
         )}
 
