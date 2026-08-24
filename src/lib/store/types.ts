@@ -72,6 +72,12 @@ export type HareketKaydi = {
   zaman: string
   aciklama: string
   miktar: number
+  /**
+   * 'demo' kayıtları uygulamanın hazır verisiyle gelir, kullanıcının
+   * kazanımı değildir. Hareket defterinde ayrı işaretlenir ki günlük üst
+   * sınırla ilgisi olmadığı anlaşılsın.
+   */
+  tur?: 'demo'
 }
 
 export type DogrulamaSonucu = {

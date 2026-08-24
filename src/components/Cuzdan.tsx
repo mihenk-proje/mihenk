@@ -130,8 +130,13 @@ export function Cuzdan({ onBack }: { onBack: () => void }) {
                     {hareket.miktar > 0 ? <ArrowUpRight size={20} /> : <ArrowDownRight size={20} />}
                   </div>
                   <div className="min-w-0">
-                    <p className="text-primary font-medium text-sm sm:text-base truncate">
-                      {hareket.aciklama}
+                    <p className="text-primary font-medium text-sm sm:text-base flex items-center gap-2 flex-wrap">
+                      <span className="truncate">{hareket.aciklama}</span>
+                      {hareket.tur === 'demo' && (
+                        <span className="shrink-0 text-[10px] font-mono uppercase tracking-wide px-1.5 py-0.5 rounded border border-line-strong text-secondary">
+                          demo
+                        </span>
+                      )}
                     </p>
                     <time className="text-secondary text-xs mt-1 font-mono block" dateTime={hareket.zaman}>
                       {new Date(hareket.zaman).toLocaleDateString('tr-TR', {

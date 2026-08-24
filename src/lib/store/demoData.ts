@@ -40,8 +40,9 @@ export const demoHareketler: HareketKaydi[] = [
   {
     id: 'h1',
     zaman: new Date(Date.now() - 86_400_000 * 5).toISOString(),
-    aciklama: 'Hoş geldin hediyesi',
+    aciklama: 'Demo başlangıç bakiyesi',
     miktar: 120,
+    tur: 'demo',
   },
 ]
 
