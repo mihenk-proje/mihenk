@@ -26,8 +26,18 @@ function goreliZaman(dateStr: string) {
 }
 
 function sayiBicimle(n: number) {
-  if (n >= 1000) return `${(n / 1000).toFixed(1).replace('.0', '')} B`
+  if (n >= 1000) return `${(n / 1000).toFixed(1).replace('.', ',').replace(',0', '')} B`
   return String(n)
+}
+
+/**
+ * WCAG 2.5.3 (Label in Name): erisilebilir ad, butonun gorunur metnini
+ * birebir icermeli. Sayaclar kisaltilarak gosterildigi icin (2100 -> "2,1 B")
+ * etiket ham sayiyi degil gorunen metni tasir.
+ */
+function etkilesimEtiketi(fiil: string, sayi: number) {
+  const gorunen = sayi > 0 ? sayiBicimle(sayi) : ''
+  return { gorunen, etiket: gorunen ? `${fiil}: ${gorunen}` : fiil }
 }
 
 export function GonderiKarti({ gonderi }: { gonderi: Gonderi }) {
@@ -156,22 +166,29 @@ export function GonderiKarti({ gonderi }: { gonderi: Gonderi }) {
           )}
 
           <div className="flex items-center justify-between text-secondary mt-1 max-w-md">
-            <button type="button" className="flex items-center gap-1.5 hover:text-interaction transition-colors group" aria-label={`Yorum yap (${gonderi.yorumSayisi})`}>
-              <span className="p-1.5 rounded-full group-hover:bg-interaction/10"><MessageCircle size={18} aria-hidden="true" /></span>
-              <span className="text-xs font-mono">{gonderi.yorumSayisi ? sayiBicimle(gonderi.yorumSayisi) : ''}</span>
-            </button>
-            <button type="button" className="flex items-center gap-1.5 hover:text-success transition-colors group" aria-label={`Yeniden paylaş (${gonderi.yenidenPaylasimSayisi})`}>
-              <span className="p-1.5 rounded-full group-hover:bg-success/10"><Repeat2 size={18} aria-hidden="true" /></span>
-              <span className="text-xs font-mono">{gonderi.yenidenPaylasimSayisi ? sayiBicimle(gonderi.yenidenPaylasimSayisi) : ''}</span>
-            </button>
-            <button type="button" className="flex items-center gap-1.5 hover:text-brand transition-colors group" aria-label={`Roketle (${gonderi.roketSayisi})`}>
-              <span className="p-1.5 rounded-full group-hover:bg-brand/10"><Rocket size={18} aria-hidden="true" /></span>
-              <span className="text-xs font-mono">{gonderi.roketSayisi ? sayiBicimle(gonderi.roketSayisi) : ''}</span>
-            </button>
-            <button type="button" className="flex items-center gap-1.5 hover:text-interaction transition-colors group" aria-label={`Görüntülenme sayısı: ${gonderi.izlenimSayisi}`}>
-              <span className="p-1.5 rounded-full group-hover:bg-interaction/10"><BarChart2 size={18} aria-hidden="true" /></span>
-              <span className="text-xs font-mono">{gonderi.izlenimSayisi ? sayiBicimle(gonderi.izlenimSayisi) : ''}</span>
-            </button>
+            {(
+              [
+                { anahtar: 'yorum', fiil: 'Yorum yap', sayi: gonderi.yorumSayisi, Simge: MessageCircle, renk: 'hover:text-interaction', zemin: 'group-hover:bg-interaction/10' },
+                { anahtar: 'paylas', fiil: 'Yeniden paylaş', sayi: gonderi.yenidenPaylasimSayisi, Simge: Repeat2, renk: 'hover:text-success', zemin: 'group-hover:bg-success/10' },
+                { anahtar: 'roket', fiil: 'Roketle', sayi: gonderi.roketSayisi, Simge: Rocket, renk: 'hover:text-brand', zemin: 'group-hover:bg-brand/10' },
+                { anahtar: 'izlenim', fiil: 'Görüntülenme', sayi: gonderi.izlenimSayisi, Simge: BarChart2, renk: 'hover:text-interaction', zemin: 'group-hover:bg-interaction/10' },
+              ] as const
+            ).map(({ anahtar, fiil, sayi, Simge, renk, zemin }) => {
+              const { gorunen, etiket } = etkilesimEtiketi(fiil, sayi)
+              return (
+                <button
+                  key={anahtar}
+                  type="button"
+                  className={`flex items-center gap-1.5 ${renk} transition-colors group`}
+                  aria-label={etiket}
+                >
+                  <span className={`p-1.5 rounded-full ${zemin}`}>
+                    <Simge size={18} aria-hidden="true" />
+                  </span>
+                  <span className="text-xs font-mono">{gorunen}</span>
+                </button>
+              )
+            })}
           </div>
         </div>
       </div>

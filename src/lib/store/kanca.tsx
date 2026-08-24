@@ -29,11 +29,19 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   if (!hidre) {
     return (
       <div
-        className="min-h-screen bg-page flex items-center justify-center"
+        className="min-h-screen bg-page flex flex-col items-center justify-center gap-4"
         role="status"
         aria-live="polite"
       >
-        <span className="sr-only">Yükleniyor</span>
+        {/*
+          Ilk boyamada gorunur metin bulunmali. Yalnizca ekran okuyucuya ozel
+          metin ve 1 piksellik bir cizgi birakilirsa tarayici "contentful paint"
+          saymaz; Lighthouse bunu NO_FCP olarak raporlar ve olcum yapilamaz.
+        */}
+        <span className="font-display font-bold text-3xl tracking-tight text-primary">
+          MİHENK
+        </span>
+        <span className="text-secondary text-sm">Yükleniyor…</span>
         <div className="h-px w-32 bg-brand/40 animate-pulse" aria-hidden="true" />
       </div>
     )
