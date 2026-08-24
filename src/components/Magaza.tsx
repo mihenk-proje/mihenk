@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, useState } from "react"
-import { ArrowLeft, Clock, ShoppingBag } from "lucide-react"
+import { ArrowLeft, Clock, Coins, ShoppingBag } from "lucide-react"
 import { useStore } from "@/lib/store/kanca"
 import {
   AD_RENGI_SINIFLARI,
@@ -23,6 +23,20 @@ const KATEGORILER = [
 ] as const
 
 type Kategori = (typeof KATEGORILER)[number]['id']
+
+/**
+ * Jeton tutarı. Çıplak sayı yerine birim taşır: görsel olarak jeton
+ * ikonu + sayı, ekran okuyucuda "15 jeton" diye okunur.
+ */
+function Jeton({ deger, className = '' }: { deger: number; className?: string }) {
+  return (
+    <span className={`inline-flex items-center gap-1 font-mono ${className}`}>
+      <Coins size={14} aria-hidden="true" />
+      <span aria-hidden="true">{deger}</span>
+      <span className="sr-only">{deger} jeton</span>
+    </span>
+  )
+}
 
 /**
  * Ürünün ne kadar süreyle geçerli olduğunu gösterir.
@@ -119,12 +133,10 @@ export function Magaza({ onBack }: { onBack: () => void }) {
             </button>
             <h2 className="font-display font-bold text-2xl text-primary tracking-tight">Mağaza</h2>
           </div>
-          <div
-            className="font-mono text-xl font-bold text-brand bg-brand/10 px-4 py-1.5 rounded-lg border border-brand/25"
-            aria-label={`Bakiyeniz ${jetonBakiyesi} jeton`}
-          >
-            {jetonBakiyesi}
-          </div>
+          <p className="text-xl font-bold text-brand bg-brand/10 px-4 py-1.5 rounded-lg border border-brand/25">
+            <span className="sr-only">Bakiyeniz: </span>
+            <Jeton deger={jetonBakiyesi} />
+          </p>
         </div>
 
         <div
@@ -186,9 +198,7 @@ export function Magaza({ onBack }: { onBack: () => void }) {
                 >
                   <div className="flex justify-between items-start gap-3 mb-2">
                     <h3 className="font-bold text-lg text-primary">{urun.ad}</h3>
-                    <div className="font-mono font-bold text-brand text-lg shrink-0">
-                      {urun.fiyat}
-                    </div>
+                    <Jeton deger={urun.fiyat} className="font-bold text-brand text-lg shrink-0" />
                   </div>
 
                   <p className="text-secondary text-sm mb-4 flex-1">{urun.aciklama}</p>
@@ -395,7 +405,13 @@ function UrunOnizleme({
                 : 'bg-brand hover:bg-brand/90 text-brand-ink'
             }`}
           >
-            {bakiyeYetersiz ? 'Yetersiz bakiye' : `Al (${urun.fiyat})`}
+            {bakiyeYetersiz ? (
+              'Yetersiz bakiye'
+            ) : (
+              <span className="inline-flex items-center gap-2">
+                Al <Jeton deger={urun.fiyat} />
+              </span>
+            )}
           </button>
         </div>
       </div>
