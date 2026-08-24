@@ -193,7 +193,7 @@ hareket defteri toplamına eşit kaldığını doğrular.
 
 ## Erişilebilirlik
 
-Denetim, üretim derlemesi üzerinde **Lighthouse 13.4.1** ile yapılmıştır. Uygulamanın ana ekranları
+Denetim, yayındaki adres üzerinde **Lighthouse 13.4.1** ile yapılmıştır. Uygulamanın ana ekranları
 giriş kapısının arkasında olduğundan tek sayfa denetimi yeterli olmaz; ekranlar Chrome sürülerek
 tek tek ölçülmüştür.
 
@@ -205,8 +205,9 @@ tek tek ölçülmüştür.
 | Mağaza | 100 / 100 |
 | Ürün önizleme penceresi | 100 / 100 |
 
-Başarısız denetim bulunmamaktadır. Giriş sayfasının tam Lighthouse sonucu: **Performans 93**,
-**Erişilebilirlik 100**, **En İyi Uygulamalar 100**, **SEO 100** (FCP 0,8 sn · CLS 0).
+Başarısız denetim bulunmamaktadır. Giriş sayfasının tam Lighthouse sonucu (masaüstü ön ayarı):
+**Performans 100 · Erişilebilirlik 100 · En İyi Uygulamalar 100 · SEO 100**, ilk içerikli boyama
+0,3 saniye ve düzen kayması sıfır.
 
 Uygulanan başlıca önlemler:
 
