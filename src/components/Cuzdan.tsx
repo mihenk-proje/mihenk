@@ -76,9 +76,18 @@ export function Cuzdan({ onBack }: { onBack: () => void }) {
             </div>
           </div>
 
-          {envanter.length > 0 && (
-            <section className="mb-8">
-              <h3 className="font-display font-bold text-xl text-primary mb-4">Envanter</h3>
+          <section className="mb-8">
+            <h3 className="font-display font-bold text-xl text-primary mb-4">Envanter</h3>
+
+            {envanter.length === 0 ? (
+              <div className="rounded-xl border border-line bg-card p-6 text-center">
+                <p className="text-primary font-medium">Envanterin henüz boş</p>
+                <p className="text-secondary text-sm mt-1">
+                  Mağazadan aldığın çerçeve, rozet ve temalar burada listelenir; buradan
+                  açıp kapatabilirsin.
+                </p>
+              </div>
+            ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {envanter.map(({ sahip, urun }) => {
                   const doldu = suresiDoldu(urun, sahip)
@@ -109,8 +118,8 @@ export function Cuzdan({ onBack }: { onBack: () => void }) {
                   )
                 })}
               </div>
-            </section>
-          )}
+            )}
+          </section>
 
           <h3 className="font-display font-bold text-xl text-primary mb-4">Hareket defteri</h3>
 
@@ -160,7 +169,12 @@ export function Cuzdan({ onBack }: { onBack: () => void }) {
             ))}
 
             {state.hareketler.length === 0 && (
-              <p className="text-secondary text-center py-8">Henüz hareket yok.</p>
+              <div className="rounded-xl border border-line bg-card p-6 text-center">
+                <p className="text-primary font-medium">Hareket defterin henüz boş</p>
+                <p className="text-secondary text-sm mt-1">
+                  Doğrulamayı geçen her gönderin ve yaptığın her satın alma buraya kaydedilir.
+                </p>
+              </div>
             )}
           </div>
         </div>
