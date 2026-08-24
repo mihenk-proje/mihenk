@@ -142,7 +142,7 @@ export function Magaza({ onBack }: { onBack: () => void }) {
                   
                   {urun.sureGun && (
                     <div className="flex items-center gap-1.5 text-xs text-secondary mb-4 bg-page self-start px-2 py-1 rounded border border-primary/20 font-mono">
-                      <Clock size={12} /> {urun.sureGun === 1 ? '24 saat' : urun.sureGun + ' gün'}
+                      <Clock size={12} /> {urun.sureGun} gün süreyle
                     </div>
                   )}
 

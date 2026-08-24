@@ -36,7 +36,7 @@ export function DogrulamaSonucu({ sonuc, onClose }: DogrulamaSonucuProps) {
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 p-4 sm:p-6 pointer-events-none flex justify-center">
       <div 
-        className="bg-card w-full max-w-lg rounded-2xl shadow-2xl border border-primary pointer-events-auto overflow-hidden animate-in slide-in-from-bottom-10 fade-in duration-300"
+        className="bg-card w-full max-w-lg rounded-2xl  border border-primary pointer-events-auto overflow-hidden animate-in slide-in-from-bottom-10 fade-in duration-300"
         role="alert"
         aria-live="polite"
       >
@@ -59,7 +59,7 @@ export function DogrulamaSonucu({ sonuc, onClose }: DogrulamaSonucuProps) {
                 strokeWidth={lineStrokeWidth}
                 strokeLinecap="round"
                 opacity={lineOpacity}
-                style={{
+                className="motion-reduce:transition-none" style={{
                   strokeDasharray: 800,
                   strokeDashoffset: showLine ? 0 : 800,
                   transition: 'stroke-dashoffset 600ms ease-out'
@@ -73,7 +73,7 @@ export function DogrulamaSonucu({ sonuc, onClose }: DogrulamaSonucuProps) {
                 strokeWidth={2}
                 strokeDasharray="4 8"
                 opacity={0.5}
-                style={{
+                className="motion-reduce:transition-none" style={{
                   strokeDashoffset: showLine ? 0 : 50,
                   transition: 'stroke-dashoffset 600ms linear'
                 }}

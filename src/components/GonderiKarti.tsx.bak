@@ -6,18 +6,14 @@ import { MessageCircle, Repeat2, Rocket, BarChart2, CheckCircle2, Bot } from "lu
 
 function timeAgo(dateStr: string) {
   const diff = Date.now() - new Date(dateStr).getTime()
-  const seconds = Math.floor(diff / 1000)
-  const minutes = Math.floor(seconds / 60)
+  const minutes = Math.floor(diff / 60000)
   const hours = Math.floor(minutes / 60)
   const days = Math.floor(hours / 24)
 
-  if (days >= 7) {
-    return new Date(dateStr).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })
-  }
-  if (days > 0) return `${days} g`
-  if (hours > 0) return `${hours} sa`
-  if (minutes > 0) return `${minutes} dk`
-  return `${Math.max(1, seconds)} sn`
+  if (days > 0) return `${days}g`
+  if (hours > 0) return `${hours}s`
+  if (minutes > 0) return `${minutes}d`
+  return 'Şimdi'
 }
 
 export function GonderiKarti({ gonderi }: { gonderi: Gonderi }) {

@@ -17,7 +17,7 @@ export type SahipOlunanUrun = {
 export type Kullanici = {
   id: string
   kullaniciAdi: string
-  avatarUrl: string
+  avatarUrl: string // Can be a color code or initials now
   jetonBakiyesi: number
   bugunKazanilan: number
   envanter: SahipOlunanUrun[]

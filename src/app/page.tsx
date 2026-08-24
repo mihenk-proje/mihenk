@@ -15,12 +15,10 @@ export default function Home() {
   const { state } = useStore()
   const [dogrulamaSonucu, setDogrulamaSonucu] = useState<{ sonuc: any, id: string } | null>(null)
   
-  // Görünüm state'leri
   const [isEntered, setIsEntered] = useState(false)
   const [aktifGorunum, setAktifGorunum] = useState<'akis' | 'cuzdan' | 'magaza'>('akis')
 
   useEffect(() => {
-    // Sadece demo olduğu için basitçe session'da tutuyoruz
     const entered = sessionStorage.getItem('mihenk_entered')
     if (entered) setIsEntered(true)
   }, [])
@@ -43,10 +41,7 @@ export default function Home() {
       
       <main className="flex-1 w-full max-w-2xl mx-auto border-x border-primary/30 min-h-screen relative">
         <div className="p-4 border-b border-primary/30 flex items-center justify-between sticky top-16 bg-page/95 backdrop-blur z-20">
-          <h2 className="font-bold text-xl text-primary">Ana Akış</h2>
-          <span className="text-xs font-medium text-secondary flex items-center gap-1" title="Ev sahibi platform">
-            <Sparkles size={12} /> Yüzey A (Nötr Katman)
-          </span>
+          <h2 className="font-bold text-xl text-primary">Ana akış</h2>
         </div>
         
         <GonderiOlustur onDogrulamaSonucu={(sonuc, id) => setDogrulamaSonucu({ sonuc, id })} />
@@ -67,7 +62,6 @@ export default function Home() {
         </div>
       </main>
 
-      {/* Yüzey B Bileşenleri */}
       {aktifGorunum === 'cuzdan' && (
         <Cuzdan onBack={() => setAktifGorunum('akis')} />
       )}
