@@ -188,6 +188,15 @@ beklediği `localStorage` ve `window` API'lerini taklit eder.
 | `test/dogrulama.test.mjs` | Türkçe normalleştirme, n-gram + Jaccard, metin niteliği, anket çeşitliliği, Hamming mesafesi, doğrulama zinciri, yeni hesap koruması | 22 |
 | `test/depo.test.mjs` | Hidrasyon, bakiye–hareket defteri tutarlılığı, satın alma, süre dolumu, günlük tavan, akış içinde kopya tespiti, itiraz, demo sıfırlama | 28 |
 
+Tarayıcı sürerek çalışan iki erişilebilirlik denetimi ayrıca bulunur. Bunlar `puppeteer-core`
+gerektirdiği için `npm test` dışında tutulmuştur; birim testleri bağımlılıksız kalsın diye.
+
+```bash
+npm i --no-save puppeteer-core
+node test/tarayici/klavye.mjs    # klavyeyle uçtan uca gezinme (26 kontrol)
+node test/tarayici/hareket.mjs   # hareketi azaltma tercihi (8 kontrol)
+```
+
 Günlük tavan testi altı gönderiyi (6 × 10 = 60 jeton) tam 50'ye kırpar ve her adımda bakiyenin
 hareket defteri toplamına eşit kaldığını doğrular.
 
@@ -207,17 +216,28 @@ tek tek ölçülmüştür.
 
 Başarısız denetim bulunmamaktadır. Giriş sayfasının tam Lighthouse sonucu (masaüstü ön ayarı):
 **Performans 100 · Erişilebilirlik 100 · En İyi Uygulamalar 100 · SEO 100**, ilk içerikli boyama
-0,3 saniye ve düzen kayması sıfır.
+0,2 saniye ve düzen kayması sıfır.
 
 Uygulanan başlıca önlemler:
 
 - Doğrulama sonuçları, mağaza bildirimleri ve karakter sayacı `aria-live` ile duyurulur.
 - Kalıcı pencereler Escape ile kapanır, odağı içeride tutar ve kapanınca odağı çağıran öğeye
   geri verir (WCAG 2.1.2, 2.4.3).
+- Cüzdan ve mağaza tam ekran açıldığında odak katmana taşınır, arkadaki akış `inert` ile sekme
+  sırasından ve erişilebilirlik ağacından çıkarılır.
+- Mağaza kategorileri tam WAI-ARIA sekme kalıbını uygular: ok tuşları, Home/End ve roving
+  `tabIndex`.
+- Karakter sayacı yalnızca sınırın %80'inde ve sınıra ulaşıldığında duyurulur; her tuş
+  vuruşunda değil.
 - Etkileşim sayaçlarının erişilebilir adı görünür metni birebir içerir (WCAG 2.5.3).
 - Klavye odağı için görünür `:focus-visible` halkası tanımlıdır (WCAG 2.4.7).
 - `prefers-reduced-motion` tercihi tüm animasyon ve geçişleri devre dışı bırakır (WCAG 2.3.3).
 - Avatarlar baş harflerden üretilir; uzak görsel servisine bağımlılık yoktur.
+
+## Değişiklik kaydı
+
+Arayüz düzeltme turunun madde madde durumu, ölçülen kontrast oranları ve denetim sonuçları
+için [`CHANGELOG.md`](CHANGELOG.md) dosyasına bakınız.
 
 ## Lisans
 
