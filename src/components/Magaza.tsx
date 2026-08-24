@@ -71,14 +71,28 @@ export function Magaza({ onBack }: { onBack: () => void }) {
     return { sahipMi: true, aktif: sahip.aktif, kalan: kalanSure(urun, sahip) }
   }
 
+  /** Satın alma onayı: ürünün ne kadar süreyle ne yaptığını söyler. */
+  const satinAlmaMesaji = (urun: Urun) => {
+    const sure =
+      urun.sureGun === null
+        ? 'kalıcı olarak'
+        : urun.sureGun === 1
+          ? '24 saat boyunca'
+          : `${urun.sureGun} gün boyunca`
+
+    return urun.efekt.tur === 'islev'
+      ? `${urun.ad} alındı, ${sure} kullanabilirsin.`
+      : `${urun.ad} alındı, ${sure} profilinde görünecek.`
+  }
+
   const handleSatinAl = (urun: Urun) => {
     if (urunSatinAl(urun)) {
-      setBildirim(`${urun.ad} alındı ve profiline uygulandı.`)
-      window.setTimeout(() => setBildirim(null), 3000)
+      setBildirim(satinAlmaMesaji(urun))
+      window.setTimeout(() => setBildirim(null), 5000)
       if (onizleme?.id === urun.id) setOnizleme(null)
     } else {
-      setBildirim('Bakiye yetersiz.')
-      window.setTimeout(() => setBildirim(null), 3000)
+      setBildirim(`Bakiye yetersiz: ${urun.fiyat - jetonBakiyesi} jeton daha gerekiyor.`)
+      window.setTimeout(() => setBildirim(null), 5000)
     }
   }
 
