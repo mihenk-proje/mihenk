@@ -91,9 +91,12 @@ export function Itiraz({ sonuc, onClose }: { sonuc: DogrulamaSonucu; onClose: ()
               <CheckCircle2 size={32} aria-hidden="true" />
             </div>
             <h4 className="font-bold text-xl text-primary mb-2">İtirazınız alındı</h4>
-            <p className="text-secondary text-sm mb-6">
-              İçeriğiniz insan moderatörler tarafından incelenecek. Prototip sürümünde bu adım
-              yalnızca simüle edilmektedir.
+            <p className="text-secondary text-sm mb-3">
+              İçeriğiniz insan moderatörler tarafından incelenecek.
+            </p>
+            <p className="text-secondary text-sm mb-6 border border-line rounded-lg p-3 bg-page">
+              Prototipte itiraz inceleme süreci sonuç üretmemektedir; bu akış final sürümünde
+              tamamlanacaktır.
             </p>
             <button
               type="button"
