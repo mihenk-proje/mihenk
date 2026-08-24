@@ -1,48 +1,119 @@
 @import "tailwindcss";
 
+/*
+  Kaynak değişkenler --mihenk-* ön ekiyle tanımlanır.
+  @theme içindeki --color-* adlarıyla çakışmamaları önemli:
+  aynı ad kullanılırsa (--color-brand: var(--color-brand)) dairesel
+  referans oluşur ve renk hesaplanamaz.
+*/
+
 /* Koyu tema varsayılan */
 :root {
-  --bg-page: #12181A;
-  --bg-card: #1D2629;
-  --border-primary: #2C383C;
-  --text-primary: #E8E4DA;
-  --text-secondary: #9AA5A3;
-  --color-brand: #C89544;
-  --color-success: #5B9C89;
-  --color-error: #B8563E;
-  --color-interaction: #7A8FA6;
+  --mihenk-page: #12181a;
+  --mihenk-card: #1d2629;
+  --mihenk-line: #2c383c;
+  --mihenk-line-strong: #3d4c51;
+  --mihenk-text: #e8e4da;
+  --mihenk-text-soft: #9aa5a3;
+  --mihenk-brand: #c89544;
+  --mihenk-brand-ink: #12181a;
+  --mihenk-success: #5b9c89;
+  --mihenk-error: #d4705a;
+  --mihenk-interaction: #8fa6bd;
 }
 
 .light {
-  --bg-page: #F2EFE7;
-  --bg-card: #FFFFFF;
-  --border-primary: #D9D4C7;
-  --text-primary: #12181A;
-  --text-secondary: #5A6467;
-  --color-brand: #9A6E28;
-  --color-success: #3E7462;
-  --color-error: #93412D;
-  --color-interaction: #4A5D70;
+  --mihenk-page: #f2efe7;
+  --mihenk-card: #ffffff;
+  --mihenk-line: #d9d4c7;
+  --mihenk-line-strong: #b9b2a1;
+  --mihenk-text: #12181a;
+  --mihenk-text-soft: #5a6467;
+  --mihenk-brand: #8a6120;
+  --mihenk-brand-ink: #ffffff;
+  --mihenk-success: #2f6455;
+  --mihenk-error: #93412d;
+  --mihenk-interaction: #3c5d7a;
 }
 
 @theme inline {
-  --color-page: var(--bg-page);
-  --color-card: var(--bg-card);
-  --color-border: var(--border-primary);
-  --color-primary: var(--text-primary);
-  --color-secondary: var(--text-secondary);
-  --color-brand: var(--color-brand);
-  --color-success: var(--color-success);
-  --color-error: var(--color-error);
-  --color-interaction: var(--color-interaction);
-  
+  --color-page: var(--mihenk-page);
+  --color-card: var(--mihenk-card);
+  --color-line: var(--mihenk-line);
+  --color-line-strong: var(--mihenk-line-strong);
+  --color-primary: var(--mihenk-text);
+  --color-secondary: var(--mihenk-text-soft);
+  --color-brand: var(--mihenk-brand);
+  --color-brand-ink: var(--mihenk-brand-ink);
+  --color-success: var(--mihenk-success);
+  --color-error: var(--mihenk-error);
+  --color-interaction: var(--mihenk-interaction);
+
   --font-display: var(--font-bricolage), sans-serif;
   --font-sans: var(--font-manrope), sans-serif;
   --font-mono: var(--font-ibm-plex-mono), monospace;
 }
 
 body {
-  background-color: var(--color-page);
-  color: var(--color-primary);
-  font-family: var(--font-sans);
+  background-color: var(--mihenk-page);
+  color: var(--mihenk-text);
+  font-family: var(--font-manrope), sans-serif;
+}
+
+/* Klavye ile gezinenler için görünür odak halkası (WCAG 2.4.7) */
+:focus-visible {
+  outline: 2px solid var(--mihenk-brand);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Yatay kategori şeridi: kaydırma çalışsın, çubuk görünmesin */
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/*
+  Giriş animasyonları.
+  Kodda daha önce animate-in / slide-in-from-* / zoom-in-95 sınıfları kullanılıyordu;
+  bunlar Tailwind çekirdeğinde yok (tailwindcss-animate eklentisinden gelir) ve
+  eklenti kurulu olmadığı için hiçbir kural üretilmiyordu. Yalnızca ihtiyaç duyulan
+  dört hareketi burada tanımlamak, yeni bir bağımlılık eklemekten daha ucuz.
+  Hareketi azaltma tercihi aşağıdaki media bloğu tarafından zaten devre dışı bırakılır.
+*/
+@keyframes mihenk-belir {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes mihenk-solgunlas {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes mihenk-sagdan {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+@keyframes mihenk-alttan {
+  from { opacity: 0; transform: translateY(2.5rem); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.mihenk-belir { animation: mihenk-belir 500ms ease-out both; }
+.mihenk-solgunlas { animation: mihenk-solgunlas 200ms ease-out both; }
+.mihenk-sagdan { animation: mihenk-sagdan 300ms cubic-bezier(0.32, 0.72, 0, 1) both; }
+.mihenk-alttan { animation: mihenk-alttan 300ms cubic-bezier(0.32, 0.72, 0, 1) both; }
+
+/* Hareketi azaltma tercihi (WCAG 2.3.3) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

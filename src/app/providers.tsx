@@ -1,7 +1,7 @@
 "use client";
 
 import { ThemeProvider } from "next-themes";
-import { StoreProvider } from "@/lib/store/StoreContext";
+import { StoreProvider } from "@/lib/store/kanca";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
