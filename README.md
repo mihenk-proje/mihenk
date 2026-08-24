@@ -1,36 +1,40 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MİHENK: NSosyal Katılım Katmanı Prototipi
 
-## Getting Started
+Bu proje, NSosyal İnovasyon Yarışması kapsamında geliştirilmiş MİHENK katılım sisteminin arayüz prototipidir.
 
-First, run the development server:
+## Proje Hakkında
+MİHENK, bağımsız bir sosyal ağ değil, mevcut mikroblog platformu NSosyal üzerine oturan bir "özellik katmanıdır". Temel amacı, kullanıcıların nitelikli paylaşımlarını ödüllendirerek pasif tüketim sarmalını kırmaktır.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Yüzey A (Ev Sahibi Platform):** Nötr, metin öncelikli akış ve gönderi ekranları.
+- **Yüzey B (MİHENK):** Kendi görsel kimliğini (bazalt taş, pirinç çizgi, mono sayılar) taşıyan ödül sistemi ekranları (Cüzdan, Mağaza, İtiraz).
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Teknik Yapı
+- **Framework:** Next.js 14+ (App Router), React, TypeScript
+- **Stil:** Tailwind CSS v4, CSS Variables
+- **Doğrulama:** `lib/verification/` altında saf JS ile metin n-gram, Jaccard benzerliği ve görsel dHash algoritmaları çalışmaktadır.
+- **Veri:** Herhangi bir veritabanı yoktur. State ve kalıcılık `localStorage` üzerinden sağlanır.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Kurulum ve Çalıştırma
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Bağımlılıkları yükleyin:
+   ```bash
+   npm install
+   ```
 
-## Learn More
+2. Geliştirme sunucusunu başlatın:
+   ```bash
+   npm run dev
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+3. Tarayıcıda açın: [http://localhost:3000](http://localhost:3000)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Vercel Deployment
+Bu proje Vercel üzerine sıfır konfigürasyon ile dağıtılabilir:
+1. GitHub reponuzu Vercel'e bağlayın.
+2. `npm run build` komutunu yapılandırmadan deploy edin.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Erişilebilirlik (A11y)
+Prototip WCAG 2.1 AA standartlarına uygun geliştirilmiştir:
+- Doğrulama sonuçları ve bildirimler `aria-live` ile duyurulur.
+- Klavye odaklanabilirliği için uygun `tabindex` ve `outline` stilleri korunmuştur.
+- Hareketi azaltma tercihlerine (prefers-reduced-motion) uygundur.
