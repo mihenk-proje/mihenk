@@ -24,6 +24,23 @@ const KATEGORILER = [
 
 type Kategori = (typeof KATEGORILER)[number]['id']
 
+/**
+ * Ürünün ne kadar süreyle geçerli olduğunu gösterir.
+ * Hem mağaza kartında hem önizleme penceresinde kullanılır ki kullanıcı
+ * süreyi satın alma kararından önce aynı yerde ve aynı biçimde görsün.
+ */
+function SureCipi({ urun }: { urun: Urun }) {
+  const etiket =
+    urun.sureGun === null ? 'Süresiz' : urun.sureGun === 1 ? '24 saat' : `${urun.sureGun} gün`
+
+  return (
+    <span className="inline-flex items-center gap-1.5 text-xs text-secondary bg-page px-2 py-1 rounded border border-line font-mono">
+      <Clock size={12} aria-hidden="true" />
+      {etiket}
+    </span>
+  )
+}
+
 export function Magaza({ onBack }: { onBack: () => void }) {
   const { state, urunSatinAl, urunAcKapa } = useStore()
   const [aktifKategori, setAktifKategori] = useState<Kategori>('sureli')
@@ -129,12 +146,7 @@ export function Magaza({ onBack }: { onBack: () => void }) {
                   <p className="text-secondary text-sm mb-4 flex-1">{urun.aciklama}</p>
 
                   <div className="flex flex-wrap items-center gap-2 mb-4">
-                    {urun.sureGun !== null && (
-                      <span className="flex items-center gap-1.5 text-xs text-secondary bg-page px-2 py-1 rounded border border-line font-mono">
-                        <Clock size={12} aria-hidden="true" />
-                        {urun.sureGun === 1 ? '24 saat' : `${urun.sureGun} gün`}
-                      </span>
-                    )}
+                    <SureCipi urun={urun} />
                     {sahipMi && kalan && (
                       <span className="text-xs font-mono text-brand bg-brand/10 px-2 py-1 rounded border border-brand/25">
                         {kalan}
@@ -229,7 +241,10 @@ function UrunOnizleme({
         >
           <ShoppingBag size={20} aria-hidden="true" /> Önizleme: {urun.ad}
         </h3>
-        <p className="text-secondary text-sm mt-1">
+        <div className="mt-2">
+          <SureCipi urun={urun} />
+        </div>
+        <p className="text-secondary text-sm mt-2">
           Bu bir önizlemedir; satın alma yapılmadan profilinizde nasıl görüneceğini gösterir.
         </p>
       </div>
