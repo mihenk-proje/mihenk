@@ -245,7 +245,13 @@ function UrunOnizleme({
           <SureCipi urun={urun} />
         </div>
         <p className="text-secondary text-sm mt-2">
-          Bu bir önizlemedir; satın alma yapılmadan profilinizde nasıl görüneceğini gösterir.
+          {/*
+            İşlevsel ürünler profilde görünmez; onlar için "nasıl görüneceğini
+            gösterir" demek yanlış bilgi olur.
+          */}
+          {efekt.tur === 'islev'
+            ? 'Bu bir önizlemedir; satın alındığında hangi işlevi kazanacağını gösterir.'
+            : 'Bu bir önizlemedir; satın alma yapılmadan profilinizde nasıl görüneceğini gösterir.'}
         </p>
       </div>
 
