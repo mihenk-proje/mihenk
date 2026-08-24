@@ -2,6 +2,23 @@
 
 NSosyal İnovasyon Yarışması kapsamında geliştirilen MİHENK katılım sisteminin arayüz prototipi.
 
+## Canlı demo
+
+**https://mihenk-proje.vercel.app**
+
+Uygulama tamamen tarayıcıda çalışır; arka uç, veritabanı veya hesap gerekmez. Açılıştaki
+"Demo olarak gir" düğmesi sizi hazır demo verisiyle dolu akışa götürür. Denemeye değer üç senaryo:
+
+1. **Kopya tespiti** — Akıştaki bir gönderinin metnini kopyalayıp aynen paylaşın; doğrulama
+   gerekçesinde örtüşme oranını göstererek gönderiyi eler.
+2. **Nitelik ölçümü** — Çok kısa ya da tekrar eden bir metin paylaşın; gönderi yayında kalır ama
+   jeton kazanmaz ve nedeni gerekçe listesinde yazar.
+3. **Ödül döngüsü** — Kazandığınız jetonlarla mağazadan bir çerçeve veya rozet alın; etkisi akıştaki
+   kendi gönderilerinize anında uygulanır.
+
+Veriler tarayıcınızın `localStorage` alanında tutulur. Başa dönmek için Cüzdan ekranındaki
+"Demoyu sıfırla" düğmesini kullanabilirsiniz.
+
 ## Proje hakkında
 
 MİHENK bağımsız bir sosyal ağ değil, mevcut mikroblog platformu NSosyal üzerine oturan bir
