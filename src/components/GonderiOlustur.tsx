@@ -30,6 +30,19 @@ export function GonderiOlustur({
   const maxKarakter = islevAcikMi(state, 'uzun_gonderi') ? GENIS_KARAKTER : VARSAYILAN_KARAKTER
   const maxSecenek = islevAcikMi(state, 'gelismis_anket') ? GENIS_SECENEK : VARSAYILAN_SECENEK
 
+  /*
+    Karakter sayaci her tus vurusunda duyurulursa ekran okuyucu bogulur.
+    Duyuru metni esik bandina baglanir: bant degismedikce metin ayni kalir
+    ve tekrar okunmaz. Yalnizca %80'e ve sinira ulasildiginda degisir.
+  */
+  const doluluk = maxKarakter > 0 ? metin.length / maxKarakter : 0
+  const sayacDuyurusu =
+    metin.length >= maxKarakter
+      ? `Karakter sınırına ulaşıldı. En fazla ${maxKarakter} karakter yazabilirsiniz.`
+      : doluluk >= 0.8
+        ? `Karakter sınırının yüzde 80'ine ulaşıldı.`
+        : ''
+
   const doluSecenekler = (anket ?? []).filter((s) => s.trim().length > 0)
   const anketGecerli = anket === null || doluSecenekler.length >= 2
   const paylasilabilir = metin.trim().length > 0 && anketGecerli
@@ -249,9 +262,11 @@ export function GonderiOlustur({
             <div className="flex items-center gap-4">
               <span
                 className={`text-xs font-mono ${metin.length >= maxKarakter ? 'text-error font-bold' : 'text-secondary'}`}
-                aria-live="polite"
               >
                 {metin.length}/{maxKarakter}
+              </span>
+              <span aria-live="polite" className="sr-only">
+                {sayacDuyurusu}
               </span>
               <button
                 type="button"
