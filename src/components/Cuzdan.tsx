@@ -5,12 +5,14 @@ import { ArrowDownRight, ArrowLeft, ArrowUpRight, RefreshCcw } from "lucide-reac
 import { useStore } from "@/lib/store/kanca"
 import { kalanSure, suresiDoldu } from "@/lib/store/efektler"
 import { GUNLUK_UST_SINIR } from "@/lib/verification"
+import { useKatman } from "@/lib/a11y/katman"
 import { Modal } from "./Modal"
 
 export function Cuzdan({ onBack }: { onBack: () => void }) {
   const { state, resetToDemo, urunAcKapa } = useStore()
   const { jetonBakiyesi, bugunKazanilan } = state.kullanici
   const [sifirlamaSoruluyor, setSifirlamaSoruluyor] = useState(false)
+  const katmanRef = useKatman<HTMLDivElement>(onBack)
 
   const gunlukYuzde = Math.min(100, (bugunKazanilan / GUNLUK_UST_SINIR) * 100)
 
@@ -19,7 +21,7 @@ export function Cuzdan({ onBack }: { onBack: () => void }) {
     .filter((e) => e.urun !== undefined)
 
   return (
-    <div className="fixed inset-0 z-40 bg-page flex flex-col mihenk-sagdan">
+    <div ref={katmanRef} className="fixed inset-0 z-40 bg-page flex flex-col mihenk-sagdan">
       <div className="flex-1 w-full max-w-2xl mx-auto flex flex-col h-full bg-card border-x border-line overflow-hidden">
         <div className="flex items-center gap-4 p-4 border-b border-line bg-page/60">
           <button

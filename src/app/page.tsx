@@ -47,8 +47,16 @@ export default function Home() {
     return <Giris onEnter={handleEnter} />
   }
 
+  const katmanAcik = gorunum !== 'akis'
+
   return (
     <div className="min-h-screen bg-page flex flex-col">
+      {/*
+        Tam ekran bir katman açıkken arkadaki akış sekme sırasından ve
+        erişilebilirlik ağacından çıkarılır; aksi halde klavye odağı
+        görünmeyen içeriğe kayar.
+      */}
+      <div inert={katmanAcik} className="contents">
       <TopBar
         onCuzdanClick={() => setGorunum('cuzdan')}
         onMagazaClick={() => setGorunum('magaza')}
@@ -80,6 +88,7 @@ export default function Home() {
           )}
         </div>
       </main>
+      </div>
 
       {gorunum === 'cuzdan' && <Cuzdan onBack={() => setGorunum('akis')} />}
       {gorunum === 'magaza' && <Magaza onBack={() => setGorunum('akis')} />}

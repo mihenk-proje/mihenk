@@ -13,6 +13,7 @@ import {
 } from "@/lib/store/efektler"
 import type { Urun } from "@/lib/store/types"
 import { Avatar } from "./Avatar"
+import { useKatman } from "@/lib/a11y/katman"
 import { Modal } from "./Modal"
 
 const KATEGORILER = [
@@ -60,6 +61,7 @@ export function Magaza({ onBack }: { onBack: () => void }) {
   const [aktifKategori, setAktifKategori] = useState<Kategori>('sureli')
   const [onizleme, setOnizleme] = useState<Urun | null>(null)
   const [bildirim, setBildirim] = useState<string | null>(null)
+  const katmanRef = useKatman<HTMLDivElement>(onBack)
 
   const { jetonBakiyesi } = state.kullanici
 
@@ -133,7 +135,7 @@ export function Magaza({ onBack }: { onBack: () => void }) {
   }
 
   return (
-    <div className="fixed inset-0 z-40 bg-page flex flex-col mihenk-sagdan">
+    <div ref={katmanRef} className="fixed inset-0 z-40 bg-page flex flex-col mihenk-sagdan">
       <div className="flex-1 w-full max-w-4xl mx-auto flex flex-col h-full bg-card border-x border-line overflow-hidden">
         <div className="flex items-center justify-between p-4 border-b border-line bg-page/60">
           <div className="flex items-center gap-4">
