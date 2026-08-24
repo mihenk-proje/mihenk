@@ -19,7 +19,12 @@ export function Itiraz({ sonuc, onClose }: { sonuc: DogrulamaSonucu; onClose: ()
   }
 
   return (
-    <Modal onClose={onClose} labelledBy="itiraz-baslik" className="max-w-md">
+    <Modal
+      onClose={onClose}
+      labelledBy="itiraz-baslik"
+      describedBy="itiraz-aciklama"
+      className="max-w-md"
+    >
       <div className="bg-brand/10 p-4 border-b border-brand/20 flex items-center gap-3">
         <button
           type="button"
@@ -38,7 +43,7 @@ export function Itiraz({ sonuc, onClose }: { sonuc: DogrulamaSonucu; onClose: ()
       <div className="p-6">
         {adim === 1 && (
           <div>
-            <p className="text-primary font-medium mb-4">
+            <p id="itiraz-aciklama" className="text-primary font-medium mb-4">
               Aşağıdaki gerekçelere itiraz etmek üzeresiniz:
             </p>
 
@@ -60,11 +65,11 @@ export function Itiraz({ sonuc, onClose }: { sonuc: DogrulamaSonucu; onClose: ()
 
         {adim === 2 && (
           <form onSubmit={handleSubmit}>
-            <label htmlFor="itiraz-aciklama" className="block text-primary font-medium mb-3">
+            <label htmlFor="itiraz-metni" id="itiraz-aciklama" className="block text-primary font-medium mb-3">
               İtirazınızın nedeni nedir?
             </label>
             <textarea
-              id="itiraz-aciklama"
+              id="itiraz-metni"
               required
               value={aciklama}
               onChange={(e) => setAciklama(e.target.value.slice(0, 500))}
@@ -91,7 +96,7 @@ export function Itiraz({ sonuc, onClose }: { sonuc: DogrulamaSonucu; onClose: ()
               <CheckCircle2 size={32} aria-hidden="true" />
             </div>
             <h4 className="font-bold text-xl text-primary mb-2">İtirazınız alındı</h4>
-            <p className="text-secondary text-sm mb-3">
+            <p id="itiraz-aciklama" className="text-secondary text-sm mb-3">
               İçeriğiniz insan moderatörler tarafından incelenecek.
             </p>
             <p className="text-secondary text-sm mb-6 border border-line rounded-lg p-3 bg-page">

@@ -243,7 +243,12 @@ function UrunOnizleme({
   const temaSinifi = efekt.tur === 'tema' ? (TEMA_SINIFLARI[efekt.deger] ?? '') : ''
 
   return (
-    <Modal onClose={onKapat} labelledBy="onizleme-baslik" className="max-w-md">
+    <Modal
+      onClose={onKapat}
+      labelledBy="onizleme-baslik"
+      describedBy="onizleme-aciklama"
+      className="max-w-md"
+    >
       <div className="bg-brand/10 p-4 border-b border-brand/20">
         <h3
           id="onizleme-baslik"
@@ -254,7 +259,7 @@ function UrunOnizleme({
         <div className="mt-2">
           <SureCipi urun={urun} />
         </div>
-        <p className="text-secondary text-sm mt-2">
+        <p id="onizleme-aciklama" className="text-secondary text-sm mt-2">
           {/*
             İşlevsel ürünler profilde görünmez; onlar için "nasıl görüneceğini
             gösterir" demek yanlış bilgi olur.

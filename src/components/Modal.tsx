@@ -12,11 +12,15 @@ const ODAKLANABILIR =
 export function Modal({
   onClose,
   labelledBy,
+  describedBy,
   children,
   className = '',
 }: {
   onClose: () => void
+  /** Pencere başlığını taşıyan öğenin id'si */
   labelledBy: string
+  /** Pencerenin ne işe yaradığını anlatan metnin id'si */
+  describedBy?: string
   children: React.ReactNode
   className?: string
 }) {
@@ -69,6 +73,7 @@ export function Modal({
         role="dialog"
         aria-modal="true"
         aria-labelledby={labelledBy}
+        aria-describedby={describedBy}
         className={`bg-card w-full rounded-2xl border border-brand/30 overflow-hidden shadow-2xl ${className}`}
       >
         {children}
