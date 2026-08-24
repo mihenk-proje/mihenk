@@ -154,40 +154,50 @@ export function Magaza({ onBack }: { onBack: () => void }) {
                     )}
                   </div>
 
-                  <div className="flex gap-2 mt-auto pt-4 border-t border-line">
-                    <button
-                      type="button"
-                      onClick={() => setOnizleme(urun)}
-                      className="flex-1 py-2 bg-page hover:bg-card border border-line-strong text-primary text-sm font-bold rounded-lg transition-colors"
-                    >
-                      Dene
-                    </button>
+                  <div className="mt-auto pt-4 border-t border-line">
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setOnizleme(urun)}
+                        className="flex-1 py-2 bg-page hover:bg-card border border-line-strong text-primary text-sm font-bold rounded-lg transition-colors"
+                      >
+                        Dene
+                      </button>
 
-                    {sahipMi ? (
-                      <button
-                        type="button"
-                        onClick={() => urunAcKapa(urun.id)}
-                        className={`flex-1 py-2 text-sm font-bold rounded-lg border transition-colors ${
-                          aktif
-                            ? 'border-success text-success bg-success/10'
-                            : 'border-line-strong text-secondary bg-page'
-                        }`}
-                      >
-                        {aktif ? 'Açık' : 'Kapalı'}
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => handleSatinAl(urun)}
-                        disabled={bakiyeYetersiz}
-                        className={`flex-1 py-2 text-sm font-bold rounded-lg transition-colors ${
-                          bakiyeYetersiz
-                            ? 'bg-page border border-line text-secondary opacity-60 cursor-not-allowed'
-                            : 'bg-brand hover:bg-brand/90 text-brand-ink'
-                        }`}
-                      >
-                        {bakiyeYetersiz ? `Eksik: ${urun.fiyat - jetonBakiyesi}` : 'Al'}
-                      </button>
+                      {sahipMi ? (
+                        <button
+                          type="button"
+                          onClick={() => urunAcKapa(urun.id)}
+                          className={`flex-1 py-2 text-sm font-bold rounded-lg border transition-colors ${
+                            aktif
+                              ? 'border-success text-success bg-success/10'
+                              : 'border-line-strong text-secondary bg-page'
+                          }`}
+                        >
+                          {aktif ? 'Açık' : 'Kapalı'}
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handleSatinAl(urun)}
+                          disabled={bakiyeYetersiz}
+                          aria-disabled={bakiyeYetersiz || undefined}
+                          aria-describedby={bakiyeYetersiz ? `eksik-${urun.id}` : undefined}
+                          className={`flex-1 py-2 text-sm font-bold rounded-lg transition-colors ${
+                            bakiyeYetersiz
+                              ? 'bg-page border border-line text-secondary cursor-not-allowed'
+                              : 'bg-brand hover:bg-brand/90 text-brand-ink'
+                          }`}
+                        >
+                          Al
+                        </button>
+                      )}
+                    </div>
+
+                    {!sahipMi && bakiyeYetersiz && (
+                      <p id={`eksik-${urun.id}`} className="mt-2 text-xs text-secondary">
+                        {urun.fiyat - jetonBakiyesi} jeton daha gerekiyor.
+                      </p>
                     )}
                   </div>
                 </div>
@@ -291,22 +301,36 @@ function UrunOnizleme({
         )}
       </div>
 
-      <div className="p-4 bg-card border-t border-line flex gap-3">
-        <button
-          type="button"
-          onClick={onKapat}
-          className="flex-1 py-3 bg-page hover:bg-card border border-line-strong text-primary font-bold rounded-xl transition-colors"
-        >
-          Vazgeç
-        </button>
-        <button
-          type="button"
-          onClick={onSatinAl}
-          disabled={bakiyeYetersiz}
-          className="flex-1 py-3 bg-brand hover:bg-brand/90 text-brand-ink font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          {bakiyeYetersiz ? 'Yetersiz bakiye' : `Al (${urun.fiyat})`}
-        </button>
+      <div className="p-4 bg-card border-t border-line">
+        {bakiyeYetersiz && (
+          <p id="onizleme-eksik" className="mb-3 text-sm text-secondary text-center">
+            {urun.fiyat - state.kullanici.jetonBakiyesi} jeton daha gerekiyor.
+          </p>
+        )}
+
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={onKapat}
+            className="flex-1 py-3 bg-page hover:bg-card border border-line-strong text-primary font-bold rounded-xl transition-colors"
+          >
+            Vazgeç
+          </button>
+          <button
+            type="button"
+            onClick={onSatinAl}
+            disabled={bakiyeYetersiz}
+            aria-disabled={bakiyeYetersiz || undefined}
+            aria-describedby={bakiyeYetersiz ? 'onizleme-eksik' : undefined}
+            className={`flex-1 py-3 font-bold rounded-xl transition-colors ${
+              bakiyeYetersiz
+                ? 'bg-page border border-line text-secondary cursor-not-allowed'
+                : 'bg-brand hover:bg-brand/90 text-brand-ink'
+            }`}
+          >
+            {bakiyeYetersiz ? 'Yetersiz bakiye' : `Al (${urun.fiyat})`}
+          </button>
+        </div>
       </div>
     </Modal>
   )
