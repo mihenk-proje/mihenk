@@ -20,8 +20,12 @@ import { varsayilanDurum } from './demoData'
 import { suresiDoldu } from './efektler'
 import type { AppState, DogrulamaSonucu, Gonderi, HareketKaydi, Urun } from './types'
 
-/* Veri modeli değiştiğinde eski kayıtlar okunmasın diye sürümlü anahtar. */
-const DEPO_ANAHTARI = 'mihenk_state_v2'
+/*
+  Veri modeli veya ürün kataloğu değiştiğinde eski kayıtlar okunmasın diye
+  sürümlü anahtar. v3: katalogdan iki ürün çıkarıldı; sürüm yükseltilmezse
+  kayıtlı durumu olan tarayıcılar kaldırılan ürünleri görmeye devam eder.
+*/
+const DEPO_ANAHTARI = 'mihenk_state_v3'
 const DOGRULAMA_ZAMAN_ASIMI_MS = 8000
 
 export type DepoDurumu = {

@@ -33,7 +33,7 @@ export async function calistir() {
   kontrol('sunucu görüntüsü sabit referans', depo.sunucuGoruntusu() === depo.sunucuGoruntusu())
   depo.hidratla()
   kontrol('hidrasyondan sonra hidre', depo.anlikGoruntu().hidre === true)
-  kontrol('localStorage yazıldı', localStorage.getItem('mihenk_state_v2') !== null)
+  kontrol('localStorage yazıldı', localStorage.getItem('mihenk_state_v3') !== null)
 
   console.log('\n— Bakiye hareket defterinden türetilir —')
   kontrol('başlangıç bakiyesi 120', d().kullanici.jetonBakiyesi === 120, `→ ${d().kullanici.jetonBakiyesi}`)

@@ -20,11 +20,9 @@ export const demoMagaza: Urun[] = [
   { id: 'u6b', ad: 'Mermer Zemin', aciklama: 'Kalıcı mermer desenli tema.', kategori: 'kalici', fiyat: 1000, sureGun: null, efekt: { tur: 'tema', deger: 'mermer' } },
   { id: 'u6c', ad: 'Ayar Rozeti', aciklama: 'Tam ayar saf içerik üreticisi rozeti.', kategori: 'kalici', fiyat: 1500, sureGun: null, efekt: { tur: 'rozet', deger: 'ayar' } },
 
-  // İşlevsel (40-100) — 30 gün
+  // İşlevsel (50-80) — 30 gün
   { id: 'u7', ad: 'Geniş Karakter', aciklama: '30 gün boyunca 1000 karakterlik gönderi paylaş.', kategori: 'islevsel', fiyat: 50, sureGun: 30, efekt: { tur: 'islev', deger: 'uzun_gonderi' } },
   { id: 'u8', ad: 'Geniş Anket', aciklama: '30 gün boyunca 6 seçenekli anketler aç.', kategori: 'islevsel', fiyat: 80, sureGun: 30, efekt: { tur: 'islev', deger: 'gelismis_anket' } },
-  { id: 'u8b', ad: 'İleri Zaman', aciklama: '30 gün boyunca gönderilerini zamanla.', kategori: 'islevsel', fiyat: 40, sureGun: 30, efekt: { tur: 'islev', deger: 'zamanlanmis' } },
-  { id: 'u8c', ad: 'Düzeltme Süresi', aciklama: '30 gün boyunca gönderi düzenleme süresini uzat.', kategori: 'islevsel', fiyat: 100, sureGun: 30, efekt: { tur: 'islev', deger: 'duzeltme_uzat' } },
 ]
 
 export const BEN_ID = 'ahmet_yilmaz'
