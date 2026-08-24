@@ -89,21 +89,39 @@ export function GonderiKarti({ gonderi }: { gonderi: Gonderi }) {
             </time>
           </div>
 
-          {/* Etiketler: YZ beyanı ve MİHENK doğrulama durumu */}
+          {/*
+            Etiketler: YZ beyanı ve MİHENK doğrulama durumu.
+            Hiçbiri yalnızca renge dayanmaz; her rozet kendi ikonunu ve
+            metnini taşır, ekran okuyucu için de açık bir ad verilir.
+          */}
           <div className="flex items-center gap-2 mb-2 flex-wrap">
             {gonderi.yzBeyani && (
-              <span className="inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded bg-primary/10 text-secondary border border-line">
-                <Bot size={12} aria-hidden="true" /> YZ destekli
+              <span
+                className="inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded bg-primary/10 text-secondary border border-line"
+                role="img"
+                aria-label="Yapay zekâ destekli içerik"
+                title="Yapay zekâ destekli içerik"
+              >
+                <Bot size={12} aria-hidden="true" />
+                <span aria-hidden="true">YZ destekli</span>
               </span>
             )}
 
             {dogrulandi && (
               <span
                 className="inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded border border-success/40 text-success"
+                role="img"
+                aria-label={`${
+                  gonderi.dogrulamaDurumu === 'gecti'
+                    ? 'Doğrulama geçti'
+                    : 'Doğrulama kısmen geçti'
+                }, MİHENK skoru ${gonderi.dogrulamaSkoru ?? 'bilinmiyor'}`}
                 title={`MİHENK skoru: ${gonderi.dogrulamaSkoru ?? '-'}`}
               >
                 <CheckCircle2 size={12} aria-hidden="true" />
-                {gonderi.dogrulamaDurumu === 'gecti' ? 'Doğrulandı' : 'Kısmen doğrulandı'}
+                <span aria-hidden="true">
+                  {gonderi.dogrulamaDurumu === 'gecti' ? 'Doğrulandı' : 'Kısmen doğrulandı'}
+                </span>
               </span>
             )}
 
@@ -113,7 +131,7 @@ export function GonderiKarti({ gonderi }: { gonderi: Gonderi }) {
                 aria-live="polite"
               >
                 <span className="w-2 h-2 rounded-full bg-brand animate-pulse" aria-hidden="true" />
-                Doğrulanıyor…
+                <span>Doğrulanıyor…</span>
               </span>
             )}
 
