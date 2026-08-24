@@ -48,6 +48,7 @@ npm run dev     # http://localhost:3000
 | `npm run build` | Üretim derlemesi |
 | `npm start` | Üretim sunucusu |
 | `npm run lint` | ESLint denetimi |
+| `npm test` | Doğrulama ve depo testleri (50 test) |
 
 Ortam değişkeni gerekmez; uygulama tamamen istemci tarafında çalışır ve arka uç bağlantısı yoktur.
 
@@ -170,6 +171,25 @@ kullanıcıya bildirilir.
 > yanlış pozitif ve yanlış negatif oranları dengelenecek şekilde belirlenecektir. Özellikle kopya
 > eşiği (0,70) ve dHash mesafesi (10 bit) alıntı içeren özgün içerikle gerçek kopya arasındaki
 > ayrımı doğrudan etkilediğinden ölçüme dayalı olarak yeniden ayarlanmalıdır.
+
+## Testler
+
+```bash
+npm test
+```
+
+Testler kaynak dosyaları doğrudan çalıştırır (Node 22+ TypeScript'i kendisi soyar); ayrı bir
+derleme adımı veya test çatısı bağımlılığı yoktur. `test/cozumleyici.mjs`, Next'in `@/*` takma
+adını ve uzantısız içe aktarımları Node tarafında eşitler; `test/calistir.mjs` depo katmanının
+beklediği `localStorage` ve `window` API'lerini taklit eder.
+
+| Dosya | Kapsam | Test |
+|---|---|---|
+| `test/dogrulama.test.mjs` | Türkçe normalleştirme, n-gram + Jaccard, metin niteliği, anket çeşitliliği, Hamming mesafesi, doğrulama zinciri, yeni hesap koruması | 22 |
+| `test/depo.test.mjs` | Hidrasyon, bakiye–hareket defteri tutarlılığı, satın alma, süre dolumu, günlük tavan, akış içinde kopya tespiti, itiraz, demo sıfırlama | 28 |
+
+Günlük tavan testi altı gönderiyi (6 × 10 = 60 jeton) tam 50'ye kırpar ve her adımda bakiyenin
+hareket defteri toplamına eşit kaldığını doğrular.
 
 ## Erişilebilirlik
 
