@@ -1,26 +1,39 @@
-import { parcalaraAyir } from '@/lib/verification'
+/*
+  DEMO SEED İÇERİĞİ — ÖLÇÜM KÜMESİ DEĞİLDİR.
+
+  Buradaki gönderiler yalnızca arayüz demosu içindir. `data/` altındaki
+  etiketlenmiş ölçüm kümesine ASLA karışmaz ve hiçbir metriğe girmez.
+  İki kümenin karışması, raporda taahhüt edilen "test kümesi sürecin hiçbir
+  aşamasına girmez" ilkesini ihlal eder.
+
+  DOĞRULAMA ALANLARI ELLE YAZILMAZ. Her gönderi `dogrulamaDurumu: 'bekliyor'`
+  ile başlar; durum, skor, kazanılan jeton ve gerekçe uygulama açılışında
+  doğrulama motorunun gerçek çıktısından gelir. Bu iki şeyi sağlar:
+    1. Depoya bakan biri seed verisinde sabitlenmiş bir "kopya" alanı görmez;
+       kopya, Jaccard hesabının sonucudur.
+    2. Akış önce boyanır, doğrulama sonuçları sonradan belirir — raporun
+       Şekil 3'teki Akış A tasarımının birebir karşılığı: "kullanıcı
+       gönderisini paylaştığı anda içerik akışta görünür, doğrulama
+       sonucunu beklemez".
+*/
 import type { AppState, Gonderi, HareketKaydi, Urun, Yazar } from './types'
 
 export const demoMagaza: Urun[] = [
-  // Süreli (15-30) — 24 saat
   { id: 'u1', ad: 'Pirinç Çerçeve', aciklama: 'Profil fotoğrafın için pirinç renginde zarif bir çerçeve.', kategori: 'sureli', fiyat: 15, sureGun: 1, efekt: { tur: 'cerceve', deger: 'pirinc' } },
   { id: 'u2', ad: 'Mika Ad', aciklama: 'Kullanıcı adını 24 saatliğine mika parlaklığıyla öne çıkar.', kategori: 'sureli', fiyat: 20, sureGun: 1, efekt: { tur: 'adRengi', deger: 'mika' } },
   { id: 'u2b', ad: 'Kuvars Rozet', aciklama: 'Adının yanında 24 saat kuvars rozeti taşı.', kategori: 'sureli', fiyat: 25, sureGun: 1, efekt: { tur: 'rozet', deger: 'kuvars' } },
   { id: 'u2c', ad: 'Tunç Kenar', aciklama: 'Profiline 24 saatliğine tunç renkli bir vurgu ekle.', kategori: 'sureli', fiyat: 30, sureGun: 1, efekt: { tur: 'cerceve', deger: 'tunc' } },
 
-  // Sezonluk (150-300) — 30 gün
   { id: 'u3', ad: 'Somaki Tema', aciklama: 'Profiline 30 gün boyunca somaki taşı dokusu kat.', kategori: 'sezonluk', fiyat: 150, sureGun: 30, efekt: { tur: 'tema', deger: 'somaki' } },
   { id: 'u4', ad: 'Gümüş Nişan', aciklama: 'Adının yanında parlayan bir gümüş nişan.', kategori: 'sezonluk', fiyat: 200, sureGun: 30, efekt: { tur: 'rozet', deger: 'gumus' } },
   { id: 'u4b', ad: 'Bazalt Arkaplan', aciklama: 'Gönderilerin için 30 günlük özel bazalt dokusu.', kategori: 'sezonluk', fiyat: 250, sureGun: 30, efekt: { tur: 'tema', deger: 'bazalt' } },
   { id: 'u4c', ad: 'Ametist Çerçeve', aciklama: '30 günlük mor ışıltılı ametist çerçeve.', kategori: 'sezonluk', fiyat: 300, sureGun: 30, efekt: { tur: 'cerceve', deger: 'ametist' } },
 
-  // Kalıcı (500-1500)
   { id: 'u5', ad: 'Altın Çerçeve', aciklama: 'Kalıcı ve prestijli altın çerçeve.', kategori: 'kalici', fiyat: 800, sureGun: null, efekt: { tur: 'cerceve', deger: 'altin' } },
   { id: 'u6', ad: 'Külçe Nişanı', aciklama: 'Kalıcı topluluk külçe rozeti.', kategori: 'kalici', fiyat: 1200, sureGun: null, efekt: { tur: 'rozet', deger: 'kulce' } },
   { id: 'u6b', ad: 'Mermer Zemin', aciklama: 'Kalıcı mermer desenli tema.', kategori: 'kalici', fiyat: 1000, sureGun: null, efekt: { tur: 'tema', deger: 'mermer' } },
   { id: 'u6c', ad: 'Ayar Rozeti', aciklama: 'Tam ayar saf içerik üreticisi rozeti.', kategori: 'kalici', fiyat: 1500, sureGun: null, efekt: { tur: 'rozet', deger: 'ayar' } },
 
-  // İşlevsel (50-80) — 30 gün
   { id: 'u7', ad: 'Geniş Karakter', aciklama: '30 gün boyunca 1000 karakterlik gönderi paylaş.', kategori: 'islevsel', fiyat: 50, sureGun: 30, efekt: { tur: 'islev', deger: 'uzun_gonderi' } },
   { id: 'u8', ad: 'Geniş Anket', aciklama: '30 gün boyunca 6 seçenekli anketler aç.', kategori: 'islevsel', fiyat: 80, sureGun: 30, efekt: { tur: 'islev', deger: 'gelismis_anket' } },
 ]
@@ -46,191 +59,106 @@ export const demoHareketler: HareketKaydi[] = [
   },
 ]
 
-/**
- * Demo gönderilerin n-gram parçaları gerçek metinden üretilir.
- * Elle yazılmış sahte parçalar kullanılırsa özgünlük karşılaştırması
- * hiçbir zaman eşleşmez ve kopya tespiti demoda çalışmaz.
- */
-type HamGonderi = Omit<Gonderi, 'metinParcalari'>
+/** Kopya ve benzerlik senaryolarının kaynak metni (g08). */
+const KAYNAK_METIN =
+  'Roket motorunun ikinci ateşleme denemesinde basınç eğrisi beklenenden yumuşak çıktı, yakıt akışını yeniden ayarladık ve üçüncü denemede tepe basıncı hedefe oturdu.'
 
-const hamGonderiler: HamGonderi[] = [
-  {
-    id: 'g1',
-    yazarId: 'kaan_demir',
-    tur: 'metin',
-    metin: 'Yapay zeka araçlarını günlük iş akışına entegre etmek inanılmaz bir zaman tasarrufu sağlıyor.',
-    gorselUrl: null,
-    anketSecenekleri: null,
-    olusturmaZamani: new Date(Date.now() - 3_600_000 * 24).toISOString(),
-    yzBeyani: true,
-    yorumSayisi: 5,
-    yenidenPaylasimSayisi: 2,
-    roketSayisi: 28,
-    izlenimSayisi: 530,
-    dogrulamaDurumu: 'gecti',
-    dogrulamaSkoru: 100,
-    kazanilanJeton: 10,
-    gerekce: ['Özgünlük: Bu içeriğe daha önce rastlanmadı', 'Anlatım zenginliği: Yeterli'],
-    gorselHash: null,
-  },
-  {
-    id: 'g2',
-    yazarId: 'ayse_kaya',
-    tur: 'metin',
-    metin: 'Bu hafta sonu dinlenmeye ayıracağım. Çok yorucu bir hafta oldu gerçekten.',
-    gorselUrl: null,
-    anketSecenekleri: null,
-    olusturmaZamani: new Date(Date.now() - 3_600_000 * 48).toISOString(),
-    yzBeyani: false,
-    yorumSayisi: 8,
-    yenidenPaylasimSayisi: 1,
-    roketSayisi: 45,
-    izlenimSayisi: 890,
-    dogrulamaDurumu: 'gecti',
-    dogrulamaSkoru: 95,
-    kazanilanJeton: 10,
-    gerekce: ['Özgünlük: Bu içeriğe daha önce rastlanmadı', 'Anlatım zenginliği: Yeterli'],
-    gorselHash: null,
-  },
-  {
-    // Kopya tespiti demosu: g2 ile aynı metin
-    id: 'g3',
-    yazarId: 'burak_yilmaz',
-    tur: 'metin',
-    metin: 'Bu hafta sonu dinlenmeye ayıracağım. Çok yorucu bir hafta oldu gerçekten.',
-    gorselUrl: null,
-    anketSecenekleri: null,
-    olusturmaZamani: new Date(Date.now() - 3_600_000 * 8).toISOString(),
-    yzBeyani: false,
-    yorumSayisi: 0,
-    yenidenPaylasimSayisi: 0,
-    roketSayisi: 0,
-    izlenimSayisi: 120,
-    dogrulamaDurumu: 'gecemedi',
-    dogrulamaSkoru: 0,
-    kazanilanJeton: 0,
-    gerekce: ['Bu metin daha önce paylaşılmış bir gönderiyle %100 örtüşüyor.'],
-    gorselHash: null,
-  },
-  {
-    id: 'g4',
-    yazarId: 'zeynep_sahin',
-    tur: 'metin',
-    metin: 'Bugün harika bir kahve keşfettim. Bazen küçük detaylar tüm günü güzelleştirebiliyor.',
-    gorselUrl: null,
-    anketSecenekleri: null,
-    olusturmaZamani: new Date(Date.now() - 3_600_000 * 5).toISOString(),
-    yzBeyani: false,
-    yorumSayisi: 3,
-    yenidenPaylasimSayisi: 1,
-    roketSayisi: 12,
-    izlenimSayisi: 245,
-    dogrulamaDurumu: 'gecti',
-    dogrulamaSkoru: 95,
-    kazanilanJeton: 10,
-    gerekce: ['Özgünlük: Bu içeriğe daha önce rastlanmadı', 'Anlatım zenginliği: Yeterli'],
-    gorselHash: null,
-  },
-  {
-    // Düşük nitelik demosu
-    id: 'g5',
-    yazarId: 'kaan_demir',
-    tur: 'metin',
-    metin: 'a a a a a b b b b b c c c c c',
-    gorselUrl: null,
-    anketSecenekleri: null,
-    olusturmaZamani: new Date(Date.now() - 3_600_000 * 3).toISOString(),
-    yzBeyani: false,
-    yorumSayisi: 0,
-    yenidenPaylasimSayisi: 0,
-    roketSayisi: 0,
-    izlenimSayisi: 12,
-    dogrulamaDurumu: 'gecemedi',
-    dogrulamaSkoru: 0,
-    kazanilanJeton: 0,
-    gerekce: [
-      'Uzunluk: Sınırda',
-      'Kelime çeşitliliği: Düşük (tekrarlı anlatım)',
-      'İçerik niteliği düşük: Anlamsız tekrar tespit edildi',
-    ],
-    gorselHash: null,
-  },
-  {
-    // Kısmi geçme demosu
-    id: 'g6',
-    yazarId: 'elif_celik',
-    tur: 'metin',
-    metin: 'Kahve molası verdim şimdi.',
-    gorselUrl: null,
-    anketSecenekleri: null,
-    olusturmaZamani: new Date(Date.now() - 1_800_000).toISOString(),
-    yzBeyani: false,
-    yorumSayisi: 0,
-    yenidenPaylasimSayisi: 0,
-    roketSayisi: 0,
-    izlenimSayisi: 0,
-    // Düşük çaba kademesi: skor 0,700 ≥ 0,65 eşiği — motorun gerçek çıktısı,
-    // elle işaretlenmiş sabit değil.
-    dogrulamaDurumu: 'gecemedi',
-    dogrulamaSkoru: 30,
-    kazanilanJeton: 0,
-    gerekce: [
-      'Bu gönderi kısa ve az sözcük içerdiği için düşük çabalı içerik kademesine düştü.',
-    ],
-    gorselHash: null,
-  },
-  {
-    id: 'g7',
-    yazarId: BEN_ID,
-    tur: 'metinGorsel',
-    metin: 'Yeni çalışma masamın düzeni. Nihayet kablolardan kurtuldum!',
-    gorselUrl: 'https://picsum.photos/seed/mihenk-desk/800/500',
-    anketSecenekleri: null,
-    olusturmaZamani: new Date(Date.now() - 3_600_000 * 1).toISOString(),
-    yzBeyani: false,
-    yorumSayisi: 0,
-    yenidenPaylasimSayisi: 0,
-    roketSayisi: 0,
-    izlenimSayisi: 0,
-    dogrulamaDurumu: 'gecti',
-    dogrulamaSkoru: 88,
-    kazanilanJeton: 10,
-    gerekce: [
-      'Özgünlük: Bu içeriğe daha önce rastlanmadı',
-      'Anlatım: Dar (az sayıda kelime)',
-      'Görsel kalite: İyi',
-    ],
-    // dHash 64 bit = 16 haneli onaltılık. Kısa yazılırsa karşılaştırma hiç eşleşmez.
-    gorselHash: 'f0e1c3878f1e3c78',
-  },
-  {
-    id: 'g8',
-    yazarId: 'mert_yildiz',
-    tur: 'anket',
-    metin: 'Sizce bir sonraki büyük teknolojik devrim hangi alanda olacak?',
-    gorselUrl: null,
-    anketSecenekleri: ['Kuantum bilişim', 'Biyoteknoloji', 'Uzay sanayi'],
-    olusturmaZamani: new Date(Date.now() - 3_600_000 * 2).toISOString(),
-    yzBeyani: false,
-    yorumSayisi: 24,
-    yenidenPaylasimSayisi: 5,
-    roketSayisi: 65,
-    izlenimSayisi: 2100,
-    dogrulamaDurumu: 'gecti',
-    dogrulamaSkoru: 97,
-    kazanilanJeton: 10,
-    gerekce: [
-      'Özgünlük: Bu içeriğe daha önce rastlanmadı',
-      'Anlatım zenginliği: Yeterli',
-      'Anket: Seçenekler ayırt edici',
-    ],
-    gorselHash: null,
-  },
+/** Doğrulama alanları hariç her şey; kalanı motor dolduracak. */
+type SeedGonderi = Omit<
+  Gonderi,
+  'dogrulamaDurumu' | 'dogrulamaSkoru' | 'kazanilanJeton' | 'gerekce' | 'metinParcalari' | 'gorselHash'
+>
+
+/*
+  Gönderi zamanları birkaç güne yayılır. Hepsi aynı güne toplanırsa günlük
+  üst sınır (50 jeton) tek seferde dolar ve akıştaki gönderilerin çoğu
+  "0 jeton" görünür; kazanım kademesi demoda görünmez olur.
+*/
+const sa = (n: number) => new Date(Date.now() - 3_600_000 * n).toISOString()
+
+const temel = {
+  yorumSayisi: 0,
+  yenidenPaylasimSayisi: 0,
+  roketSayisi: 0,
+  izlenimSayisi: 0,
+  yzBeyani: false,
+  gorselUrl: null,
+  anketSecenekleri: null,
+  itirazDurumu: 'yok' as const,
+}
+
+/* Akış sırası: en yeni üstte. Kopya gönderiler kaynaklarının üstünde durur
+   ki hakem önce tespiti görsün, bağlantıyla kaynağa insin. */
+const seed: SeedGonderi[] = [
+  // 1 — BİREBİR KOPYA (metin). g08'in aynısı.
+  { ...temel, id: 'g01', yazarId: 'burak_yilmaz', tur: 'metin', metin: KAYNAK_METIN, olusturmaZamani: sa(1),
+    yorumSayisi: 1, izlenimSayisi: 96 },
+
+  // 2 — GÖRSEL DÖNÜŞÜMÜ. g03'ün görselinin filtreli hâli.
+  //     Kopya, kaynağından YENİ olmalı: doğrulama eskiden yeniye çalışır,
+  //     kaynak önce işlenip parmak izini bırakmazsa eşleşme bulunamaz.
+  { ...temel, id: 'g02', yazarId: 'zeynep_sahin', tur: 'metinGorsel',
+    metin: 'Kart yerleşimi için bir örnek. Güç ve sinyal katmanlarının ayrılması bu çizimde net görünüyor.',
+    gorselUrl: '/seed/uretim-devre--filtre.webp', olusturmaZamani: sa(2), izlenimSayisi: 74 },
+
+  // 3 — DOĞRULANDI + görsel. Prosedürel görsel: A3.1 gereği ödüllendirilen
+  //     gönderide dış kaynaklı fotoğraf kullanılmaz. g02'nin kaynağı.
+  { ...temel, id: 'g03', yazarId: BEN_ID, tur: 'metinGorsel',
+    metin: 'Uçuş kontrol kartının ikinci revizyonunu çizdim. Güç hattını sinyal katmanından ayırdım, telemetri hattındaki gürültü belirgin biçimde azaldı.',
+    gorselUrl: '/seed/uretim-devre.webp', olusturmaZamani: sa(3), yorumSayisi: 4, roketSayisi: 19, izlenimSayisi: 412 },
+
+  // 4 — DÜŞÜK ÇABALI METİN. 15 karakter altı sert taban.
+  { ...temel, id: 'g04', yazarId: 'elif_celik', tur: 'metin', metin: 'Süper.',
+    olusturmaZamani: sa(4), izlenimSayisi: 31 },
+
+  // 5 — YZ DESTEKLİ + DOĞRULANDI. Beyan eden tam jeton alır, kesinti yoktur.
+  { ...temel, id: 'g05', yazarId: 'mert_yildiz', tur: 'metin', yzBeyani: true,
+    metin: 'Sürü İHA senaryosunda çarpışma önleme mantığını yeniden yazarken bir dil modelinden taslak aldım, sonra kendi telemetri verimizle baştan doğruladım. Ham taslak dört köşe durumda hatalıydı.',
+    olusturmaZamani: sa(5), yorumSayisi: 7, roketSayisi: 24, izlenimSayisi: 538 },
+
+  // 6 — BENZERLİK UYARI BANDI. g08 ile kısmi örtüşme; kopya değil, kazanç azaltılır.
+  { ...temel, id: 'g06', yazarId: 'kaan_demir', tur: 'metin',
+    metin: 'Roket motorunun ikinci ateşleme denemesinde basınç eğrisi beklenenden yumuşak seyretti; bu kez yakıt hattındaki basınç düşüşünü ayrı bir sensörle ölçtük.',
+    olusturmaZamani: sa(6), yorumSayisi: 2, roketSayisi: 8, izlenimSayisi: 154 },
+
+  // 7 — DÜŞÜK ÇABA GÖRSEL. Üretilmiş bulanık görsel.
+  { ...temel, id: 'g07', yazarId: 'ayse_kaya', tur: 'metinGorsel',
+    metin: 'Atölyeden bir kare paylaşıyorum, ayrıntı pek seçilmiyor ama ortam buydu.',
+    gorselUrl: '/seed/dusuk-caba-bulanik.webp', olusturmaZamani: sa(7), izlenimSayisi: 58 },
+
+  // 8 — DOĞRULANDI, uzun teknik metin. g01 ve g06'nın kaynağı.
+  { ...temel, id: 'g08', yazarId: 'ayse_kaya', tur: 'metin', metin: KAYNAK_METIN,
+    olusturmaZamani: sa(26), yorumSayisi: 11, roketSayisi: 47, izlenimSayisi: 912 },
+
+  // 9 — ANKET.
+  { ...temel, id: 'g09', yazarId: BEN_ID, tur: 'anket',
+    metin: 'Takımda hangi alt sistemin doğrulaması en çok vakit alıyor? Kendi deneyiminizi merak ediyorum.',
+    anketSecenekleri: ['Uçuş kontrol yazılımı', 'Güç dağıtımı', 'Haberleşme bağlantısı', 'Mekanik montaj'],
+    olusturmaZamani: sa(30), yorumSayisi: 19, roketSayisi: 31, izlenimSayisi: 1240 },
+
+  // 10-12 — Etkinlik gönderileri. Günlük sınır ilerleyişi için g02 ve g09 ile
+  //         birlikte aynı kullanıcının kazanan gönderilerini oluşturur.
+  { ...temel, id: 'g10', yazarId: BEN_ID, tur: 'metinGorsel',
+    metin: 'Deniz araçları yarışmasının eleme turunu izledik. Parkuru en hızlı tamamlayan takım, gövde direncini düşürmek için burun profilini baştan çizmiş.',
+    gorselUrl: '/seed/etkinlik-yuzme-yarisi.webp', olusturmaZamani: sa(34), yorumSayisi: 5, roketSayisi: 22, izlenimSayisi: 604 },
+
+  { ...temel, id: 'g11', yazarId: 'kaan_demir', tur: 'metinGorsel',
+    metin: 'Rıhtımda sergilenen araçları yakından görme fırsatı oldu. Sensör yerleşimleri ve kablo kanalları beklediğimden çok daha derli topluydu.',
+    gorselUrl: '/seed/etkinlik-rihtim-gemiler.webp', olusturmaZamani: sa(50), yorumSayisi: 3, roketSayisi: 14, izlenimSayisi: 388 },
+
+  { ...temel, id: 'g12', yazarId: 'zeynep_sahin', tur: 'metinGorsel',
+    metin: 'Ödül töreninde kazanan takımların sunumlarını dinledik. Çoğu, ölçüm altyapısını yarışmadan aylar önce kurmuş olmayı belirleyici saymış.',
+    gorselUrl: '/seed/etkinlik-odul-toreni.webp', olusturmaZamani: sa(54), yorumSayisi: 6, roketSayisi: 18, izlenimSayisi: 452 },
 ]
 
-export const demoGonderiler: Gonderi[] = hamGonderiler.map((g) => ({
+export const demoGonderiler: Gonderi[] = seed.map((g) => ({
   ...g,
-  metinParcalari: Array.from(parcalaraAyir(g.metin)),
+  dogrulamaDurumu: 'bekliyor',
+  dogrulamaSkoru: null,
+  kazanilanJeton: 0,
+  gerekce: [],
+  metinParcalari: null,
+  gorselHash: null,
 }))
 
 export function varsayilanDurum(): AppState {
@@ -240,10 +168,13 @@ export function varsayilanDurum(): AppState {
       kullaniciAdi: 'ahmetyilmaz',
       adSoyad: 'Ahmet Yılmaz',
       avatarHarfleri: 'AY',
-      // Hareket defterinden yeniden hesaplanır, buradaki değer yalnızca başlangıçtır
       jetonBakiyesi: 120,
       bugunKazanilan: 0,
-      envanter: [],
+      // Demo açılışında envanter boş görünmesin: mağaza akışının çalıştığı
+      // görünsün diye bir süreli ürün satın alınmış durumda başlar.
+      envanter: [
+        { urunId: 'u1', satinAlmaZamani: new Date(Date.now() - 3_600_000 * 4).toISOString(), aktif: true },
+      ],
       hesapOlusturmaTarihi: new Date(Date.now() - 86_400_000 * 30).toISOString(),
     },
     yazarlar: demoYazarlar,

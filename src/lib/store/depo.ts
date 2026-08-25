@@ -63,10 +63,23 @@ export function senkronizeEt(durum: AppState): AppState {
   }
 }
 
-function yeniHareket(aciklama: string, miktar: number): HareketKaydi {
+function defterAciklamasi(durum: DogrulamaSonucu['durumu']): string {
+  switch (durum) {
+    case 'gecti':
+      return 'İçerik doğrulandı (tam)'
+    case 'kismi':
+      return 'İçerik doğrulandı (kısmi)'
+    case 'kopya':
+      return 'Kazanç verilmedi — içerik daha önce paylaşılmış'
+    default:
+      return 'Kazanç verilmedi — düşük çabalı içerik'
+  }
+}
+
+function yeniHareket(aciklama: string, miktar: number, zaman?: string): HareketKaydi {
   return {
     id: `h_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`,
-    zaman: new Date().toISOString(),
+    zaman: zaman ?? new Date().toISOString(),
     aciklama,
     miktar,
   }
@@ -129,9 +142,14 @@ export function sunucuGoruntusu(): DepoDurumu {
   return SUNUCU_DURUMU
 }
 
-/** localStorage'dan bir kez okur. Tekrar çağrılması etkisizdir. */
-export function hidratla() {
-  if (mevcut.hidre) return
+/**
+ * localStorage'dan bir kez okur. Tekrar çağrılması etkisizdir.
+ *
+ * Bekleyen doğrulamaların tamamlanmasını bekleyen bir söz döndürür.
+ * Arayüz bunu beklemez (akış önce boyanır); testler determinizm için bekler.
+ */
+export function hidratla(): Promise<void> {
+  if (mevcut.hidre) return Promise.resolve()
 
   let veri = varsayilanDurum()
   try {
@@ -152,10 +170,30 @@ export function hidratla() {
   kaydet(mevcut.veri)
   yayinla()
 
-  // Sayfa yenilendiğinde yarım kalmış doğrulamalar sürüncemede kalmasın
-  for (const g of mevcut.veri.gonderiler) {
-    if (g.dogrulamaDurumu === 'bekliyor') dogrulamaTetikle(g.id)
-  }
+  /*
+    Bekleyen doğrulamalar eskiden yeniye, sırayla çalıştırılır.
+
+    Sıra zorunludur: kopya tespiti kaynağın `metinParcalari` alanının dolu
+    olmasına bağlıdır. Paralel çalıştırılırsa kopya gönderi kaynağından önce
+    işlenebilir ve karşılaştıracak parça bulamaz.
+
+    Akış bu sırada zaten boyanmıştır; doğrulama sonuçları sonradan belirir.
+    Bu, raporun Şekil 3'teki Akış A davranışıdır: içerik anında görünür,
+    doğrulama sonucunu beklemez.
+  */
+  const bekleyenler = mevcut.veri.gonderiler
+    .filter((g) => g.dogrulamaDurumu === 'bekliyor')
+    .sort((a, b) => a.olusturmaZamani.localeCompare(b.olusturmaZamani))
+
+  return (async () => {
+    for (const g of bekleyenler) {
+      if (isleniyor.has(g.id)) continue
+      isleniyor.add(g.id)
+      await dogrulamaCalistir(g.id)
+      // Rozetlerin tek tek belirmesi asenkron mimarinin görünür kanıtıdır
+      await new Promise((c) => window.setTimeout(c, 140))
+    }
+  })()
 }
 
 export function resetToDemo() {
@@ -215,10 +253,26 @@ export function dogrulamaTetikle(
 ) {
   if (isleniyor.has(gonderiId)) return
   isleniyor.add(gonderiId)
-
   const gecikme = Math.random() * 2000 + 1000
+  window.setTimeout(() => {
+    void dogrulamaCalistir(gonderiId, onResult)
+  }, gecikme)
+}
 
-  window.setTimeout(async () => {
+/**
+ * Doğrulamayı çalıştırır ve biten işi bildirir.
+ *
+ * Ayrı bir fonksiyon olmasının nedeni sıralama: kopya tespiti, kaynağın
+ * `metinParcalari` alanının dolu olmasına bağlıdır. Gönderiler paralel
+ * doğrulanırsa kopya, kaynağından önce işlenebilir ve karşılaştıracak
+ * parça bulamaz. `hidratla` bu yüzden bekleyenleri eskiden yeniye sıralı
+ * çalıştırır ve her birini bekler.
+ */
+async function dogrulamaCalistir(
+  gonderiId: string,
+  onResult?: (sonuc: DogrulamaSonucu) => void
+): Promise<void> {
+  {
     const gonderi = mevcut.veri.gonderiler.find((g) => g.id === gonderiId)
     if (!gonderi) {
       isleniyor.delete(gonderiId)
@@ -274,8 +328,19 @@ export function dogrulamaTetikle(
     let kazanilanJeton =
       cikti.durumu === 'gecti' ? TAM_ODUL : cikti.durumu === 'kismi' ? KISMI_ODUL : 0
 
-    // Üst sınır, ödül verilmeden hemen önceki taze bakiyeye göre uygulanır
-    const bugunKazanilan = mevcut.veri.kullanici.bugunKazanilan
+    /*
+      Üst sınır, gönderinin paylaşıldığı GÜNÜN kazancına uygulanır;
+      geçmiş tarihli gönderiler bugünün bütçesini tüketmez.
+    */
+    const gunBasi = (t: string) => {
+      const d = new Date(t)
+      d.setHours(0, 0, 0, 0)
+      return d.getTime()
+    }
+    const oGun = gunBasi(gonderi.olusturmaZamani)
+    const bugunKazanilan = mevcut.veri.hareketler
+      .filter((h) => h.miktar > 0 && h.tur !== 'demo' && gunBasi(h.zaman) === oGun)
+      .reduce((t, h) => t + h.miktar, 0)
     if (kazanilanJeton > 0 && bugunKazanilan + kazanilanJeton > GUNLUK_UST_SINIR) {
       const eklenebilir = Math.max(0, GUNLUK_UST_SINIR - bugunKazanilan)
       gerekce.push(
@@ -304,19 +369,21 @@ export function dogrulamaTetikle(
             }
           : g
       ),
-      hareketler:
-        kazanilanJeton > 0
-          ? [
-              yeniHareket(
-                `İçerik doğrulandı (${cikti.durumu === 'gecti' ? 'tam' : 'kısmi'})`,
-                kazanilanJeton
-              ),
-              ...onceki.hareketler,
-            ]
-          : onceki.hareketler,
+      /*
+        Reddedilen kazanımlar da deftere geçer: sistem yalnızca neyi
+        ödüllendirdiğini değil, neden ödüllendirmediğini de kayda geçirir.
+
+        Kaydın zamanı gönderinin paylaşılma zamanıdır, doğrulamanın bittiği
+        an değil. Aksi hâlde geçmişe ait bütün gönderiler bugünün kazancı
+        sayılır ve günlük üst sınırı tek seferde doldurur.
+      */
+      hareketler: [
+        yeniHareket(defterAciklamasi(cikti.durumu), kazanilanJeton, gonderi.olusturmaZamani),
+        ...onceki.hareketler,
+      ],
     }))
 
     isleniyor.delete(gonderiId)
     onResult?.({ ...cikti, gerekce, kazanilanJeton, gonderiId })
-  }, gecikme)
+  }
 }

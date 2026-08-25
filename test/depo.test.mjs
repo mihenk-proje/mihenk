@@ -31,25 +31,32 @@ export async function calistir() {
   console.log('\n— Hidrasyon —')
   kontrol('başlangıçta hidre değil', depo.anlikGoruntu().hidre === false)
   kontrol('sunucu görüntüsü sabit referans', depo.sunucuGoruntusu() === depo.sunucuGoruntusu())
-  depo.hidratla()
+  await depo.hidratla()
   kontrol('hidrasyondan sonra hidre', depo.anlikGoruntu().hidre === true)
   kontrol('localStorage yazıldı', localStorage.getItem('mihenk_state_v3') !== null)
 
   console.log('\n— Bakiye hareket defterinden türetilir —')
-  kontrol('başlangıç bakiyesi 120', d().kullanici.jetonBakiyesi === 120, `→ ${d().kullanici.jetonBakiyesi}`)
-  kontrol('bakiye defter toplamına eşit', d().kullanici.jetonBakiyesi === defterToplami())
+  // Seed gönderileri hidrasyonda doğrulanıp jeton kazandığı için bakiye
+  // sabit değildir; ölçüt bakiyenin daima defterden türetilmesidir.
+  kontrol('demo başlangıç kaydı 120 jeton', d().hareketler.some((h) => h.tur === 'demo' && h.miktar === 120))
+  kontrol('bakiye defter toplamına eşit', d().kullanici.jetonBakiyesi === defterToplami(), `→ ${d().kullanici.jetonBakiyesi}`)
+  kontrol('reddedilen kazanımlar da deftere geçti', d().hareketler.some((h) => h.miktar === 0 && h.aciklama.includes('Kazanç verilmedi')))
 
   console.log('\n— Satın alma —')
   const pirinc = d().magaza.find((u) => u.id === 'u1')
+  const oncekiBakiye = d().kullanici.jetonBakiyesi
   kontrol('alım başarılı', depo.urunSatinAl(pirinc) === true)
-  kontrol('bakiye düştü', d().kullanici.jetonBakiyesi === 105, `→ ${d().kullanici.jetonBakiyesi}`)
+  kontrol('bakiye ürün fiyatı kadar düştü',
+    d().kullanici.jetonBakiyesi === oncekiBakiye - pirinc.fiyat,
+    `→ ${oncekiBakiye} - ${pirinc.fiyat} = ${d().kullanici.jetonBakiyesi}`)
   kontrol('defter kaydı eklendi', d().hareketler[0].miktar === -15)
   kontrol('bakiye defterle tutarlı', d().kullanici.jetonBakiyesi === defterToplami())
+  const alimSonrasi = d().kullanici.jetonBakiyesi
   kontrol('envantere eklendi', d().kullanici.envanter.some((s) => s.urunId === 'u1' && s.aktif))
 
   const altin = d().magaza.find((u) => u.id === 'u5')
   kontrol('yetersiz bakiyede alım reddedilir', depo.urunSatinAl(altin) === false)
-  kontrol('reddedilen alım bakiyeyi bozmaz', d().kullanici.jetonBakiyesi === 105)
+  kontrol('reddedilen alım bakiyeyi bozmaz', d().kullanici.jetonBakiyesi === alimSonrasi)
 
   console.log('\n— Ürün aç/kapa —')
   depo.urunAcKapa('u1')
@@ -109,10 +116,13 @@ export async function calistir() {
   }
   ac()
 
-  const toplamKazanc = sonuclar.reduce((t, g) => t + g.kazanilanJeton, 0)
   kontrol('altı gönderi de sonuçlandı', sonuclar.every((g) => g.dogrulamaDurumu !== 'bekliyor'))
   kontrol('günlük kazanç tavanı aşmadı', d().kullanici.bugunKazanilan <= 50, `→ ${d().kullanici.bugunKazanilan}`)
-  kontrol('tavan tam 50de kırpıldı', toplamKazanc === 50, `→ ${toplamKazanc}`)
+  kontrol(
+    'tavan tam 50de doyuyor',
+    d().kullanici.bugunKazanilan === 50,
+    `→ ${d().kullanici.bugunKazanilan}`
+  )
   kontrol(
     'tavan gerekçesi kullanıcıya bildirildi',
     sonuclar.some((g) => g.gerekce.some((x) => x.includes('üst sınır')))
@@ -121,10 +131,9 @@ export async function calistir() {
 
   console.log('\n— Akış içinde kopya tespiti —')
   sustur()
-  const kopyaG = yeniGonderi(
-    'kopya1',
-    'Bu hafta sonu dinlenmeye ayıracağım. Çok yorucu bir hafta oldu gerçekten.'
-  )
+  // Seed'deki kaynak metnin aynısı; motorun kopya olarak işaretlemesi beklenir
+  const kaynakSeed = d().gonderiler.find((g) => g.id === 'g08')
+  const kopyaG = yeniGonderi('kopya1', kaynakSeed.metin)
   depo.gonderiEkle(kopyaG)
   const kopyaSonuc = await new Promise((cozumle) => depo.dogrulamaTetikle(kopyaG.id, cozumle))
   ac()
@@ -145,9 +154,9 @@ export async function calistir() {
 
   console.log('\n— Demo sıfırlama —')
   depo.resetToDemo()
-  kontrol('gönderiler demo haline döndü', d().gonderiler.length === 8, `→ ${d().gonderiler.length}`)
+  kontrol('gönderiler demo haline döndü', d().gonderiler.length === 12, `→ ${d().gonderiler.length}`)
   kontrol('bakiye 120', d().kullanici.jetonBakiyesi === 120)
-  kontrol('envanter boşaldı', d().kullanici.envanter.length === 0)
+  kontrol('envanter demo başlangıcına döndü', d().kullanici.envanter.length === 1)
 
   console.log(`\n  ${gecti} geçti, ${kaldi} kaldı`)
   return { gecti, kaldi }
