@@ -2,6 +2,14 @@
 // Tümü tarayıcıda, saf JS ile çalışır. Ağ isteği veya model çağrısı yoktur.
 
 import type { DogrulamaSonucu, Gonderi } from '@/lib/store/types'
+import {
+  DUSUK_CABA_ESIGI,
+  gorselDusukCabaSkoru,
+  laplasVaryansi,
+  metinDusukCabaSkoru,
+} from './dusukCaba'
+
+export * from './dusukCaba'
 
 /** Kopya sayılması için gereken en düşük Jaccard benzerliği */
 export const KOPYA_ESIGI = 0.7
@@ -50,6 +58,42 @@ export function jaccardBenzerligi(a: Set<string>, b: Set<string>): number {
   const birlesim = a.size + b.size - kesisim
 
   return birlesim === 0 ? 0 : kesisim / birlesim
+}
+
+/** Metin niteliği ve düşük çaba skorunun paylaştığı ham ölçüler. */
+export function metinOlculeri(metin: string) {
+  const norm = normalizeTurkce(metin)
+  const kelimeler = norm.split(' ').filter((k) => k.length > 0)
+  const kelimeSayisi = kelimeler.length
+  const benzersiz = new Set(kelimeler)
+
+  const ardisikKarakterTekrari = /(.)\1{4,}/.test(metin)
+  let ardisikKelimeTekrari = false
+  for (let i = 0; i < kelimeler.length - 2; i++) {
+    if (kelimeler[i] === kelimeler[i + 1] && kelimeler[i] === kelimeler[i + 2]) {
+      ardisikKelimeTekrari = true
+      break
+    }
+  }
+
+  const emojiSayisi = (metin.match(/\p{Extended_Pictographic}/gu) || []).length
+  const linkSayisi = (metin.match(/https?:\/\/\S+/g) || []).length
+  const metinBagsiz = normalizeTurkce(metin.replace(/https?:\/\/\S+/g, ' '))
+    .replace(/\p{Extended_Pictographic}/gu, '')
+    .trim()
+
+  return {
+    karakterSayisi: metin.trim().length,
+    kelimeSayisi,
+    tipTokenOrani: kelimeSayisi > 0 ? benzersiz.size / kelimeSayisi : 0,
+    tekrarVar: ardisikKarakterTekrari || ardisikKelimeTekrari,
+    yalnizcaIcerikDisi: metinBagsiz.length === 0 && (emojiSayisi > 0 || linkSayisi > 0),
+  }
+}
+
+/** Metnin düşük çaba olasılığı (0–1). Yüksek değer düşük çaba demektir. */
+export function olcMetinDusukCaba(metin: string) {
+  return metinDusukCabaSkoru(metin, metinOlculeri(metin))
 }
 
 export function olcMetinNiteligi(metin: string): { skor: number; gerekce: string[] } {
@@ -234,26 +278,35 @@ export function hammingMesafesi(hash1: string, hash2: string): number {
 }
 
 /** Histogram entropisiyle "düşük çaba" görselleri (düz renk, boş tuval) ayıklar */
-export async function olcDusukCaba(
-  imageUrl: string
-): Promise<{ skor: number; gerekce: string[] }> {
+export type GorselCabaSonucu = {
+  skor: number
+  gerekce: string[]
+  dusukCabaSkoru: number
+  dusukCabaMi: boolean
+}
+
+export async function olcDusukCaba(imageUrl: string): Promise<GorselCabaSonucu> {
   const img = await gorselYukle(imageUrl)
-  if (!img) return { skor: 0, gerekce: ['Görsel yüklenemedi'] }
+  if (!img) {
+    return { skor: 0, gerekce: ['Görsel yüklenemedi'], dusukCabaSkoru: 1, dusukCabaMi: true }
+  }
 
   try {
     const canvas = document.createElement('canvas')
     canvas.width = 50
     canvas.height = 50
     const ctx = canvas.getContext('2d', { willReadFrequently: true })
-    if (!ctx) return { skor: 100, gerekce: [] }
+    if (!ctx) return { skor: 100, gerekce: [], dusukCabaSkoru: 0, dusukCabaMi: false }
 
     ctx.drawImage(img, 0, 0, 50, 50)
     const { data } = ctx.getImageData(0, 0, 50, 50)
 
     const histogram = new Array(256).fill(0)
+    const gri = new Uint8Array(50 * 50)
     for (let i = 0; i < data.length; i += 4) {
-      const gray = Math.round(data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114)
-      histogram[gray]++
+      const deger = Math.round(data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114)
+      gri[i / 4] = deger
+      histogram[deger]++
     }
 
     const toplamPiksel = 50 * 50
@@ -266,29 +319,23 @@ export async function olcDusukCaba(
       }
       if (histogram[i] > enCokTekrar) enCokTekrar = histogram[i]
     }
-    const tekRenkOrani = enCokTekrar / toplamPiksel
 
-    let skor = 100
-    const gerekce: string[] = []
+    const olcum = gorselDusukCabaSkoru({
+      entropi,
+      laplasVaryansi: laplasVaryansi(gri, 50, 50),
+      tekRenkOrani: enCokTekrar / toplamPiksel,
+    })
 
-    if (entropi < 4.0) {
-      skor -= 50
-      gerekce.push('Görsel çaba: Düşük (çok basit görsel/doku)')
-    }
-
-    if (tekRenkOrani > 0.85) {
-      skor -= 40
-      gerekce.push('Görsel çaba: Tek renk ağırlıklı')
-    }
-
-    skor = Math.max(0, skor)
-    if (skor >= 80) {
+    // Nitelik puanı, düşük çaba olasılığının tümleyenidir
+    const skor = Math.round((1 - olcum.skor) * 100)
+    const gerekce = [...olcum.gerekce]
+    if (!olcum.dusukCabaMi && skor >= 80) {
       gerekce.push('Görsel kalite: İyi')
     }
 
-    return { skor, gerekce }
+    return { skor, gerekce, dusukCabaSkoru: olcum.skor, dusukCabaMi: olcum.dusukCabaMi }
   } catch {
-    return { skor: 0, gerekce: ['Görsel işlenemedi (CORS)'] }
+    return { skor: 0, gerekce: ['Görsel işlenemedi (CORS)'], dusukCabaSkoru: 1, dusukCabaMi: true }
   }
 }
 
@@ -376,7 +423,29 @@ export async function dogrula(
       metinGecerli = false
     }
 
-    // KADEME 1b — Metin niteliği
+    // KADEME 1b — Düşük çaba kapısı
+    // Skor eşiği aşarsa gönderi nitelik puanına bakılmaksızın elenir.
+    // Bu kademe olmadan kısa ve içeriksiz gönderiler biriken cezalarla
+    // 'kısmi' bandında kalıyor ve jeton kazanıyordu.
+    if (metinGecerli) {
+      const dusuk = olcMetinDusukCaba(gonderi.metin)
+      if (dusuk.dusukCabaMi) {
+        gerekce.push(...dusuk.gerekce)
+        console.log(
+          `[MİHENK] Kademe 1b (düşük çaba): skor ${dusuk.skor.toFixed(3)} ≥ ${DUSUK_CABA_ESIGI} — ELENDI`
+        )
+        return {
+          skor: Math.round((1 - dusuk.skor) * 100),
+          durumu: 'gecemedi',
+          gerekce,
+          metinParcalari,
+          gorselHash,
+          ...KOPYA_YOK,
+        }
+      }
+    }
+
+    // KADEME 1c — Metin niteliği
     try {
       const t = performance.now()
       if (metinGecerli) {
@@ -384,9 +453,9 @@ export async function dogrula(
         metinNitelikSkoru = skor
         gerekce.push(...mg)
       }
-      console.log(`[MİHENK] Kademe 1b (metin nitelik): ${(performance.now() - t).toFixed(2)}ms`)
+      console.log(`[MİHENK] Kademe 1c (metin nitelik): ${(performance.now() - t).toFixed(2)}ms`)
     } catch (err) {
-      console.error('[MİHENK] Kademe 1b (metin nitelik) hata:', err)
+      console.error('[MİHENK] Kademe 1c (metin nitelik) hata:', err)
       metinNitelikSkoru = 0
     }
 
@@ -422,6 +491,21 @@ export async function dogrula(
           const caba = await olcDusukCaba(gonderi.gorselUrl)
           gorselCabaSkoru = caba.skor
           gerekce.push(...caba.gerekce)
+
+          // Görsel kademesinin düşük çaba kapısı
+          if (caba.dusukCabaMi) {
+            console.log(
+              `[MİHENK] Kademe 2 (düşük çaba görsel): skor ${caba.dusukCabaSkoru.toFixed(3)} — ELENDI`
+            )
+            return {
+              skor: caba.skor,
+              durumu: 'gecemedi',
+              gerekce,
+              metinParcalari,
+              gorselHash,
+              ...KOPYA_YOK,
+            }
+          }
         } else {
           gerekce.push('Görsel çözümlenemedi, yalnızca metin üzerinden değerlendirildi.')
         }

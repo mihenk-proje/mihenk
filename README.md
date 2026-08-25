@@ -120,11 +120,54 @@ gönderi "doğrulama tamamlanamadı" gerekçesiyle sonuçlandırılır.
 | Kademe | Yöntem | Eşik | Rolü |
 |---|---|---|---|
 | 1 — Metin özgünlüğü | 5 karakterlik n-gram + Jaccard benzerliği | ≥ 0,70 kopya sayılır | **Kapı** |
-| 1b — Metin niteliği | Uzunluk, kelime sayısı, tip/token oranı, tekrar, emoji-bağlantı, büyük harf oranı | aşağıdaki tablo | Skor |
+| 1b — Düşük çaba | Ağırlıklı düşük çaba skoru (uzunluk, kelime sayısı, çeşitlilik, tekrar) | ≥ 0,65 elenir · 15 krk. sert taban | **Kapı** |
+| 1c — Metin niteliği | Uzunluk, kelime sayısı, tip/token oranı, tekrar, emoji-bağlantı, büyük harf oranı | aşağıdaki tablo | Skor |
 | 2 — Görsel özgünlüğü | 9×8 dHash + Hamming mesafesi | ≤ 10 bit aynı görsel sayılır | **Kapı** |
-| 2b — Görsel çabası | Gri ton histogram entropisi, baskın renk oranı | entropi < 4,0 · baskın renk > %85 | Skor |
+| 2b — Görsel çabası | Entropi, Laplas varyansı, baskın renk oranı | düşük çaba skoru ≥ 0,65 elenir | **Kapı** + skor |
 | 2c — Anket çeşitliliği | Seçenekler arası 3-gram Jaccard | > 0,80 ayrışmamış sayılır | Skor |
 | 3 — Hesap davranışı | Hesap yaşı | < 3 gün ise kazanç ×0,5 | Katsayı |
+
+### Düşük çaba skoru
+
+Teknik rapor Tablo 9'da geçen **"Olasılık Skoru ≥ 0,65 (Min. 15 krk.)"** eşiğinin tanımı
+`src/lib/verification/dusukCaba.ts` içindedir.
+
+Skor **0–1 aralığında bir düşük çaba olasılığıdır**: yüksek değer içeriğin düşük çabalı
+olduğuna işaret eder. Nitelik puanının tersidir, karıştırılmamalıdır. Eşiğe ulaşan içerik
+nitelik puanına bakılmaksızın elenir ve jeton kazanmaz.
+
+**"Min. 15 karakter" kısıtı metin kademesine aittir** ve sert bir tabandır: 15 karakterin
+altındaki metin diğer bileşenlere bakılmaksızın 1,0 alır. Görsel kademesinin karakter
+tabanı yoktur.
+
+| Kademe | Bileşen | Ağırlık | Doyum noktası |
+|---|---|---|---|
+| Metin | Karakter sayısı | 0,40 | 80 karakterin üstünde ceza sıfırlanır |
+| Metin | Kelime sayısı | 0,30 | 14 kelimenin üstünde ceza sıfırlanır |
+| Metin | Tip/token çeşitliliği | 0,18 | yalnızca 5 kelimeden uzun metinlerde |
+| Metin | Ardışık tekrar | 0,12 | ikili (var/yok) |
+| Görsel | Gri ton histogram entropisi | 0,40 | 4,5 bitin üstünde ceza sıfırlanır |
+| Görsel | Laplas varyansı (bulanıklık) | 0,35 | 120'nin üstünde ceza sıfırlanır |
+| Görsel | Baskın renk oranı | 0,25 | %35'in altında ceza yok |
+
+Sert tabanlar: 15 karakterin altı ve yalnızca emoji/bağlantı içeren gönderiler doğrudan
+1,0 alır. Skor dört ondalığa yuvarlanır; ağırlık toplamları kayan noktada tam gelmediği
+için eşik karşılaştırması aksi hâlde kıl payı kaçabiliyor.
+
+Ölçülen ayrım genişliği (aynı fonksiyonun çıktısı):
+
+| Metin | Skor | Sonuç |
+|---|---|---|
+| `Tamam.` | 1,000 | düşük çaba (sert taban) |
+| `🔥🔥🔥` | 1,000 | düşük çaba (sert taban) |
+| `Kahve molası verdim şimdi.` | 0,700 | düşük çaba |
+| `a a a a a b b b b b c c c c c` | 0,664 | düşük çaba |
+| `Bu hafta sonu dinlenmeye ayıracağım…` | 0,162 | normal |
+| `Roket motorunun ikinci ateşleme denemesinde…` | 0,120 | normal |
+| `Yapay zeka araçlarını günlük iş akışına…` | 0,030 | normal |
+
+Ağırlıklar ve doyum noktaları prototip değerleridir; nihai değerler etiketlenmiş küme
+üzerinde eşik taramasıyla belirlenecektir.
 
 ### Metin niteliği ceza tablosu
 

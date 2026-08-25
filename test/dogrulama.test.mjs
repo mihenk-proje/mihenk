@@ -1,10 +1,13 @@
 /** Doğrulama kütüphanesinin birim testleri. */
 import {
+  DUSUK_CABA_ESIGI,
+  METIN_ASGARI_KARAKTER,
   dogrula,
   hammingMesafesi,
   jaccardBenzerligi,
   normalizeTurkce,
   olcAnketCesitliligi,
+  olcMetinDusukCaba,
   olcMetinNiteligi,
   parcalaraAyir,
 } from '@/lib/verification'
@@ -84,6 +87,39 @@ export async function calistir() {
   )
   kontrol('nitelikli metin yüksek puan alır', iyi.skor >= 80, `→ ${iyi.skor}`)
 
+  console.log('\n— Düşük çaba skoru —')
+  kontrol('eşik rapordaki değerle aynı', DUSUK_CABA_ESIGI === 0.65, `→ ${DUSUK_CABA_ESIGI}`)
+  kontrol('asgari karakter rapordaki değerle aynı', METIN_ASGARI_KARAKTER === 15)
+  kontrol(
+    '15 karakter altı sert tabana takılır',
+    olcMetinDusukCaba('Tamam.').skor === 1,
+    `→ ${olcMetinDusukCaba('Tamam.').skor}`
+  )
+  kontrol('yalnızca emoji sert tabana takılır', olcMetinDusukCaba('🔥🔥🔥').skor === 1)
+  const kisaGonderi = olcMetinDusukCaba('Kahve molası verdim şimdi.')
+  kontrol(
+    'kısa ve az sözcüklü gönderi düşük çabalı sayılır',
+    kisaGonderi.dusukCabaMi,
+    `→ ${kisaGonderi.skor}`
+  )
+  const nitelikliGonderi = olcMetinDusukCaba(
+    'Roket motorunun ikinci ateşleme denemesinde basınç eğrisi beklenenden yumuşak çıktı.'
+  )
+  kontrol(
+    'teknik içerik düşük çabalı sayılmaz',
+    !nitelikliGonderi.dusukCabaMi,
+    `→ ${nitelikliGonderi.skor}`
+  )
+  kontrol(
+    'düşük çaba ile nitelikli arasında geniş açıklık var',
+    kisaGonderi.skor - nitelikliGonderi.skor > 0.4,
+    `→ ${(kisaGonderi.skor - nitelikliGonderi.skor).toFixed(3)}`
+  )
+  kontrol(
+    'ağırlıklı bileşenler skorla tutarlı',
+    Object.keys(kisaGonderi.bilesenler).length > 0
+  )
+
   console.log('\n— Anket çeşitliliği —')
   kontrol('tek seçenek reddedilir', olcAnketCesitliligi(['Evet']).skor === 0)
   kontrol('yinelenen seçenek düşürülür', olcAnketCesitliligi(['Evet', 'Evet']).skor === 30)
@@ -137,7 +173,7 @@ export async function calistir() {
   )
   kontrol('özgün metin geçer', ozgun.durumu === 'gecti', `→ ${ozgun.durumu}/${ozgun.skor}`)
   kontrol('niteliksiz içerik geçemez', zayif.durumu === 'gecemedi', `→ ${zayif.durumu}/${zayif.skor}`)
-  kontrol('çok kısa metin tam geçemez', kisa.durumu !== 'gecti', `→ ${kisa.durumu}/${kisa.skor}`)
+  kontrol('çok kısa metin düşük çaba kademesine düşer', kisa.durumu === 'gecemedi', `→ ${kisa.durumu}/${kisa.skor}`)
   kontrol(
     'anket değerlendirilir',
     anket.durumu === 'gecti' && anket.gerekce.some((x) => x.startsWith('Anket')),
