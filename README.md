@@ -310,24 +310,54 @@ Gereksinimler: Python 3.11+, `pillow`, `numpy`, `scipy`.
 
 ### 1. Etiketleme havuzunu oluştur
 
-Ekip tarafından toplanan/yazılan metinler şemaya aktarılır. `--source` doğru
-işaretlenmelidir; sentetik metni `ozgun_yazim` diye işaretlemek veri bütünlüğü
-ihlalidir.
+Havuz **iki alandan** oluşur ve karıştırılır:
 
 ```bash
-python3 scripts/ingest_texts.py --girdi toplanan.txt     --source ozgun_yazim --out data/metin/nitelik_havuzu.jsonl
+# 2.100 kayıt: UCI ürün yorumları (CC BY 4.0)
+python3 scripts/collect_texts.py --girdi dataset.txt \
+    --seed 42 --out data/metin/nitelik_havuzu.jsonl
+
+# 300-400 kayıt: ekip yazımı mikroblog gönderileri
+python3 scripts/ingest_texts.py --girdi mikroblog.txt \
+    --source ozgun_yazim --domain mikroblog_gonderisi \
+    --karistir --seed 42 --out data/metin/nitelik_havuzu.jsonl
 ```
 
-### 2. Çift körlemeli etiketleme
+`--karistir` **zorunludur**: sonradan eklenen kayıtlar dosya sonunda kalırsa
+etiketleyici belirli bir noktadan sonra alanın değiştiğini fark eder ve kaynağı
+gizleme önlemi boşa çıkar.
+
+Her kayıt `domain` alanı taşır (`urun_yorumu` / `mikroblog_gonderisi`). Bu alan
+**yalnızca metrik kırılımı için** kullanılır; etiketleyiciye hiçbir yerde
+gösterilmez. Sistem mikroblog gönderisi doğruluyor, ölçümün ağırlığı ürün
+yorumunda; kırılım olmadan bu alan kayması görünmez kalır.
+
+### 2. Pilot — 100 kayıt, İKİ etiketleyici
+
+Doğrudan toplu işe girilmez. Kappa tek etiketleyiciyle hesaplanamaz; pilotu
+**iki kişi ayrı ayrı** yapar:
+
+```bash
+python3 scripts/label.py --uye uye1    # kişi A, kendi makinesinde
+python3 scripts/label.py --uye uye2    # kişi B, kendi makinesinde
+python3 scripts/agreement.py           # kappa
+```
+
+**Kappa ≥ 0,70** ise toplu işe geçilir. Altındaysa uyuşmazlıklar birlikte
+incelenir, kılavuza örnek eklenir, pilot yeni 100 kayıtla tekrarlanır.
+
+Pilot havuzu sınır durumları yoğunlaştırır (25–150 karakter, orta tekrar
+oranı); kolay örneklerle yapılan pilot yanıltıcı yüksek kappa verir ve
+kılavuzdaki boşlukları göstermez.
+
+### 3. Toplu etiketleme
 
 Hedef: **2.000 metin** (1.000 nitelikli / 1.000 düşük çabalı), her biri en az
 iki üye tarafından bağımsız etiketlenir.
 
 ```bash
-python3 scripts/label.py --uye uye1            # birinci etiketleyici
-python3 scripts/label.py --uye uye2            # ikinci, bağımsız
-python3 scripts/label.py --uye uye1 --limit 200  # oturumluk parça
-python3 scripts/label.py --uye uye1 --durum      # ilerleme
+python3 scripts/label.py --uye uye1 --limit 200   # oturumluk parça
+python3 scripts/label.py --uye uye1 --durum       # ilerleme
 ```
 
 Körleme yapısaldır: her etiketleyici kendi dosyasına yazar
@@ -335,17 +365,21 @@ Körleme yapısaldır: her etiketleyici kendi dosyasına yazar
 Kaldığı yerden devam eder. Tek tuşla karar alınır (1/2/3), `g` son kararı geri
 alır.
 
-### 3. Uzlaşma ve uyuşmazlık
+Etiketlemeye başlamadan önce
+[`docs/etiketleme-kilavuzu.md`](docs/etiketleme-kilavuzu.md) okunmalıdır.
+
+### 4. Uzlaşma ve uyuşmazlık
 
 ```bash
 python3 scripts/agreement.py
 ```
 
-Cohen's kappa, karışıklık matrisi ve ham uyum oranı üretir; uyuşmazlıkları
-`data/etiketler/uyusmazlik.jsonl` içine yazar. Üçüncü değerlendirici bunları
-`--uye uye3` ile karara bağlar.
+Cohen's kappa, karışıklık matrisi, ham uyum oranı ve **alan bazlı kırılım**
+üretir; uyuşmazlıkları `data/etiketler/uyusmazlik.jsonl` içine yazar. Üçüncü
+değerlendirici bunları `--uye uye3` ile karara bağlar.
 
-### 4. Varyant üretimi
+
+### 5. Varyant üretimi
 
 ```bash
 python3 scripts/gen_text_variants.py --girdi data/metin/ozgun.jsonl     --out data/metin/varyant.jsonl --seed 42
@@ -353,7 +387,7 @@ python3 scripts/gen_image_variants.py --girdi-dir data/gorsel/ozgun     --out-di
 python3 scripts/gen_lowquality_images.py --count 500 --seed 42
 ```
 
-### 5. Sızıntı koruması
+### 6. Sızıntı koruması
 
 Eşik sağlamasında kullanılan örnekler geliştirme kümesine sabitlenir ve nihai
 test bölünmesine giremez.
@@ -362,7 +396,7 @@ test bölünmesine giremez.
 python3 scripts/fix_dev_split.py --dogrula
 ```
 
-### 6. Eşik taraması ve ölçüm
+### 7. Eşik taraması ve ölçüm
 
 ```bash
 python3 scripts/threshold_sweep.py    # yalnızca geliştirme + doğrulama
