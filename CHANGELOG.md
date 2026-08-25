@@ -1,5 +1,87 @@
 # Değişiklik Kaydı
 
+## 2026-08-25 (ikinci tur) — Demo içerik katmanı
+
+Öncelik değişti: İP6 metrikleri (B4/B6/B7) final sunumuna girer, demo içeriği ise
+02.09 teknik rapor değerlendirmesinden önce görülür. Demo tam öncelik aldı.
+
+### Akış 12 gönderiyle her doğrulama kademesini gösteriyor
+
+Rapor "kopya içerik ödül dışı bırakılır" diyordu ama sitede görünen karşılığı yoktu:
+motor Jaccard 1,000 ile yakalıyordu, arayüz göstermiyordu. Yakalanan ama gösterilmeyen
+tespit, hakem açısından yakalanmamış tespitle aynıdır.
+
+**Doğrulama alanları elle yazılmıyor.** Her seed gönderisi `bekliyor` durumunda başlar;
+durum, skor, jeton ve gerekçe açılışta motorun gerçek çıktısından gelir. Depoya bakan
+biri seed verisinde sabitlenmiş bir `durum: "kopya"` alanı görmez.
+
+| Gönderi | Motorun çıktısı |
+|---|---|
+| g01 | **kopya** · kaynak g08 (metin) · örtüşme 1,000 |
+| g02 | **kopya** · kaynak g03 (görsel) · Hamming 0 |
+| g03 | geçti 92 · **+10** · kopya zincirinin kaynağı |
+| g04 | geçemedi · düşük çabalı metin |
+| g05 | geçti 100 · **+10** · YZ destekli, kesintisiz tam jeton |
+| g06 | **kısmi** 55 · +5 · benzerlik uyarı bandı, örtüşme 0,344 |
+| g07 | geçemedi 18 · düşük çabalı görsel |
+| g08–g12 | geçti · +10 |
+
+### Üç hata bulundu ve düzeltildi
+
+**Sıralama.** Kopya tespiti kaynağın `metinParcalari` alanının dolu olmasına bağlı.
+Gönderiler paralel doğrulanıyordu ve kopya kaynağından önce işlenip karşılaştıracak
+parça bulamıyordu; g02 (özgün) kopya, g03 (kopya) kaynak sayılmıştı. Doğrulama artık
+eskiden yeniye sıralı çalışıyor.
+
+**Günlük tavan.** Defter kaydının zamanı doğrulamanın bittiği andı, gönderinin
+paylaşılma zamanı değil. Geçmişe ait bütün gönderiler bugünün kazancı sayılıp tavanı
+tek seferde dolduruyor ve akıştaki gönderilerin çoğu "0 jeton" gösteriyordu.
+
+**Gerekçe sırası.** Görsel kopyasında metin kademesi önce çalıştığı için gerekçe
+listesinin başında "Anlatım zenginliği: Yeterli" duruyordu; kart "Kopya tespit edildi"
+rozetinin altında niteliği öven bir cümle gösteriyordu.
+
+### Cüzdan ve mağaza
+
+- Reddedilen kazanımlar da hareket defterine geçiyor (0 jetonlu, gerekçeli). Sistem
+  yalnızca neyi ödüllendirdiğini değil, neden ödüllendirmediğini de kayda geçiriyor.
+- Günlük üst sınır göstergesi kazanımlarla ilerliyor (25/50).
+- Envanter demo açılışında boş değil; bir süreli ürün satın alınmış durumda başlıyor.
+
+### Lighthouse — Tablo 11'deki taahhüt karşılandı
+
+Rapor Tablo 11 erişilebilirlik skorunu **89** olarak veriyor ve gerekçesini "kısmi ARIA
+etiket eksiklikleri (İP7 kapsamında tamamlanacaktır)" diye yazıyor. Ölçüm:
+
+| Kategori | Skor |
+|---|---|
+| Performans | **100** |
+| Erişilebilirlik | **100** |
+| En İyi Uygulamalar | **100** |
+| SEO | **100** |
+
+FCP 0,2 sn · LCP 0,7 sn · TBT **0 ms** · CLS 0. Beş ekranın tamamı (Giriş, Ana akış,
+Cüzdan, Mağaza, Ürün önizleme) 100/100, başarısız denetim yok.
+
+TBT'nin 0 ms olması asenkron doğrulamanın ilk boyamayı bloke etmediğini gösteriyor.
+
+**Kontrast gerilemesi düzeltildi:** envanter artık dolu başladığı için "Açık" düğmesi
+ilk kez görünüyor ve `text-success` üzerine `bg-success/10` tinti zemini açıp kontrastı
+4,82'den 4,16'ya düşürüyordu. Koyu tema başarı rengi ölçülerek `#5b9c89` → `#68ad99`
+çekildi (tint zemininde 5,09).
+
+### Ölçüm altyapısı (bu turda tamamlanan)
+
+- **Metin havuzu:** UCI Turkish User Review Dataset (CC BY 4.0), 2.100 kayıt +
+  100 kayıtlık sınır durum yoğunlaştırılmış pilot havuzu.
+- **Görsel kümesi:** Unsplash Lite'tan 1.000 görsel. Yeniden dağıtım yasak olduğu için
+  dosyalar `.gitignore`'da; `manifest.jsonl` yayımlanıyor.
+- **Düşük çaba üreteci:** tek renk, bulanık, gürültü aileleri.
+- **Kalibrasyon:** görsel düşük çaba ağırlıkları 1.000 fotoğrafla yeniden ayarlandı;
+  yakalama %27'den tek renk ve bulanıkta %100'e çıktı, yanlış pozitif %0,40.
+
+---
+
 ## 2026-08-25 — Demo içerik katmanı ve ölçüm altyapısı (sürüyor)
 
 ### Jaccard eşiği 0,70'ten 0,35'e indirildi — raporun tarif ettiği geçiş

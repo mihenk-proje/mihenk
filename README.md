@@ -1,39 +1,94 @@
 # MİHENK — NSosyal Katılım Katmanı Prototipi
 
-NSosyal İnovasyon Yarışması kapsamında geliştirilen MİHENK katılım sisteminin arayüz prototipi.
+**Nitelikli paylaşımı ödüllendiren, kopya ve düşük çabalı içeriği ayıklayan bir
+katılım katmanı.** Ödül, paylaşım miktarına değil içeriğin otomatik bir denetimden
+geçip geçmediğine bağlanır; denetimi geçemeyen gönderi yayında kalır, yalnızca jeton
+kazanmaz.
 
-## Canlı demo
+### ▶ Canlı demo: **https://mihenk-proje.vercel.app**
 
-**https://mihenk-proje.vercel.app**
+Kurulum gerekmez. "Demo olarak gir" düğmesi sizi hazır akışa götürür; akışı yukarıdan
+aşağı kaydırdığınızda doğrulama kademelerinin tamamını sırayla görürsünüz.
 
-Uygulama tamamen tarayıcıda çalışır; arka uç, veritabanı veya hesap gerekmez. Açılıştaki
-"Demo olarak gir" düğmesi sizi hazır demo verisiyle dolu akışa götürür. Denemeye değer üç senaryo:
+> Akış önce boyanır, doğrulama rozetleri saniyeler içinde **sonradan belirir**. Bu
+> kasıtlıdır: gönderi paylaşıldığı anda görünür, doğrulama sonucunu beklemez.
 
-1. **Kopya tespiti** — Akıştaki bir gönderinin metnini kopyalayıp aynen paylaşın; doğrulama
-   gerekçesinde örtüşme oranını göstererek gönderiyi eler.
-2. **Nitelik ölçümü** — Çok kısa ya da tekrar eden bir metin paylaşın; gönderi yayında kalır ama
-   jeton kazanmaz ve nedeni gerekçe listesinde yazar.
-3. **Ödül döngüsü** — Kazandığınız jetonlarla mağazadan bir çerçeve veya rozet alın; etkisi akıştaki
-   kendi gönderilerinize anında uygulanır.
+## Doğrulama kademeleri
 
-Veriler tarayıcınızın `localStorage` alanında tutulur. Başa dönmek için Cüzdan ekranındaki
-"Demoyu sıfırla" düğmesini kullanabilirsiniz.
+Zincir kademelidir. Bir kademe hata verirse zincir durmaz; o kademenin katkısı düşer
+ve ağırlıklar kalan kademelere dağıtılır. Üst sınır 8 saniyedir.
+
+| Kademe | Ne bakar | Eşik | Rolü |
+|---|---|---|---|
+| **Metin özgünlüğü** | 5 karakterlik n-gram + Jaccard benzerliği | **≥ 0,35 kopya** | Kapı |
+| **Benzerlik uyarı bandı** | Aynı ölçü, kopya eşiğinin altı | 0,20 – 0,35 | Kazancı azaltır |
+| **Düşük çaba (metin)** | Uzunluk, kelime sayısı, çeşitlilik, tekrar | **≥ 0,65 elenir** | Kapı |
+| **Görsel özgünlüğü** | 9×8 dHash + Hamming mesafesi | **≤ 10 bit kopya** | Kapı |
+| **Düşük çaba (görsel)** | Entropi, Laplas varyansı, baskın renk | **≥ 0,65 elenir** | Kapı |
+| **Anket çeşitliliği** | Seçenekler arası 3-gram Jaccard | > 0,80 ayrışmamış | Skor |
+| **Hesap davranışı** | Hesap yaşı | < 3 gün ise ×0,5 | Katsayı |
+
+Kopya içerik **elenir, silinmez**: gönderi yayında kalır, jeton kazanmaz ve gerekçede
+örtüşme oranı ile kaynak gönderinin bağlantısı gösterilir.
+
+| Skor | Durum | Ödül |
+|---|---|---|
+| ≥ 60 | Doğrulandı | 10 jeton |
+| 40 – 59 | Kısmen doğrulandı | 5 jeton |
+| < 40 | Jeton kazanmadı | 0 |
+
+Günlük kazanç üst sınırı 50 jetondur.
+
+## Düşük çaba skoru nasıl hesaplanır
+
+Rapor Tablo 9'daki **"Olasılık Skoru ≥ 0,65"** eşiğinin tanımı budur. Skor 0–1
+aralığında bir **düşük çaba olasılığıdır** (yüksek = düşük çaba), nitelik puanının
+tersidir. Tanım: [`src/lib/verification/dusukCaba.ts`](src/lib/verification/dusukCaba.ts)
+
+| Kademe | Bileşen | Ağırlık |
+|---|---|---|
+| Metin | Karakter sayısı | 0,40 |
+| Metin | Kelime sayısı | 0,30 |
+| Metin | Tip/token çeşitliliği | 0,18 |
+| Metin | Ardışık tekrar | 0,12 |
+| Görsel | **Laplas varyansı** (bulanıklık) | **0,60** |
+| Görsel | Entropi | 0,25 |
+| Görsel | Baskın renk oranı | 0,15 |
+
+Sert tabanlar: 15 karakterin altı ve yalnızca emoji/bağlantı içeren gönderiler
+doğrudan 1,0 alır. "Min. 15 karakter" kısıtı metin kademesine aittir.
+
+Görsel ağırlıkları 1.000 fotoğrafla kalibre edildi; Laplas varyansı sınıfları
+neredeyse tek başına ayırıyor (normal %5 = 120, düşük çabalı %95 = 82). Yanlış pozitif
+oranı **%0,40**. Ölçüm ayrıntısı:
+[`results/dusuk-caba-kalibrasyonu.md`](results/dusuk-caba-kalibrasyonu.md)
+
+## Bilinen sınırlar
+
+Ölçülerek tespit edilmiş iki sınır gizlenmez:
+
+- **dHash kırpmayı yakalamıyor.** Sıkıştırma, boyutlandırma ve filtrede 5/5; kırpmada
+  0/5. Eşik ayarıyla çözülemez: kırpma mesafesi (25,4) alakasız görsel çiftlerinin
+  en yakın mesafesinden (21) büyük.
+- **Düz gürültü düşük çaba kademesinde yakalanmıyor.** Tek renk ve bulanık %100
+  yakalanıyor; düz rastgele gürültü 0/20.
+
+Gerekçeleri ve ölçümleri: [`results/bilinen-sinirlar.md`](results/bilinen-sinirlar.md)
 
 ## Proje hakkında
 
-MİHENK bağımsız bir sosyal ağ değil, mevcut mikroblog platformu NSosyal üzerine oturan bir
-**özellik katmanıdır**. Amacı, nitelikli paylaşımları ödüllendirerek pasif tüketim sarmalını
-kırmaktır.
+MİHENK bağımsız bir sosyal ağ değil, mevcut mikroblog platformu NSosyal üzerine oturan
+bir **özellik katmanıdır**. Amacı, nitelikli paylaşımları ödüllendirerek pasif tüketim
+sarmalını kırmaktır.
 
-Prototip iki ekran ailesinden oluşur:
+- **Ev sahibi platform ekranları** — Nötr, metin öncelikli akış ve gönderi oluşturma.
+  MİHENK burada yalnızca küçük bir doğrulama rozeti olarak belirir.
+- **MİHENK ödül ekranları** — Kendi görsel kimliğini taşıyan cüzdan, mağaza ve
+  doğrulama sonucu ekranları. Bazalt zemin, pirinç vurgu çizgisi, mono sayılar.
 
-- **Ev sahibi platform ekranları** — Nötr, metin öncelikli akış ve gönderi oluşturma. Platformun
-  kendi görünümünü bozmaz; MİHENK burada yalnızca küçük bir doğrulama rozeti olarak belirir.
-- **MİHENK ödül ekranları** — Kendi görsel kimliğini taşıyan cüzdan, mağaza ve doğrulama sonucu
-  ekranları. Bazalt zemin, pirinç vurgu çizgisi ve tüm sayılarda tek aralıklı yazı tipi.
+Kullanıcı sonuca itiraz edip insan incelemesine gönderebilir. Prototipte itiraz süreci
+sonuç üretmez ve bu arayüzde açıkça belirtilir.
 
-Doğrulamayı geçemeyen gönderi **yayında kalır** — doğrulama yalnızca jeton kazanımını belirler.
-Kullanıcı sonuca itiraz edip insan incelemesine gönderebilir.
 
 ## Kurulum
 
