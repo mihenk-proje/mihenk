@@ -430,7 +430,7 @@ export async function dogrula(
           }
 
           if (benzerlik >= KOPYA_ESIGI) {
-            gerekce.push(
+            gerekce.unshift(
               `Bu metin daha önce paylaşılmış bir gönderiyle %${Math.round(
                 benzerlik * 100
               )} oranında örtüşüyor.`
@@ -504,7 +504,10 @@ export async function dogrula(
             if (!eski.gorselHash || eski.id === gonderi.id) continue
             const mesafe = hammingMesafesi(gorselHash, eski.gorselHash)
             if (mesafe <= GORSEL_KOPYA_ESIGI) {
-              gerekce.push(
+              // Kopya gerekçesi listenin başına alınır: akış kartı ilk satırı
+              // gösterir ve orada metin niteliği yorumu değil tespitin
+              // kendisi yazmalıdır.
+              gerekce.unshift(
                 `Bu görsel daha önce paylaşılmış bir gönderinin görseliyle eşleşiyor (algısal hash farkı ${mesafe}/64).`
               )
               console.log(`[MİHENK] Kademe 2 (görsel): ${(performance.now() - t).toFixed(2)}ms — KOPYA`)
