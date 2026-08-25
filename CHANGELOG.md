@@ -1,5 +1,95 @@
 # Değişiklik Kaydı
 
+## 2026-08-25 — Demo içerik katmanı ve ölçüm altyapısı (sürüyor)
+
+### Jaccard eşiği 0,70'ten 0,35'e indirildi
+
+Kodda 0,70 yazıyordu, rapor 0,35 taahhüt ediyordu. Ölçüm yapılıp rapordaki
+değere geçildi.
+
+Beş özgün Türkçe metin ve varyantları üzerinde ölçülen dağılım
+(5 karakterlik n-gram):
+
+| Karşılaştırma | Ortalama Jaccard |
+|---|---|
+| Birebir kopya | 1,000 |
+| Kısmi kopya (%80 örtüşme) | 0,546 |
+| Kısmi kopya (%60 örtüşme) | 0,446 |
+| Kısaltma | 0,405 |
+| Kısmi kopya (%40 örtüşme) | 0,284 |
+| **Alakasız metinler** | **0,005** (en yüksek 0,043) |
+
+Eşik adaylarının yakalama oranı:
+
+| Eşik | Birebir | %80 | %60 | Kısaltma | Yanlış pozitif |
+|---|---|---|---|---|---|
+| 0,35 | 5/5 | 5/5 | 5/5 | 4/5 | **0/10** |
+| 0,50 | 5/5 | 5/5 | 0/5 | 0/5 | 0/10 |
+| 0,70 (eski) | 5/5 | **0/5** | **0/5** | **0/5** | 0/10 |
+
+Eski 0,70 değeri yalnızca birebir kopyayı yakalıyordu; raporun test kümesindeki
+kısmi kopya, yeniden yazım ve kısaltma varyantlarının tamamı kaçıyordu. İlişkili
+metinler (0,23–1,00) ile alakasız metinler (0–0,04) arasındaki boşluk geniş
+olduğu için 0,35 yanlış pozitif üretmiyor.
+
+Değer prototip değeridir; `scripts/threshold_sweep.py` etiketlenmiş küme
+üzerinde çalıştığında doğrulanacak ve gerekirse güncellenecektir.
+
+### Benzerlik uyarı bandı eklendi (0,20 – 0,35)
+
+Eşik 0,35'e indirilince %60 örtüşen bir yeniden yazım *kopya* sayılıyor ve
+"kısmen doğrulandı" durumu üretilemiyordu. Kopya eşiğinin altına bir ara bant
+eklendi: bu bandda kalan gönderi yayında kalır, jeton kazanır ama kazancı 0,55
+katsayısıyla azaltılır ve örtüşme oranı gerekçede kullanıcıya bildirilir.
+
+Ölçülen davranış:
+
+| Örtüşme | Jaccard | Sonuç |
+|---|---|---|
+| %25 | 0,150 | Doğrulandı (100) |
+| %35 | 0,231 | Kısmen doğrulandı (55) + oran bildirimi |
+| %45 | 0,290 | Kısmen doğrulandı (55) + oran bildirimi |
+| %100 | 1,000 | Kopya tespit edildi (0) |
+
+### dHash kırpmayı yakalamıyor — kümede kalıyor, dürüstçe raporlanacak
+
+Beş görsel × beş dönüşüm ölçüldü (eşik ≤ 10 bit):
+
+| Dönüşüm | Ortalama Hamming | Yakalanan |
+|---|---|---|
+| Sıkıştırma | 0,4 | 5/5 |
+| Yeniden boyutlandırma | 0,4 | 5/5 |
+| Filtre | 1,8 | 5/5 |
+| **Kırpma** | **25,4** | **0/5** |
+| **Kırpma + filtre** | **29,0** | **0/5** |
+
+Teknik gerekçe: dHash satır bazlı komşu piksel farkı kullanır. Kırpma içeriği
+9×8 ızgara içinde kaydırır, bu yüzden imza korunmaz. Ölçülen kırpma mesafesi
+(25,4) alakasız görsel çiftlerinin en yakın mesafesinden (21) büyüktür — yani
+eşik ayarıyla ayrıştırılamaz.
+
+Çok ölçekli merkez sondalama denendi: kırpma mesafesi 25,4'ten 23,2'ye indi,
+yakalama 0/5'te kaldı. Üreteç asimetrik kırptığı için merkez sondası
+hizalanamıyor.
+
+Kırpma test kümesinde kalacak ve sonuç dürüstçe raporlanacaktır. Görsel kademesi
+için tek bir birleşik duyarlılık verilmeyecek; dönüşüm türü bazında kırılım
+sunulacak ki başarısızlık tek bir dönüşümde lokalize görünsün.
+
+### Düşük çaba skoru tanımlandı
+
+Rapor Tablo 9'daki "Olasılık Skoru ≥ 0,65 (Min. 15 krk.)" eşiğinin tanımı
+`src/lib/verification/dusukCaba.ts` içinde yazıldı. Ayrıntı ve ağırlık tablosu
+için README'ye bakınız.
+
+### Kopya ayrı bir doğrulama durumu oldu
+
+`DogrulamaDurumu` içine `'kopya'` eklendi, kaynak gönderiye bağlantı ve örtüşme
+ölçüsü sayı olarak saklanıyor. Akışta "Kopya tespit edildi" rozeti ve kaynak
+bağlantısı görünüyor.
+
+---
+
 Arayüz düzeltme turu — 23 maddelik görev listesinin madde madde durumu.
 
 Listenin bir bölümü, önceki hata düzeltme turunda zaten karşılanmıştı. Bu maddeler

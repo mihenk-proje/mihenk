@@ -1,6 +1,8 @@
 /** Doğrulama kütüphanesinin birim testleri. */
 import {
+  BENZERLIK_UYARI_ESIGI,
   DUSUK_CABA_ESIGI,
+  KOPYA_ESIGI,
   METIN_ASGARI_KARAKTER,
   dogrula,
   hammingMesafesi,
@@ -178,6 +180,36 @@ export async function calistir() {
     'anket değerlendirilir',
     anket.durumu === 'gecti' && anket.gerekce.some((x) => x.startsWith('Anket')),
     `→ ${anket.durumu}/${anket.skor}`
+  )
+
+  console.log('\n— Kopya eşiği ve benzerlik uyarı bandı —')
+  kontrol('kopya eşiği rapordaki değerle aynı', KOPYA_ESIGI === 0.35, `→ ${KOPYA_ESIGI}`)
+  kontrol('uyarı bandı kopya eşiğinin altında', BENZERLIK_UYARI_ESIGI < KOPYA_ESIGI)
+
+  const kaynakMetin =
+    'İHA gövdesinin karbon fiber katmanlarını yeniden hesapladık ve ağırlık üç yüz gram düştü, sonuçlar beklentimizin üzerinde.'
+  const kaynakGecmis = [
+    { ...gonderi('kaynak', kaynakMetin), metinParcalari: Array.from(parcalaraAyir(kaynakMetin)) },
+  ]
+  const dolgu = 'Ölçümleri yeniden almayı planlıyoruz ve rüzgar tünelinde ikinci turu deneyeceğiz.'
+  const kismiUret = (oran) => {
+    const k = kaynakMetin.split(' ')
+    return k.slice(0, Math.round(k.length * oran)).join(' ') + ' ' + dolgu
+  }
+
+  sustur()
+  const azOrtusen = await dogrula(gonderi('a1', kismiUret(0.25)), kaynakGecmis)
+  const bandda = await dogrula(gonderi('a2', kismiUret(0.45)), kaynakGecmis)
+  ac()
+
+  kontrol('düşük örtüşme temiz geçer', azOrtusen.durumu === 'gecti', `→ ${azOrtusen.durumu}`)
+  kontrol('düşük örtüşmede uyarı yazılmaz', azOrtusen.benzerlikOlcusu === null)
+  kontrol('uyarı bandı kısmi doğrulama verir', bandda.durumu === 'kismi', `→ ${bandda.durumu}/${bandda.skor}`)
+  kontrol('uyarı bandında kazanç azaltılır', bandda.skor < 100 && bandda.skor >= 40, `→ ${bandda.skor}`)
+  kontrol('uyarı bandı kaynak gönderiyi bildirir', bandda.kaynakGonderiId === 'kaynak')
+  kontrol(
+    'uyarı bandı örtüşme oranını gerekçede söyler',
+    bandda.gerekce.some((x) => x.includes('örtüşüyor') && x.includes('kopya sayılmadı'))
   )
 
   console.log('\n— Yeni hesap koruması —')

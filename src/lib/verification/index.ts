@@ -11,8 +11,30 @@ import {
 
 export * from './dusukCaba'
 
-/** Kopya sayılması için gereken en düşük Jaccard benzerliği */
-export const KOPYA_ESIGI = 0.7
+/**
+ * Kopya sayılması için gereken en düşük Jaccard benzerliği.
+ *
+ * Ölçüm (5 özgün metin, 5 karakterlik n-gram): alakasız Türkçe metinler
+ * ortalama 0,005 (en yüksek 0,043), ilişkili metinler 0,23–1,00. Arada
+ * geniş bir boşluk var, bu yüzden 0,35 yanlış pozitif üretmiyor.
+ *
+ * Önceki 0,70 değeri yalnızca birebir kopyayı yakalıyordu; kısmi kopya,
+ * yeniden yazım ve kısaltma varyantlarının tamamı kaçıyordu.
+ *
+ * Prototip değeridir; nihai değer etiketlenmiş küme üzerinde eşik
+ * taramasıyla doğrulanacaktır (scripts/threshold_sweep.py).
+ */
+export const KOPYA_ESIGI = 0.35
+
+/**
+ * Kopya sayılmayan ama örtüşmesi dikkate değer içeriğin alt sınırı.
+ * Bu bandda kalan gönderi yayında kalır ve jeton kazanır, ancak kazancı
+ * azaltılır ve örtüşme oranı gerekçede kullanıcıya bildirilir.
+ */
+export const BENZERLIK_UYARI_ESIGI = 0.2
+
+/** Benzerlik uyarı bandındaki gönderilerin skoruna uygulanan katsayı */
+export const BENZERLIK_KATSAYISI = 0.55
 /** İki dHash'in aynı görsel sayılması için izin verilen en yüksek Hamming mesafesi */
 export const GORSEL_KOPYA_ESIGI = 10
 /** Günlük jeton üst sınırı */
@@ -384,6 +406,10 @@ export async function dogrula(
   let gorselGecerli = false
   let anketGecerli = false
 
+  // Kopya eşiğini aşmayan en yüksek örtüşme (benzerlik uyarı bandı için)
+  let enYuksekBenzerlik = 0
+  let enYakinGonderiId: string | null = null
+
   try {
     // KADEME 1 — Metin özgünlüğü
     try {
@@ -396,6 +422,13 @@ export async function dogrula(
         for (const eski of gecmisGonderiler) {
           if (!eski.metinParcalari?.length || eski.id === gonderi.id) continue
           const benzerlik = jaccardBenzerligi(parcalar, new Set(eski.metinParcalari))
+
+          // Kopya eşiğinin altındaki en yüksek örtüşme, uyarı bandı için saklanır
+          if (benzerlik > enYuksekBenzerlik) {
+            enYuksekBenzerlik = benzerlik
+            enYakinGonderiId = eski.id
+          }
+
           if (benzerlik >= KOPYA_ESIGI) {
             gerekce.push(
               `Bu metin daha önce paylaşılmış bir gönderiyle %${Math.round(
@@ -530,6 +563,19 @@ export async function dogrula(
       }
     }
 
+    // KADEME 2c — Benzerlik uyarı bandı
+    // Kopya eşiğinin altında ama dikkate değer örtüşme: gönderi yayında
+    // kalır ve jeton kazanır, ancak kazancı azaltılır ve oran bildirilir.
+    let benzerlikKatsayisi = 1.0
+    if (enYuksekBenzerlik >= BENZERLIK_UYARI_ESIGI) {
+      benzerlikKatsayisi = BENZERLIK_KATSAYISI
+      gerekce.push(
+        `Bu metin daha önce paylaşılmış bir gönderiyle %${Math.round(
+          enYuksekBenzerlik * 100
+        )} oranında örtüşüyor; kopya sayılmadı ancak kazanç azaltıldı.`
+      )
+    }
+
     // KADEME 3 — Hesap davranışı
     let katsayi = 1.0
     if (hesapYasGun < 3) {
@@ -563,7 +609,7 @@ export async function dogrula(
     }
 
     const hamSkor = bilesenler.reduce((t, b) => t + b.agirlik * b.skor, 0) / toplamAgirlik
-    const nihaiSkor = Math.round(hamSkor * katsayi)
+    const nihaiSkor = Math.round(hamSkor * katsayi * benzerlikKatsayisi)
     const durumu = skordanDurum(nihaiSkor)
 
     if (durumu !== 'gecemedi') {
@@ -572,7 +618,16 @@ export async function dogrula(
 
     console.log(`[MİHENK] Toplam: ${(performance.now() - baslangic).toFixed(2)}ms — skor ${nihaiSkor}`)
 
-    return { skor: nihaiSkor, durumu, gerekce, metinParcalari, gorselHash, ...KOPYA_YOK }
+    return {
+      skor: nihaiSkor,
+      durumu,
+      gerekce,
+      metinParcalari,
+      gorselHash,
+      kaynakGonderiId: benzerlikKatsayisi < 1 ? enYakinGonderiId : null,
+      benzerlikOlcusu: benzerlikKatsayisi < 1 ? enYuksekBenzerlik : null,
+      kopyaTuru: null,
+    }
   } catch (err) {
     console.error('[MİHENK] Doğrulama zincirinde beklenmeyen hata:', err)
     gerekce.push('Doğrulama işlemi sırasında beklenmeyen bir hata oluştu.')
