@@ -1,6 +1,6 @@
 "use client"
 
-import { BarChart2, Bot, CheckCircle2, MessageCircle, Repeat2, Rocket, Scale } from "lucide-react"
+import { BarChart2, Bot, CheckCircle2, CircleSlash, Copy, MessageCircle, Repeat2, Rocket, Scale } from "lucide-react"
 import { useStore } from "@/lib/store/kanca"
 import {
   AD_RENGI_SINIFLARI,
@@ -57,9 +57,27 @@ export function GonderiKarti({ gonderi }: { gonderi: Gonderi }) {
   const rozetGorunum = rozet ? ROZET_SIMGELERI[rozet.efekt.deger] : undefined
 
   const dogrulandi = gonderi.dogrulamaDurumu === 'gecti' || gonderi.dogrulamaDurumu === 'kismi'
+  const kopya = gonderi.dogrulamaDurumu === 'kopya'
+  const gecemedi = gonderi.dogrulamaDurumu === 'gecemedi'
+
+  // Kopya tespitinde örtüşülen gönderinin yazarı, kaynak bağlantısında gösterilir
+  const kaynakGonderi = gonderi.kaynakGonderiId
+    ? state.gonderiler.find((g) => g.id === gonderi.kaynakGonderiId)
+    : undefined
+  const kaynakYazar = kaynakGonderi
+    ? kaynakGonderi.yazarId === state.kullanici.id
+      ? state.kullanici.kullaniciAdi
+      : state.yazarlar.find((y) => y.id === kaynakGonderi.yazarId)?.kullaniciAdi
+    : undefined
+
+  // Akışta gerekçenin ilk satırı gösterilir; tamamı doğrulama panelinde
+  const anaGerekce = gonderi.gerekce[0]
 
   return (
-    <article className="border-b border-line p-4 hover:bg-card/40 transition-colors">
+    <article
+      id={`gonderi-${gonderi.id}`}
+      className="border-b border-line p-4 hover:bg-card/40 transition-colors scroll-mt-32"
+    >
       <div className="flex gap-3">
         <Avatar
           id={gonderi.yazarId}
@@ -125,6 +143,30 @@ export function GonderiKarti({ gonderi }: { gonderi: Gonderi }) {
               </span>
             )}
 
+            {kopya && (
+              <span
+                className="inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded border border-error/50 text-error"
+                role="img"
+                aria-label={`Kopya tespit edildi${
+                  gonderi.kopyaTuru === 'gorsel' ? ', görsel eşleşmesi' : ', metin örtüşmesi'
+                }`}
+              >
+                <Copy size={12} aria-hidden="true" />
+                <span aria-hidden="true">Kopya tespit edildi</span>
+              </span>
+            )}
+
+            {gecemedi && (
+              <span
+                className="inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded border border-line-strong text-secondary"
+                role="img"
+                aria-label="Bu gönderi jeton kazanmadı"
+              >
+                <CircleSlash size={12} aria-hidden="true" />
+                <span aria-hidden="true">Jeton kazanmadı</span>
+              </span>
+            )}
+
             {gonderi.dogrulamaDurumu === 'bekliyor' && (
               <span
                 className="inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded border border-brand/40 text-brand"
@@ -151,6 +193,29 @@ export function GonderiKarti({ gonderi }: { gonderi: Gonderi }) {
           <p className="text-primary text-[15px] whitespace-pre-wrap break-words mb-3">
             {gonderi.metin}
           </p>
+
+          {/*
+            Kopya ve jeton kazanmayan gönderilerde gerekçe akışta görünür.
+            Rozetin yokluğu tespit anlamına gelmediği için, durumun nedeni
+            kullanıcıyı suçlamayan bir dille burada yazılır.
+          */}
+          {(kopya || gecemedi) && anaGerekce && (
+            <p className="text-secondary text-[13px] mb-3 pl-3 border-l-2 border-line-strong">
+              {anaGerekce}
+              {kopya && kaynakGonderi && (
+                <>
+                  {' '}
+                  <a
+                    href={`#gonderi-${kaynakGonderi.id}`}
+                    className="text-interaction underline underline-offset-2 hover:text-primary"
+                  >
+                    Kaynak gönderiyi gör
+                    {kaynakYazar ? ` (@${kaynakYazar})` : ''}
+                  </a>
+                </>
+              )}
+            </p>
+          )}
 
           {gonderi.gorselUrl && (
             <div className="mt-2 mb-3 rounded-xl overflow-hidden border border-line max-h-80">

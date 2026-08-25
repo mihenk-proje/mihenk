@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { AlertCircle, CheckCircle2, X, XCircle } from "lucide-react"
+import { AlertCircle, CheckCircle2, Copy, X, XCircle } from "lucide-react"
 import type { DogrulamaSonucu as Sonuc } from "@/lib/store/types"
 import { Itiraz } from "./Itiraz"
 
@@ -33,7 +33,9 @@ export function DogrulamaSonucu({ sonuc, onClose }: { sonuc: Sonuc; onClose: () 
       ? 'İçerik nitelikli bulundu'
       : sonuc.durumu === 'kismi'
         ? 'İçerik kısmen nitelikli bulundu'
-        : 'Bu gönderi jeton kazanmadı'
+        : sonuc.durumu === 'kopya'
+          ? 'Bu içerik daha önce paylaşılmış'
+          : 'Bu gönderi jeton kazanmadı'
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 p-4 sm:p-6 pointer-events-none flex justify-center">
@@ -105,6 +107,8 @@ export function DogrulamaSonucu({ sonuc, onClose }: { sonuc: Sonuc; onClose: () 
                 <CheckCircle2 className="text-success" aria-hidden="true" />
               ) : sonuc.durumu === 'kismi' ? (
                 <AlertCircle className="text-brand" aria-hidden="true" />
+              ) : sonuc.durumu === 'kopya' ? (
+                <Copy className="text-error" aria-hidden="true" />
               ) : (
                 <XCircle className="text-error" aria-hidden="true" />
               )}

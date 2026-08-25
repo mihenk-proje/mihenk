@@ -238,6 +238,9 @@ export function dogrulamaTetikle(
               gerekce: ['Doğrulama zaman aşımına uğradı ve tamamlanamadı.'],
               metinParcalari: null,
               gorselHash: null,
+              kaynakGonderiId: null,
+              benzerlikOlcusu: null,
+              kopyaTuru: null,
             }),
           DOGRULAMA_ZAMAN_ASIMI_MS
         )
@@ -259,6 +262,9 @@ export function dogrulamaTetikle(
         gerekce: ['Doğrulama sistem hatası nedeniyle tamamlanamadı.'],
         metinParcalari: null,
         gorselHash: null,
+        kaynakGonderiId: null,
+        benzerlikOlcusu: null,
+        kopyaTuru: null,
       }
     } finally {
       if (zamanAsimiId !== undefined) window.clearTimeout(zamanAsimiId)
@@ -292,6 +298,9 @@ export function dogrulamaTetikle(
               gerekce,
               metinParcalari: cikti.metinParcalari,
               gorselHash: cikti.gorselHash,
+              kaynakGonderiId: cikti.kaynakGonderiId,
+              benzerlikOlcusu: cikti.benzerlikOlcusu,
+              kopyaTuru: cikti.kopyaTuru,
             }
           : g
       ),

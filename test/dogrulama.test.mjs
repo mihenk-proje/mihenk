@@ -122,8 +122,19 @@ export async function calistir() {
   )
   ac()
 
-  kontrol('kopya metin elenir', kopya.durumu === 'gecemedi' && kopya.skor === 0, `→ ${kopya.durumu}/${kopya.skor}`)
+  kontrol('kopya metin elenir', kopya.durumu === 'kopya' && kopya.skor === 0, `→ ${kopya.durumu}/${kopya.skor}`)
   kontrol('kopya gerekçesi yazılır', kopya.gerekce.some((x) => x.includes('örtüşüyor')))
+  kontrol('kopya kaynak gönderiyi bildirir', kopya.kaynakGonderiId === 'eski', `→ ${kopya.kaynakGonderiId}`)
+  kontrol('kopya türü metin olarak işaretlenir', kopya.kopyaTuru === 'metin')
+  kontrol(
+    'örtüşme oranı sayı olarak dönüyor',
+    typeof kopya.benzerlikOlcusu === 'number' && kopya.benzerlikOlcusu >= 0.7,
+    `→ ${kopya.benzerlikOlcusu}`
+  )
+  kontrol(
+    'kopya olmayan sonuçta örtüşme alanları boş',
+    ozgun.kaynakGonderiId === null && ozgun.benzerlikOlcusu === null && ozgun.kopyaTuru === null
+  )
   kontrol('özgün metin geçer', ozgun.durumu === 'gecti', `→ ${ozgun.durumu}/${ozgun.skor}`)
   kontrol('niteliksiz içerik geçemez', zayif.durumu === 'gecemedi', `→ ${zayif.durumu}/${zayif.skor}`)
   kontrol('çok kısa metin tam geçemez', kisa.durumu !== 'gecti', `→ ${kisa.durumu}/${kisa.skor}`)

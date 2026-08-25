@@ -41,7 +41,13 @@ export type Yazar = {
 
 export type GerekceSatiri = string
 
-export type DogrulamaDurumu = 'bekliyor' | 'gecti' | 'kismi' | 'gecemedi'
+/**
+ * 'kopya' ayrı bir durumdur, 'gecemedi'nin alt kümesi değildir:
+ * geçemeyen gönderi niteliksiz bulunmuştur, kopya gönderi ise başkasının
+ * içeriğiyle örtüşmüştür. Kullanıcıya gösterilen gerekçe ve arayüz
+ * rozeti ikisinde farklıdır.
+ */
+export type DogrulamaDurumu = 'bekliyor' | 'gecti' | 'kismi' | 'gecemedi' | 'kopya'
 
 export type Gonderi = {
   id: string
@@ -65,6 +71,16 @@ export type Gonderi = {
   gorselHash: string | null
   /** Kullanıcı bu gönderi için itiraz ettiyse */
   itirazDurumu?: 'yok' | 'incelemede'
+  /** Kopya tespitinde örtüşülen gönderinin kimliği */
+  kaynakGonderiId?: string | null
+  /**
+   * Örtüşme ölçüsü. Metinde Jaccard benzerliği (0–1), görselde dHash
+   * Hamming mesafesi (0–64). Gerekçe cümlesinin içine gömmek yerine
+   * sayı olarak saklanır; eşik taraması bu değeri okur.
+   */
+  benzerlikOlcusu?: number | null
+  /** Örtüşmenin hangi kademede bulunduğu */
+  kopyaTuru?: 'metin' | 'gorsel' | null
 }
 
 export type HareketKaydi = {
@@ -86,6 +102,9 @@ export type DogrulamaSonucu = {
   gerekce: GerekceSatiri[]
   metinParcalari: string[] | null
   gorselHash: string | null
+  kaynakGonderiId: string | null
+  benzerlikOlcusu: number | null
+  kopyaTuru: 'metin' | 'gorsel' | null
   kazanilanJeton: number
   gonderiId: string
 }

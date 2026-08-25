@@ -300,6 +300,13 @@ export function hesapYasiGun(hesapOlusturmaTarihi: string): number {
 
 type DogrulamaCiktisi = Omit<DogrulamaSonucu, 'kazanilanJeton' | 'gonderiId'>
 
+/** Kopya bulunmayan sonuçlarda örtüşme alanları boş kalır. */
+const KOPYA_YOK = {
+  kaynakGonderiId: null,
+  benzerlikOlcusu: null,
+  kopyaTuru: null,
+} as const
+
 function skordanDurum(skor: number): DogrulamaCiktisi['durumu'] {
   if (skor >= 60) return 'gecti'
   if (skor >= 40) return 'kismi'
@@ -346,11 +353,20 @@ export async function dogrula(
             gerekce.push(
               `Bu metin daha önce paylaşılmış bir gönderiyle %${Math.round(
                 benzerlik * 100
-              )} örtüşüyor.`
+              )} oranında örtüşüyor.`
             )
             console.log(`[MİHENK] Kademe 1 (metin özgünlük): ${(performance.now() - t).toFixed(2)}ms — KOPYA`)
             // Kopya kesin sonuçtur, zincir burada biter
-            return { skor: 0, durumu: 'gecemedi', gerekce, metinParcalari, gorselHash }
+            return {
+              skor: 0,
+              durumu: 'kopya',
+              gerekce,
+              metinParcalari,
+              gorselHash,
+              kaynakGonderiId: eski.id,
+              benzerlikOlcusu: benzerlik,
+              kopyaTuru: 'metin',
+            }
           }
         }
       }
@@ -384,10 +400,22 @@ export async function dogrula(
           gorselGecerli = true
           for (const eski of gecmisGonderiler) {
             if (!eski.gorselHash || eski.id === gonderi.id) continue
-            if (hammingMesafesi(gorselHash, eski.gorselHash) <= GORSEL_KOPYA_ESIGI) {
-              gerekce.push('Bu görsel daha önce platformda kullanılmış.')
+            const mesafe = hammingMesafesi(gorselHash, eski.gorselHash)
+            if (mesafe <= GORSEL_KOPYA_ESIGI) {
+              gerekce.push(
+                `Bu görsel daha önce paylaşılmış bir gönderinin görseliyle eşleşiyor (algısal hash farkı ${mesafe}/64).`
+              )
               console.log(`[MİHENK] Kademe 2 (görsel): ${(performance.now() - t).toFixed(2)}ms — KOPYA`)
-              return { skor: 0, durumu: 'gecemedi', gerekce, metinParcalari, gorselHash }
+              return {
+                skor: 0,
+                durumu: 'kopya',
+                gerekce,
+                metinParcalari,
+                gorselHash,
+                kaynakGonderiId: eski.id,
+                benzerlikOlcusu: mesafe,
+                kopyaTuru: 'gorsel',
+              }
             }
           }
 
@@ -447,7 +475,7 @@ export async function dogrula(
     const toplamAgirlik = bilesenler.reduce((t, b) => t + b.agirlik, 0)
     if (toplamAgirlik === 0) {
       gerekce.push('Değerlendirilebilecek içerik bulunamadı.')
-      return { skor: 0, durumu: 'gecemedi', gerekce, metinParcalari, gorselHash }
+      return { skor: 0, durumu: 'gecemedi', gerekce, metinParcalari, gorselHash, ...KOPYA_YOK }
     }
 
     const hamSkor = bilesenler.reduce((t, b) => t + b.agirlik * b.skor, 0) / toplamAgirlik
@@ -460,10 +488,10 @@ export async function dogrula(
 
     console.log(`[MİHENK] Toplam: ${(performance.now() - baslangic).toFixed(2)}ms — skor ${nihaiSkor}`)
 
-    return { skor: nihaiSkor, durumu, gerekce, metinParcalari, gorselHash }
+    return { skor: nihaiSkor, durumu, gerekce, metinParcalari, gorselHash, ...KOPYA_YOK }
   } catch (err) {
     console.error('[MİHENK] Doğrulama zincirinde beklenmeyen hata:', err)
     gerekce.push('Doğrulama işlemi sırasında beklenmeyen bir hata oluştu.')
-    return { skor: 0, durumu: 'gecemedi', gerekce, metinParcalari, gorselHash }
+    return { skor: 0, durumu: 'gecemedi', gerekce, metinParcalari, gorselHash, ...KOPYA_YOK }
   }
 }

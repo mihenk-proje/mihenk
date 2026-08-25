@@ -130,8 +130,13 @@ export async function calistir() {
   ac()
   kontrol(
     'demo gönderisinin kopyası yakalanır',
-    kopyaSonuc.durumu === 'gecemedi' && kopyaSonuc.kazanilanJeton === 0,
+    kopyaSonuc.durumu === 'kopya' && kopyaSonuc.kazanilanJeton === 0,
     `→ ${kopyaSonuc.durumu}/${kopyaSonuc.kazanilanJeton}`
+  )
+  kontrol(
+    'kopya gönderiye kaynak bağlantısı işlendi',
+    Boolean(d().gonderiler.find((g) => g.id === 'kopya1')?.kaynakGonderiId),
+    `→ ${d().gonderiler.find((g) => g.id === 'kopya1')?.kaynakGonderiId}`
   )
 
   console.log('\n— İtiraz —')
