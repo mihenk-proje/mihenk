@@ -14,11 +14,13 @@ final raporunda sentetik oran açıkça beyan edilecektir.
 
 Girdi biçimi: her satır bir metin (boş satırlar atlanır).
 
+Metinler toplanır, yazılmaz: varsayılan kaynak `kamuya_acik_kaynak`.
+
 Örnek:
     python3 scripts/ingest_texts.py --girdi toplanan.txt \\
+        --out data/metin/nitelik_havuzu.jsonl
+    python3 scripts/ingest_texts.py --girdi yazilan.txt \\
         --source ozgun_yazim --out data/metin/nitelik_havuzu.jsonl
-    python3 scripts/ingest_texts.py --girdi toplanan.txt \\
-        --source kamuya_acik_kaynak --onek kamu --out data/metin/nitelik_havuzu.jsonl
 """
 from __future__ import annotations
 
@@ -46,7 +48,8 @@ def main() -> int:
     )
     ap.add_argument('--girdi', type=Path, required=True, help='Her satırı bir metin olan dosya')
     ap.add_argument('--out', type=Path, required=True, help='Hedef JSONL havuzu (eklenir)')
-    ap.add_argument('--source', choices=KAYNAKLAR, required=True, help='Kaydın kaynağı')
+    ap.add_argument('--source', choices=KAYNAKLAR, default='kamuya_acik_kaynak',
+                    help='Kaydın kaynağı (varsayılan: kamuya_acik_kaynak)')
     ap.add_argument('--onek', default='m', help='Kimlik öneki (varsayılan: m)')
     ap.add_argument('--asgari-uzunluk', type=int, default=1,
                     help='Bu uzunluğun altındaki satırlar atlanır (varsayılan: 1)')
