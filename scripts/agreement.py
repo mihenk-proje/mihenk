@@ -78,11 +78,14 @@ def main() -> int:
                     help='Uyuşmazlıkların yazılacağı dosya')
     a = ap.parse_args()
 
-    metinler = (
-        {json.loads(s)['id']: json.loads(s)['text']
-         for s in HAVUZ.read_text(encoding='utf-8').splitlines() if s.strip()}
-        if HAVUZ.exists() else {}
+    havuz = (
+        [json.loads(s) for s in HAVUZ.read_text(encoding='utf-8').splitlines() if s.strip()]
+        if HAVUZ.exists() else []
     )
+    metinler = {k['id']: k['text'] for k in havuz}
+    # Alan bilgisi yalnızca metrik kırılımı için kullanılır; etiketleme
+    # sırasında hiçbir yerde gösterilmez.
+    alanlar = {k['id']: k.get('domain', 'bilinmiyor') for k in havuz}
 
     kararlar = {u: kararlari_oku(u) for u in a.uyeler}
     for u, k in kararlar.items():
@@ -122,11 +125,31 @@ def main() -> int:
             )
             print(f'  {s1:16}{satir}')
 
+        # ALAN BAZLI KIRILIM
+        # Sistem mikroblog gönderisi doğruluyor, ölçüm ürün yorumunda
+        # yapılıyor. Kırılım olmadan alan kayması görünmez kalır.
+        alan_kumeleri: dict[str, list[str]] = {}
+        for i in ortak:
+            alan_kumeleri.setdefault(alanlar.get(i, 'bilinmiyor'), []).append(i)
+
+        if len(alan_kumeleri) > 1:
+            print('\n  alan bazlı kırılım')
+            for alan, kimlikler in sorted(alan_kumeleri.items()):
+                a1 = [kararlar[u1][i] for i in kimlikler]
+                a2 = [kararlar[u2][i] for i in kimlikler]
+                ak = cohen_kappa(a1, a2)
+                au = sum(1 for x, y in zip(a1, a2) if x == y)
+                print(f'    {alan:24} n={len(kimlikler):5}  '
+                      f'uyum={au / len(kimlikler):6.1%}  kappa={ak:6.3f}  ({yorum(ak)})')
+            print('    NOT: alanlar arası kappa farkı, kılavuzun bir alanda '
+                  'daha belirsiz kaldığını gösterir.')
+
         for i in ortak:
             if kararlar[u1][i] != kararlar[u2][i]:
                 kayit = uyusmazliklar.setdefault(i, {
                     'id': i,
                     'text': metinler.get(i, ''),
+                    'domain': alanlar.get(i, 'bilinmiyor'),
                     'kararlar': {},
                     'notes': 'Bağımsız etiketleyiciler uzlaşmadı; üçüncü değerlendirici gerekli.',
                 })

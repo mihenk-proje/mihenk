@@ -130,7 +130,8 @@ def main() -> int:
     )
     ap.add_argument('--girdi', type=Path, required=True, help='UCI dataset.txt yolu')
     ap.add_argument('--out', type=Path, required=True, help='Çıktı JSONL')
-    ap.add_argument('--count', type=int, default=2500, help='Toplanacak kayıt (varsayılan: 2500)')
+    ap.add_argument('--count', type=int, default=2100,
+                    help='Toplanacak kayıt (varsayılan: 2100; kalanı ekip yazımı mikroblog)')
     ap.add_argument('--pilot', type=int,
                     help='Pilot kipi: sınır durumları yoğunlaştırılmış N kayıt seçer')
     ap.add_argument('--seed', type=int, default=42, help='Rastgelelik tohumu')
@@ -185,6 +186,9 @@ def main() -> int:
                 'text': k['text'],
                 'label': None,
                 'source': 'kamuya_acik_kaynak',
+                # Alan kaymasi olculebilsin diye isaretlenir. Etiketleyiciye
+                # GOSTERILMEZ; yalnizca metrik kirilimi icin kullanilir.
+                'domain': 'urun_yorumu',
                 'source_name': KAYNAK_ADI,
                 'source_url': KAYNAK_URL,
                 'source_license': 'CC BY 4.0',
