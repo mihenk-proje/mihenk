@@ -43,3 +43,12 @@ next-env.d.ts
 # Özel Yapılandırma Dosyaları
 CLAUDE.md
 AGENTS.md
+
+# Unsplash gorselleri — Terms yeniden dagitimi yasakliyor.
+# Yerine data/images/manifest.jsonl yayimlanir; ucuncu taraf ayni --seed ile
+# kendi kopyasindan birebir ayni kumeyi uretebilir.
+data/images/originals/
+data/images/normal/
+data/images/lowquality/
+data/images/variants/
+
