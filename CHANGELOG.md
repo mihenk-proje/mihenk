@@ -2,10 +2,15 @@
 
 ## 2026-08-25 — Demo içerik katmanı ve ölçüm altyapısı (sürüyor)
 
-### Jaccard eşiği 0,70'ten 0,35'e indirildi
+### Jaccard eşiği 0,70'ten 0,35'e indirildi — raporun tarif ettiği geçiş
 
-Kodda 0,70 yazıyordu, rapor 0,35 taahhüt ediyordu. Ölçüm yapılıp rapordaki
-değere geçildi.
+**Bu bir rapor–kod çelişkisi değildir.** Teknik rapor s.16 bu geçişi zaten
+belgeliyor: prototipin ilk geliştirme aşamasında 0,70 başlangıç eşiği
+kullanılmış, İP3 kapsamındaki ön pilot küme ölçümleri sonucunda 0,35'e
+güncellenmiştir. Koddaki değişiklik, raporda anlatılan sürecin kodda
+tamamlanmasıdır.
+
+Aşağıdaki ölçüm, geçişin bağımsız bir sağlamasıdır.
 
 Beş özgün Türkçe metin ve varyantları üzerinde ölçülen dağılım
 (5 karakterlik n-gram):
@@ -33,9 +38,18 @@ metinler (0,23–1,00) ile alakasız metinler (0–0,04) arasındaki boşluk gen
 olduğu için 0,35 yanlış pozitif üretmiyor.
 
 Değer prototip değeridir; `scripts/threshold_sweep.py` etiketlenmiş küme
-üzerinde çalıştığında doğrulanacak ve gerekirse güncellenecektir.
+üzerinde çalıştığında doğrulanacaktır. **F1 optimumu 0,35'ten farklı çıkarsa
+çıkan değer uygulanacak, eşik rapordaki değere geri uydurulmayacaktır.**
+Sağlamada kullanılan altı metin ve beş görsel `splits/gelistirme.jsonl` içinde
+`leak_guard` işaretiyle sabitlendi; eşik seçimini etkiledikleri için nihai test
+bölünmesine giremezler.
 
-### Benzerlik uyarı bandı eklendi (0,20 – 0,35)
+### Benzerlik uyarı bandı eklendi (0,20 – 0,35) — 3.2.3'ün boş aralığı dolduruldu
+
+**Bu yeni bir mekanizma değildir.** Raporun 3.2.3 maddesi nitelik kararının ikili
+değil kademeli olduğunu tasarım kararı olarak koyuyor ve doğrulama skorunun
+belirli bir aralıkta jetona dönüştüğünü söylüyor; aralık ölçüm sonrasına
+bırakılmıştı. Aşağıdaki bant o boş aralığın doldurulmasıdır.
 
 Eşik 0,35'e indirilince %60 örtüşen bir yeniden yazım *kopya* sayılıyor ve
 "kısmen doğrulandı" durumu üretilemiyordu. Kopya eşiğinin altına bir ara bant
@@ -50,6 +64,11 @@ katsayısıyla azaltılır ve örtüşme oranı gerekçede kullanıcıya bildiri
 | %35 | 0,231 | Kısmen doğrulandı (55) + oran bildirimi |
 | %45 | 0,290 | Kısmen doğrulandı (55) + oran bildirimi |
 | %100 | 1,000 | Kopya tespit edildi (0) |
+
+**0,55 katsayısı kalibrasyon beklemektedir.** Şu anki değeri gözlemle
+belirlenmiştir ve savunulabilir bir dayanağı yoktur. İP7 kullanılabilirlik
+testinde katılımcılara azaltılmış kazancın adil algılanıp algılanmadığı
+sorulacak ve katsayı o veriye göre kalibre edilecektir. Ayrıntı README'de.
 
 ### dHash kırpmayı yakalamıyor — kümede kalıyor, dürüstçe raporlanacak
 

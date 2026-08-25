@@ -198,6 +198,30 @@ aşmasına yol açardı. Bu nedenle nihai skor yalnızca nitelik ölçümlerinde
 | Metin + görsel | Metin niteliği %55 · görsel çabası %45 |
 | Anket | Metin niteliği %70 · seçenek çeşitliliği %30 |
 
+### Benzerlik uyarı bandı (0,20 – 0,35)
+
+Kopya eşiğinin altında kalan ama örtüşmesi dikkate değer içerik için bir ara
+kademe vardır. Bu bandda kalan gönderi **yayında kalır ve jeton kazanır**, ancak
+kazancı `BENZERLIK_KATSAYISI` ile azaltılır ve örtüşme oranı gerekçede kullanıcıya
+bildirilir.
+
+Bu, teknik raporun 3.2.3 maddesindeki **kademeli puanlama** tasarım kararının
+uygulanmasıdır; nitelik kararı ikili değil kademelidir ve doğrulama skorunun jetona
+dönüştüğü aralık ölçüm sonrasına bırakılmıştı. Bant o aralığı doldurur.
+
+| Örtüşme | Jaccard | Sonuç |
+|---|---|---|
+| %25 | 0,150 | Doğrulandı (100) |
+| %35 | 0,231 | Kısmen doğrulandı (55) + oran bildirimi |
+| %45 | 0,290 | Kısmen doğrulandı (55) + oran bildirimi |
+| %100 | 1,000 | Kopya tespit edildi (0) |
+
+> **`BENZERLIK_KATSAYISI = 0,55` kalibrasyon bekleyen bir tasarım parametresidir.**
+> Değer gözlemle belirlenmiştir; şu anda ampirik bir dayanağı yoktur. İP7
+> kullanılabilirlik testinde katılımcılara azaltılmış kazancın adil algılanıp
+> algılanmadığı sorulacak ve katsayı o veriye göre kalibre edilecektir. Bandın
+> sınırları (0,20 ve 0,35) ise eşik taramasıyla belirlenir.
+
 ### Skor bandı ve ödül
 
 | Skor | Durum | Ödül |
