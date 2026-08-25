@@ -301,6 +301,78 @@ Uygulanan başlıca önlemler:
 - `prefers-reduced-motion` tercihi tüm animasyon ve geçişleri devre dışı bırakır (WCAG 2.3.3).
 - Avatarlar baş harflerden üretilir; uzak görsel servisine bağımlılık yoktur.
 
+## Ölçüm boru hattını çalıştırma
+
+İP6 ölçüm çalışmasının araçları `scripts/` altındadır. Hepsi `--help` ile ne
+yaptığını anlatır ve bağımsız çalışır; `npm test` bunlara bağımlı değildir.
+
+Gereksinimler: Python 3.11+, `pillow`, `numpy`, `scipy`.
+
+### 1. Etiketleme havuzunu oluştur
+
+Ekip tarafından toplanan/yazılan metinler şemaya aktarılır. `--source` doğru
+işaretlenmelidir; sentetik metni `ozgun_yazim` diye işaretlemek veri bütünlüğü
+ihlalidir.
+
+```bash
+python3 scripts/ingest_texts.py --girdi toplanan.txt     --source ozgun_yazim --out data/metin/nitelik_havuzu.jsonl
+```
+
+### 2. Çift körlemeli etiketleme
+
+Hedef: **2.000 metin** (1.000 nitelikli / 1.000 düşük çabalı), her biri en az
+iki üye tarafından bağımsız etiketlenir.
+
+```bash
+python3 scripts/label.py --uye uye1            # birinci etiketleyici
+python3 scripts/label.py --uye uye2            # ikinci, bağımsız
+python3 scripts/label.py --uye uye1 --limit 200  # oturumluk parça
+python3 scripts/label.py --uye uye1 --durum      # ilerleme
+```
+
+Körleme yapısaldır: her etiketleyici kendi dosyasına yazar
+(`data/etiketler/uye1.jsonl`) ve araç diğerlerinin dosyalarını hiç açmaz.
+Kaldığı yerden devam eder. Tek tuşla karar alınır (1/2/3), `g` son kararı geri
+alır.
+
+### 3. Uzlaşma ve uyuşmazlık
+
+```bash
+python3 scripts/agreement.py
+```
+
+Cohen's kappa, karışıklık matrisi ve ham uyum oranı üretir; uyuşmazlıkları
+`data/etiketler/uyusmazlik.jsonl` içine yazar. Üçüncü değerlendirici bunları
+`--uye uye3` ile karara bağlar.
+
+### 4. Varyant üretimi
+
+```bash
+python3 scripts/gen_text_variants.py --girdi data/metin/ozgun.jsonl     --out data/metin/varyant.jsonl --seed 42
+python3 scripts/gen_image_variants.py --girdi-dir data/gorsel/ozgun     --out-dir data/gorsel/varyant --count 4 --seed 42
+python3 scripts/gen_lowquality_images.py --count 500 --seed 42
+```
+
+### 5. Sızıntı koruması
+
+Eşik sağlamasında kullanılan örnekler geliştirme kümesine sabitlenir ve nihai
+test bölünmesine giremez.
+
+```bash
+python3 scripts/fix_dev_split.py --dogrula
+```
+
+### 6. Eşik taraması ve ölçüm
+
+```bash
+python3 scripts/threshold_sweep.py    # yalnızca geliştirme + doğrulama
+python3 scripts/evaluate.py           # test kümesinde tek seferlik
+python3 scripts/build_report.py       # sunuma hazır tablolar
+```
+
+Eşik taraması test bölünmesini hiçbir koşulda okumaz. Ayrıntı için
+[`splits/README.md`](splits/README.md).
+
 ## Değişiklik kaydı
 
 Arayüz düzeltme turunun madde madde durumu, ölçülen kontrast oranları ve denetim sonuçları
