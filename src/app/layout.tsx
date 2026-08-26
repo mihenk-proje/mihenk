@@ -22,9 +22,44 @@ const ibmPlexMono = IBM_Plex_Mono({
   display: "swap",
 });
 
+const BASLIK = "MİHENK — NSosyal Katılım Katmanı"
+const ACIKLAMA =
+  "Nitelikli paylaşımı ödüllendiren, kopya ve düşük çabalı içeriği ayıklayan " +
+  "katılım katmanı prototipi. Ödül, paylaşım miktarına değil içeriğin otomatik " +
+  "denetimden geçip geçmediğine bağlanır."
+
+/*
+  Bağlantı önizlemesi. Simgeler src/app altındaki dosya adlarından otomatik
+  bağlanır: icon.png, apple-icon.png, favicon.ico, opengraph-image.png.
+*/
 export const metadata: Metadata = {
-  title: "MİHENK - NSosyal Katılım Sistemi",
-  description: "NSosyal için geliştirilmiş içerik doğrulama ve jeton kazanım katmanı.",
+  /*
+    Bağlantı önizlemesindeki görsel mutlak adres ister. Bu verilmezse Next
+    istek adresinden türetir ve üretimde localhost'a çözülebilir.
+    Vercel dağıtımında VERCEL_URL doludur; yerelde yayın adresine düşer.
+  */
+  metadataBase: new URL(
+    process.env.VERCEL_ENV === 'production'
+      ? 'https://mihenk-proje.vercel.app'
+      : process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : 'https://mihenk-proje.vercel.app'
+  ),
+  title: BASLIK,
+  description: ACIKLAMA,
+  applicationName: "MİHENK",
+  openGraph: {
+    title: BASLIK,
+    description: ACIKLAMA,
+    siteName: "MİHENK",
+    locale: "tr_TR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: BASLIK,
+    description: ACIKLAMA,
+  },
 };
 
 export default function RootLayout({

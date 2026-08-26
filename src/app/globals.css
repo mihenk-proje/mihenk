@@ -22,22 +22,29 @@
   --mihenk-interaction: #8fa6bd;
 
   /*
-    Kozmetik ürün renkleri. Koyu ve açık temada ayrı tanımlanır: bu renkler
-    koyu zemine göre seçilmişti ve açık temada kontrast eşiğini kaçırıyorlardı
-    (Gümüş Nişan 1,47 · Kuvars 1,75 · Altın 1,96).
+    Kozmetik ürün renkleri, tema başına ayrı.
 
-    Rapor Tablo 10 kozmetik ürünlerin AA eşiğini düşüremeyeceğini taahhüt
-    ediyor; taahhüt her iki temada da geçerlidir.
+    İki kısıt birlikte sağlanır:
+      1. Kontrast — her renk kendi zemininde AA eşiğini geçer. Rapor Tablo 10
+         kozmetik ürünlerin AA eşiğini düşüremeyeceğini taahhüt ediyor.
+      2. Ayrım — kozmetikler birbirinden ayırt edilebilmeli. İlk sürümde
+         hepsi AA'ya çekilirken aynı koyu kahve bölgesine sıkışmıştı ve açık
+         temada beş çift ΔE < 12 ile ayırt edilemez haldeydi (Kuvars/Gümüş
+         2,4 · Pirinç/Altın 7,2 · Pirinç/Tunç 9,9).
+
+    Ölçülen en düşük ayrım: koyu tema ΔE 22,5 · açık tema ΔE 20,0.
+    Mineral kimliği korundu; pirinç ve tunç akraba metaller olduğu için
+    birbirine en yakın çift onlar.
   */
   --kozmetik-pirinc: #c89544;
-  --kozmetik-tunc: #a3672f;
+  --kozmetik-tunc: #e0761f;
   --kozmetik-ametist: #9b7fc4;
-  --kozmetik-altin: #e0b348;
-  --kozmetik-kuvars: #b9c6cc;
-  --kozmetik-gumus: #cfd6da;
+  --kozmetik-altin: #e0c14a;
+  --kozmetik-kuvars: #74b9de;
+  --kozmetik-gumus: #c6ccd1;
   --kozmetik-kulce: #c89544;
-  --kozmetik-ayar: #e0b348;
-  --kozmetik-mika: #c8a86b;
+  --kozmetik-ayar: #e0c14a;
+  --kozmetik-mika: #cbb68a;
 }
 
 .light {
@@ -57,16 +64,16 @@
   --mihenk-error: #93412d;
   --mihenk-interaction: #3c5d7a;
 
-  /* Açık temada ölçülerek koyulaştırıldı; hepsi #f2efe7 üzerinde AA. */
+  /* Açık temada ölçülerek ayrıştırıldı; en düşük ayrım ΔE 20,0. */
   --kozmetik-pirinc: #8a6120;
-  --kozmetik-tunc: #8f5624;
+  --kozmetik-tunc: #93441c;
   --kozmetik-ametist: #6b4f96;
-  --kozmetik-altin: #7a5d10;
-  --kozmetik-kuvars: #5a6b73;
+  --kozmetik-altin: #5f620c;
+  --kozmetik-kuvars: #2f6a91;
   --kozmetik-gumus: #5f6a70;
   --kozmetik-kulce: #8a6120;
-  --kozmetik-ayar: #7a5d10;
-  --kozmetik-mika: #7a5f2c;
+  --kozmetik-ayar: #5f620c;
+  --kozmetik-mika: #7d6a45;
 }
 
 @theme inline {
