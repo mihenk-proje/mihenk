@@ -94,53 +94,55 @@ const seed: SeedGonderi[] = [
   { ...temel, id: 'g01', yazarId: 'burak_yilmaz', tur: 'metin', metin: KAYNAK_METIN, olusturmaZamani: sa(1),
     yorumSayisi: 1, izlenimSayisi: 96 },
 
-  // 2 — GÖRSEL DÖNÜŞÜMÜ. g03'ün görselinin filtreli hâli.
+  // 2 — ETKİNLİK GÖNDERİSİ. İlk ekranda kopya tespitiyle birlikte gerçek bir
+  //     etkinlik görseli görünsün diye akışın başına alındı.
+  { ...temel, id: 'g10', yazarId: BEN_ID, tur: 'metinGorsel',
+    metin: 'Deniz araçları yarışmasının eleme turunu izledik. Parkuru en hızlı tamamlayan takım, gövde direncini düşürmek için burun profilini baştan çizmiş.',
+    gorselUrl: '/seed/etkinlik-yuzme-yarisi.webp', olusturmaZamani: sa(2), yorumSayisi: 5, roketSayisi: 22, izlenimSayisi: 604 },
+
+  // 3 — GÖRSEL DÖNÜŞÜMÜ. g03'ün görselinin filtreli hâli.
   //     Kopya, kaynağından YENİ olmalı: doğrulama eskiden yeniye çalışır,
   //     kaynak önce işlenip parmak izini bırakmazsa eşleşme bulunamaz.
   { ...temel, id: 'g02', yazarId: 'zeynep_sahin', tur: 'metinGorsel',
     metin: 'Kart yerleşimi için bir örnek. Güç ve sinyal katmanlarının ayrılması bu çizimde net görünüyor.',
-    gorselUrl: '/seed/uretim-devre--filtre.webp', olusturmaZamani: sa(2), izlenimSayisi: 74 },
+    gorselUrl: '/seed/uretim-devre--filtre.webp', olusturmaZamani: sa(3), izlenimSayisi: 74 },
 
-  // 3 — DOĞRULANDI + görsel. Prosedürel görsel: A3.1 gereği ödüllendirilen
+  // 4 — DOĞRULANDI + görsel. Prosedürel görsel: A3.1 gereği ödüllendirilen
   //     gönderide dış kaynaklı fotoğraf kullanılmaz. g02'nin kaynağı.
   { ...temel, id: 'g03', yazarId: BEN_ID, tur: 'metinGorsel',
     metin: 'Uçuş kontrol kartının ikinci revizyonunu çizdim. Güç hattını sinyal katmanından ayırdım, telemetri hattındaki gürültü belirgin biçimde azaldı.',
-    gorselUrl: '/seed/uretim-devre.webp', olusturmaZamani: sa(3), yorumSayisi: 4, roketSayisi: 19, izlenimSayisi: 412 },
+    gorselUrl: '/seed/uretim-devre.webp', olusturmaZamani: sa(4), yorumSayisi: 4, roketSayisi: 19, izlenimSayisi: 412 },
 
-  // 4 — DÜŞÜK ÇABALI METİN. 15 karakter altı sert taban.
+  // 5 — DÜŞÜK ÇABALI METİN. 15 karakter altı sert taban.
   { ...temel, id: 'g04', yazarId: 'elif_celik', tur: 'metin', metin: 'Süper.',
-    olusturmaZamani: sa(4), izlenimSayisi: 31 },
+    olusturmaZamani: sa(5), izlenimSayisi: 31 },
 
-  // 5 — YZ DESTEKLİ + DOĞRULANDI. Beyan eden tam jeton alır, kesinti yoktur.
+  // 6 — YZ DESTEKLİ + DOĞRULANDI. Beyan eden tam jeton alır, kesinti yoktur.
   { ...temel, id: 'g05', yazarId: 'mert_yildiz', tur: 'metin', yzBeyani: true,
     metin: 'Sürü İHA senaryosunda çarpışma önleme mantığını yeniden yazarken bir dil modelinden taslak aldım, sonra kendi telemetri verimizle baştan doğruladım. Ham taslak dört köşe durumda hatalıydı.',
-    olusturmaZamani: sa(5), yorumSayisi: 7, roketSayisi: 24, izlenimSayisi: 538 },
+    olusturmaZamani: sa(6), yorumSayisi: 7, roketSayisi: 24, izlenimSayisi: 538 },
 
-  // 6 — BENZERLİK UYARI BANDI. g08 ile kısmi örtüşme; kopya değil, kazanç azaltılır.
+  // 7 — BENZERLİK UYARI BANDI. g08 ile kısmi örtüşme; kopya değil, kazanç azaltılır.
   { ...temel, id: 'g06', yazarId: 'kaan_demir', tur: 'metin',
     metin: 'Roket motorunun ikinci ateşleme denemesinde basınç eğrisi beklenenden yumuşak seyretti; bu kez yakıt hattındaki basınç düşüşünü ayrı bir sensörle ölçtük.',
-    olusturmaZamani: sa(6), yorumSayisi: 2, roketSayisi: 8, izlenimSayisi: 154 },
+    olusturmaZamani: sa(7), yorumSayisi: 2, roketSayisi: 8, izlenimSayisi: 154 },
 
-  // 7 — DÜŞÜK ÇABA GÖRSEL. Üretilmiş bulanık görsel.
+  // 8 — DÜŞÜK ÇABA GÖRSEL. Üretilmiş bulanık görsel.
   { ...temel, id: 'g07', yazarId: 'ayse_kaya', tur: 'metinGorsel',
     metin: 'Atölyeden bir kare paylaşıyorum, ayrıntı pek seçilmiyor ama ortam buydu.',
-    gorselUrl: '/seed/dusuk-caba-bulanik.webp', olusturmaZamani: sa(7), izlenimSayisi: 58 },
+    gorselUrl: '/seed/dusuk-caba-bulanik.webp', olusturmaZamani: sa(8), izlenimSayisi: 58 },
 
-  // 8 — DOĞRULANDI, uzun teknik metin. g01 ve g06'nın kaynağı.
+  // 9 — DOĞRULANDI, uzun teknik metin. g01 ve g06'nın kaynağı.
   { ...temel, id: 'g08', yazarId: 'ayse_kaya', tur: 'metin', metin: KAYNAK_METIN,
     olusturmaZamani: sa(26), yorumSayisi: 11, roketSayisi: 47, izlenimSayisi: 912 },
 
-  // 9 — ANKET.
+  // 10 — ANKET.
   { ...temel, id: 'g09', yazarId: BEN_ID, tur: 'anket',
     metin: 'Takımda hangi alt sistemin doğrulaması en çok vakit alıyor? Kendi deneyiminizi merak ediyorum.',
     anketSecenekleri: ['Uçuş kontrol yazılımı', 'Güç dağıtımı', 'Haberleşme bağlantısı', 'Mekanik montaj'],
     olusturmaZamani: sa(30), yorumSayisi: 19, roketSayisi: 31, izlenimSayisi: 1240 },
 
-  // 10-12 — Etkinlik gönderileri. Günlük sınır ilerleyişi için g02 ve g09 ile
-  //         birlikte aynı kullanıcının kazanan gönderilerini oluşturur.
-  { ...temel, id: 'g10', yazarId: BEN_ID, tur: 'metinGorsel',
-    metin: 'Deniz araçları yarışmasının eleme turunu izledik. Parkuru en hızlı tamamlayan takım, gövde direncini düşürmek için burun profilini baştan çizmiş.',
-    gorselUrl: '/seed/etkinlik-yuzme-yarisi.webp', olusturmaZamani: sa(34), yorumSayisi: 5, roketSayisi: 22, izlenimSayisi: 604 },
+  // 11-12 — Etkinlik gönderileri.
 
   { ...temel, id: 'g11', yazarId: 'kaan_demir', tur: 'metinGorsel',
     metin: 'Rıhtımda sergilenen araçları yakından görme fırsatı oldu. Sensör yerleşimleri ve kablo kanalları beklediğimden çok daha derli topluydu.',
