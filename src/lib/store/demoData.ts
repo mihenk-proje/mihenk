@@ -124,17 +124,19 @@ const seed: SeedGonderi[] = [
     gorselUrl: '/seed/etkinlik-rihtim-gemiler.webp', olusturmaZamani: sa(2), yorumSayisi: 3, roketSayisi: 14, izlenimSayisi: 388 },
 
   // 3 — GÖRSEL DÖNÜŞÜMÜ. g03'ün görselinin filtreli hâli.
+  //     Kopya senaryosunda dış kaynaklı bir fotoğraf kullanılır: "bu görsel
+  //     size ait değil" durumunun tam karşılığı budur.
   //     Kopya, kaynağından YENİ olmalı: doğrulama eskiden yeniye çalışır,
   //     kaynak önce işlenip parmak izini bırakmazsa eşleşme bulunamaz.
   { ...temel, id: 'g02', yazarId: 'zeynep_sahin', tur: 'metinGorsel',
-    metin: 'Kart yerleşimi için bir örnek. Güç ve sinyal katmanlarının ayrılması bu çizimde net görünüyor.',
-    gorselUrl: '/seed/uretim-devre--filtre.webp', olusturmaZamani: sa(3), izlenimSayisi: 74 },
+    metin: 'Festival alanından bir kare. Sahne kurulumu gerçekten etkileyiciydi.',
+    gorselUrl: '/seed/etkinlik-sahne-acilis--filtre.webp', olusturmaZamani: sa(3), izlenimSayisi: 74 },
 
-  // 4 — DOĞRULANDI + görsel. Prosedürel görsel: A3.1 gereği ödüllendirilen
-  //     gönderide dış kaynaklı fotoğraf kullanılmaz. g02'nin kaynağı.
-  { ...temel, id: 'g03', yazarId: BEN_ID, tur: 'metinGorsel',
-    metin: 'Uçuş kontrol kartının ikinci revizyonunu çizdim. Güç hattını sinyal katmanından ayırdım, telemetri hattındaki gürültü belirgin biçimde azaldı.',
-    gorselUrl: '/seed/uretim-devre.webp', olusturmaZamani: sa(4), yorumSayisi: 4, roketSayisi: 19, izlenimSayisi: 412 },
+  // 4 — g02'nin kaynağı. Kullanıcının kendi gönderisi değil: ödüllendirilen
+  //     kendi içeriğinde dış kaynaklı fotoğraf kullanılmaz.
+  { ...temel, id: 'g03', yazarId: 'mert_yildiz', tur: 'metinGorsel',
+    metin: 'Sahne kurulumunu yakından görmek için erken gittik. Ekran duvarının kalibrasyonu sabahtan beri sürüyormuş.',
+    gorselUrl: '/seed/etkinlik-sahne-acilis.webp', olusturmaZamani: sa(4), yorumSayisi: 4, roketSayisi: 19, izlenimSayisi: 412 },
 
   // 5 — DÜŞÜK ÇABALI METİN. 15 karakter altı sert taban.
   { ...temel, id: 'g04', yazarId: 'elif_celik', tur: 'metin', metin: 'Süper.',
@@ -164,16 +166,17 @@ const seed: SeedGonderi[] = [
     anketSecenekleri: ['Uçuş kontrol yazılımı', 'Güç dağıtımı', 'Haberleşme bağlantısı', 'Mekanik montaj'],
     olusturmaZamani: sa(9), yorumSayisi: 19, roketSayisi: 31, izlenimSayisi: 1240 },
 
-  // 10 — DOĞRULANDI, uzun teknik metin. g01 ve g06'nın kaynağı.
+  { ...temel, id: 'g10', yazarId: BEN_ID, tur: 'metinGorsel',
+    metin: 'Uçuş kontrol kartının ikinci revizyonunu çizdim. Güç hattını sinyal katmanından ayırdım, telemetri hattındaki gürültü belirgin biçimde azaldı.',
+    gorselUrl: '/seed/uretim-devre.webp', olusturmaZamani: sa(10), yorumSayisi: 5, roketSayisi: 22, izlenimSayisi: 604 },
+
+  // 11 — DOĞRULANDI, uzun teknik metin. g01 ve g06'nın kaynağı.
   { ...temel, id: 'g08', yazarId: 'ayse_kaya', tur: 'metin', metin: KAYNAK_METIN,
     olusturmaZamani: sa(26), yorumSayisi: 11, roketSayisi: 47, izlenimSayisi: 912 },
 
 
   // 11-12 — Etkinlik gönderileri.
 
-  { ...temel, id: 'g10', yazarId: BEN_ID, tur: 'metinGorsel',
-    metin: 'Deniz araçları yarışmasının eleme turunu izledik. Parkuru en hızlı tamamlayan takım, gövde direncini düşürmek için burun profilini baştan çizmiş.',
-    gorselUrl: '/seed/etkinlik-yuzme-yarisi.webp', olusturmaZamani: sa(50), yorumSayisi: 5, roketSayisi: 22, izlenimSayisi: 604 },
 
   { ...temel, id: 'g12', yazarId: 'zeynep_sahin', tur: 'metinGorsel',
     metin: 'Ödül töreni alanı bu kadar kalabalıktı. Dinlediğimiz takımların çoğu, ölçüm altyapısını yarışmadan aylar önce kurmuş olmayı belirleyici saymış.',

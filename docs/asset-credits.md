@@ -60,7 +60,8 @@ Aşağıdaki görseller depodaki betiklerle üretilir, dış kaynak içermez ve 
 
 | Dosya | Kaynak | İşlem | Gerekçe |
 |---|---|---|---|
-| `etkinlik-odul-toreni--kirpik.webp` | `etkinlik-odul-toreni.webp` | Üstten 575 px kırpıldı (1200×800 → 1200×225) | Sahne ekranında gerçek kazananların adları yazılıydı. Kırpma bu bandı tamamen dışarıda bırakır; sahne tabanı ve kalabalık korunur. |
+| `etkinlik-odul-toreni--kirpik.webp` | `etkinlik-odul-toreni.webp` | (250, 582)–(1010, 800) kırpıldı (1200×800 → 760×218) | Sahne ekranında gerçek kazananların adları yazılıydı. Kırpma bu bandı tamamen dışarıda bırakır; kalabalık ve sahne tabanı korunur. İlk kırpım tüm genişliği alıyordu ve 5,33:1 ile şerit gibi duruyordu; yatayda da daraltılarak 3,49:1'e getirildi. |
+| `etkinlik-sahne-acilis--filtre.webp` | `etkinlik-sahne-acilis.webp` | `gen_image_variants.py --tur filtre --seed 21` | Algısal hash eşleşmesi demosunun kopya tarafı. Hamming mesafesi 2/64. |
 
 Kırpılmamış özgün dosya `public/seed/` altında durmaya devam eder ancak
 arayüzde kullanılmaz.
