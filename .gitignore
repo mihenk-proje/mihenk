@@ -52,7 +52,9 @@ data/images/normal/
 data/images/lowquality/
 data/images/variants/
 
-# Denetim sirasinda uretilen ekran goruntuleri
-*.png
-!public/**/*.png
+# Denetim sirasinda uretilen ekran goruntuleri yalnizca kok dizinde olusur.
+# Genel *.png kurali kullanilmamali: src/app altindaki simge ve baglanti
+# onizleme dosyalari (icon.png, apple-icon.png, opengraph-image.png) da
+# ona takiliyor ve uretimde og:image kayboluyordu.
+/*.png
 
