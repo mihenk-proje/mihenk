@@ -311,6 +311,15 @@ function UrunOnizleme({
   const { efekt } = urun
   const bakiyeYetersiz = state.kullanici.jetonBakiyesi < urun.fiyat
 
+  /*
+    Sahip olunan ürün pencereden tekrar satın alınamaz. Mağaza kartı bunu
+    zaten "Açık/Kapalı" düğmesiyle engelliyordu ama önizleme penceresinin
+    Al düğmesi yalnızca bakiyeye bakıyordu; sahip olunan bir ürün ikinci
+    kez ücretlendirilebiliyordu.
+  */
+  const sahip = state.kullanici.envanter.find((e) => e.urunId === urun.id)
+  const sahipMi = Boolean(sahip) && !suresiDoldu(urun, sahip!)
+
   const cerceveSinifi = efekt.tur === 'cerceve' ? (CERCEVE_SINIFLARI[efekt.deger] ?? '') : ''
   const adSinifi = efekt.tur === 'adRengi' ? (AD_RENGI_SINIFLARI[efekt.deger] ?? '') : ''
   const rozetGorunum = efekt.tur === 'rozet' ? ROZET_SIMGELERI[efekt.deger] : undefined
@@ -385,7 +394,11 @@ function UrunOnizleme({
           Bakiye yeterliyse satin almanin bakiyeye etkisi, degilse eksik
           miktar gosterilir. Ikisi ayni satiri paylasir.
         */}
-        {bakiyeYetersiz ? (
+        {sahipMi ? (
+          <p id="onizleme-sahip" className="mb-3 text-sm text-success text-center">
+            Bu ürün envanterinde. Açıp kapatmayı cüzdan ekranından yapabilirsin.
+          </p>
+        ) : bakiyeYetersiz ? (
           <p id="onizleme-eksik" className="mb-3 text-sm text-secondary text-center">
             {urun.fiyat - state.kullanici.jetonBakiyesi} jeton daha gerekiyor.
           </p>
@@ -412,16 +425,20 @@ function UrunOnizleme({
           <button
             type="button"
             onClick={onSatinAl}
-            disabled={bakiyeYetersiz}
-            aria-disabled={bakiyeYetersiz || undefined}
-            aria-describedby={bakiyeYetersiz ? 'onizleme-eksik' : undefined}
+            disabled={bakiyeYetersiz || sahipMi}
+            aria-disabled={bakiyeYetersiz || sahipMi || undefined}
+            aria-describedby={
+              sahipMi ? 'onizleme-sahip' : bakiyeYetersiz ? 'onizleme-eksik' : undefined
+            }
             className={`flex-1 py-3 font-bold rounded-xl transition-colors ${
-              bakiyeYetersiz
+              bakiyeYetersiz || sahipMi
                 ? 'bg-page border border-line text-secondary cursor-not-allowed'
                 : 'bg-brand hover:bg-brand/90 text-brand-ink'
             }`}
           >
-            {bakiyeYetersiz ? (
+            {sahipMi ? (
+              'Sahipsin'
+            ) : bakiyeYetersiz ? (
               'Yetersiz bakiye'
             ) : (
               <span className="inline-flex items-center gap-2">

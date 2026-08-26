@@ -43,35 +43,37 @@ export async function calistir() {
   kontrol('reddedilen kazanımlar da deftere geçti', d().hareketler.some((h) => h.miktar === 0 && h.aciklama.includes('Kazanç verilmedi')))
 
   console.log('\n— Satın alma —')
-  const pirinc = d().magaza.find((u) => u.id === 'u1')
+  // u1 demo açılışında envanterde geldiği için sahip olunmayan bir ürün seçilir
+  const urun = d().magaza.find((u) => u.id === 'u2')
   const oncekiBakiye = d().kullanici.jetonBakiyesi
-  kontrol('alım başarılı', depo.urunSatinAl(pirinc) === true)
+  kontrol('alım başarılı', depo.urunSatinAl(urun) === true)
   kontrol('bakiye ürün fiyatı kadar düştü',
-    d().kullanici.jetonBakiyesi === oncekiBakiye - pirinc.fiyat,
-    `→ ${oncekiBakiye} - ${pirinc.fiyat} = ${d().kullanici.jetonBakiyesi}`)
-  kontrol('defter kaydı eklendi', d().hareketler[0].miktar === -15)
+    d().kullanici.jetonBakiyesi === oncekiBakiye - urun.fiyat,
+    `→ ${oncekiBakiye} - ${urun.fiyat} = ${d().kullanici.jetonBakiyesi}`)
+  kontrol('defter kaydı eklendi', d().hareketler[0].miktar === -urun.fiyat)
   kontrol('bakiye defterle tutarlı', d().kullanici.jetonBakiyesi === defterToplami())
   const alimSonrasi = d().kullanici.jetonBakiyesi
-  kontrol('envantere eklendi', d().kullanici.envanter.some((s) => s.urunId === 'u1' && s.aktif))
+  kontrol('envantere eklendi', d().kullanici.envanter.some((s) => s.urunId === 'u2' && s.aktif))
+  kontrol('sahip olunan ürün ikinci kez ücretlendirilmez', depo.urunSatinAl(urun) === false)
 
   const altin = d().magaza.find((u) => u.id === 'u5')
   kontrol('yetersiz bakiyede alım reddedilir', depo.urunSatinAl(altin) === false)
   kontrol('reddedilen alım bakiyeyi bozmaz', d().kullanici.jetonBakiyesi === alimSonrasi)
 
   console.log('\n— Ürün aç/kapa —')
-  depo.urunAcKapa('u1')
-  kontrol('kapatıldı', d().kullanici.envanter.find((s) => s.urunId === 'u1').aktif === false)
-  depo.urunAcKapa('u1')
-  kontrol('yeniden açıldı', d().kullanici.envanter.find((s) => s.urunId === 'u1').aktif === true)
+  depo.urunAcKapa('u2')
+  kontrol('kapatıldı', d().kullanici.envanter.find((s) => s.urunId === 'u2').aktif === false)
+  depo.urunAcKapa('u2')
+  kontrol('yeniden açıldı', d().kullanici.envanter.find((s) => s.urunId === 'u2').aktif === true)
 
   console.log('\n— Süre dolumu —')
-  kontrol('yeni alınan süreli ürün yürürlükte', yururluktekiUrunler(d()).some((u) => u.id === 'u1'))
+  kontrol('yeni alınan süreli ürün yürürlükte', yururluktekiUrunler(d()).some((u) => u.id === 'u2'))
   const eski = {
-    urunId: 'u1',
+    urunId: 'u2',
     satinAlmaZamani: new Date(Date.now() - 2 * 86_400_000).toISOString(),
     aktif: true,
   }
-  kontrol('iki gün önceki 24 saatlik ürün dolmuş', suresiDoldu(pirinc, eski) === true)
+  kontrol('iki gün önceki 24 saatlik ürün dolmuş', suresiDoldu(urun, eski) === true)
   kontrol('kalıcı ürün hiç dolmaz', suresiDoldu(altin, eski) === false)
 
   console.log('\n— Doğrulama ve günlük tavan —')

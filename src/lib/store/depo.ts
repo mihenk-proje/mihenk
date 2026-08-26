@@ -208,6 +208,12 @@ export function gonderiEkle(gonderi: Gonderi) {
 export function urunSatinAl(urun: Urun): boolean {
   if (mevcut.veri.kullanici.jetonBakiyesi < urun.fiyat) return false
 
+  // Yürürlükteki bir ürün ikinci kez ücretlendirilmez. Arayüz bunu zaten
+  // engelliyor; buradaki kontrol bir arayüz hatasının bakiyeye yansımasını
+  // önleyen ikinci savunma hattıdır.
+  const sahip = mevcut.veri.kullanici.envanter.find((e) => e.urunId === urun.id)
+  if (sahip && !suresiDoldu(urun, sahip)) return false
+
   guncelle((onceki) => ({
     ...onceki,
     kullanici: {
