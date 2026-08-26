@@ -135,6 +135,9 @@ body {
 .mihenk-sagdan { animation: mihenk-sagdan 300ms cubic-bezier(0.32, 0.72, 0, 1) both; }
 .mihenk-alttan { animation: mihenk-alttan 300ms cubic-bezier(0.32, 0.72, 0, 1) both; }
 
+/* Tanıtım turu vurgu halkası; konum değişimi yumuşak geçer. */
+.mihenk-vurgu { transition: top 200ms ease, left 200ms ease, width 200ms ease, height 200ms ease; }
+
 /* Hareketi azaltma tercihi (WCAG 2.3.3) */
 @media (prefers-reduced-motion: reduce) {
   *,

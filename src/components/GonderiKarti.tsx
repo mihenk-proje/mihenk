@@ -141,6 +141,7 @@ export function GonderiKarti({ gonderi }: { gonderi: Gonderi }) {
 
             {dogrulandi && (
               <span
+                data-tanitim="rozet"
                 className="inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded border border-success/40 text-success"
                 role="img"
                 aria-label={`${

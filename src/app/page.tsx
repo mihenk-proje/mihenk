@@ -10,6 +10,7 @@ import { Giris } from "@/components/Giris"
 import { GonderiKarti } from "@/components/GonderiKarti"
 import { GonderiOlustur } from "@/components/GonderiOlustur"
 import { Magaza } from "@/components/Magaza"
+import { Tanitim, tanitimGoruldu } from "@/components/Tanitim"
 import { TopBar } from "@/components/TopBar"
 
 const GIRIS_ANAHTARI = 'mihenk_entered'
@@ -34,6 +35,13 @@ export default function Home() {
   const [sonuc, setSonuc] = useState<Sonuc | null>(null)
   const [gorunum, setGorunum] = useState<'akis' | 'cuzdan' | 'magaza'>('akis')
 
+  /*
+    Tur yalnızca ilk girişte açılır. Durumu uygulama durumundan ayrı bir
+    anahtarda tutulur; seed sürümü değişip durum sıfırlansa bile tur
+    yeniden gösterilmez.
+  */
+  const [tanitimAcik, setTanitimAcik] = useState(() => girisYapilmisMi() && !tanitimGoruldu())
+
   const handleEnter = () => {
     try {
       sessionStorage.setItem(GIRIS_ANAHTARI, 'true')
@@ -41,6 +49,7 @@ export default function Home() {
       // Özel sekmede yazılamayabilir; oturum içinde çalışmaya devam eder
     }
     setGirisYapildi(true)
+    if (!tanitimGoruldu()) setTanitimAcik(true)
   }
 
   if (!girisYapildi) {
@@ -60,6 +69,7 @@ export default function Home() {
       <TopBar
         onCuzdanClick={() => setGorunum('cuzdan')}
         onMagazaClick={() => setGorunum('magaza')}
+        onTanitimClick={() => setTanitimAcik(true)}
       />
 
       <main className="flex-1 w-full max-w-2xl mx-auto border-x border-line">
@@ -92,6 +102,8 @@ export default function Home() {
 
       {gorunum === 'cuzdan' && <Cuzdan onBack={() => setGorunum('akis')} />}
       {gorunum === 'magaza' && <Magaza onBack={() => setGorunum('akis')} />}
+
+      {tanitimAcik && <Tanitim onKapat={() => setTanitimAcik(false)} />}
 
       {sonuc && (
         <DogrulamaSonucu
