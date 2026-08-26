@@ -55,3 +55,12 @@ Aşağıdaki görseller depodaki betiklerle üretilir, dış kaynak içermez ve 
 |---|---|---|
 | Arayüz simgeleri | [lucide-react](https://lucide.dev) | ISC |
 | Bricolage Grotesque, Manrope, IBM Plex Mono | Google Fonts | SIL Open Font License 1.1 |
+
+## Kırpma işlemleri
+
+| Dosya | Kaynak | İşlem | Gerekçe |
+|---|---|---|---|
+| `etkinlik-odul-toreni--kirpik.webp` | `etkinlik-odul-toreni.webp` | Üstten 575 px kırpıldı (1200×800 → 1200×225) | Sahne ekranında gerçek kazananların adları yazılıydı. Kırpma bu bandı tamamen dışarıda bırakır; sahne tabanı ve kalabalık korunur. |
+
+Kırpılmamış özgün dosya `public/seed/` altında durmaya devam eder ancak
+arayüzde kullanılmaz.

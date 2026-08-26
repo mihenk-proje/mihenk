@@ -171,8 +171,8 @@ const seed: SeedGonderi[] = [
     gorselUrl: '/seed/etkinlik-rihtim-gemiler.webp', olusturmaZamani: sa(50), yorumSayisi: 3, roketSayisi: 14, izlenimSayisi: 388 },
 
   { ...temel, id: 'g12', yazarId: 'zeynep_sahin', tur: 'metinGorsel',
-    metin: 'Ödül töreninde kazanan takımların sunumlarını dinledik. Çoğu, ölçüm altyapısını yarışmadan aylar önce kurmuş olmayı belirleyici saymış.',
-    gorselUrl: '/seed/etkinlik-odul-toreni.webp', olusturmaZamani: sa(54), yorumSayisi: 6, roketSayisi: 18, izlenimSayisi: 452 },
+    metin: 'Ödül töreni alanı bu kadar kalabalıktı. Dinlediğimiz takımların çoğu, ölçüm altyapısını yarışmadan aylar önce kurmuş olmayı belirleyici saymış.',
+    gorselUrl: '/seed/etkinlik-odul-toreni--kirpik.webp', olusturmaZamani: sa(54), yorumSayisi: 6, roketSayisi: 18, izlenimSayisi: 452 },
 ]
 
 export const demoGonderiler: Gonderi[] = seed.map((g) => ({
