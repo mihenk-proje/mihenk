@@ -38,26 +38,30 @@ export function islevAcikMi(state: AppState, deger: string): boolean {
 }
 
 /*
-  Tailwind sınıf adları derleme sırasında taranır; bu yüzden
-  dinamik birleştirme yerine sabit eşleme tabloları kullanılır.
+  Tailwind sınıf adları derleme sırasında taranır; bu yüzden dinamik
+  birleştirme yerine sabit eşleme tabloları kullanılır.
+
+  Renkler doğrudan yazılmaz, globals.css'teki kozmetik değişkenlerinden gelir:
+  aynı ürün koyu ve açık temada farklı bir tona ihtiyaç duyar. Ürün renkleri
+  koyu zemine göre seçilmişti ve açık temada kontrast eşiğini kaçırıyorlardı.
 */
 
 export const CERCEVE_SINIFLARI: Record<string, string> = {
-  pirinc: 'ring-2 ring-offset-2 ring-offset-page ring-[#c89544]',
-  tunc: 'ring-2 ring-offset-2 ring-offset-page ring-[#a3672f]',
-  ametist: 'ring-2 ring-offset-2 ring-offset-page ring-[#9b7fc4]',
-  altin: 'ring-2 ring-offset-2 ring-offset-page ring-[#e0b348]',
+  pirinc: 'ring-2 ring-offset-2 ring-offset-page ring-[var(--kozmetik-pirinc)]',
+  tunc: 'ring-2 ring-offset-2 ring-offset-page ring-[var(--kozmetik-tunc)]',
+  ametist: 'ring-2 ring-offset-2 ring-offset-page ring-[var(--kozmetik-ametist)]',
+  altin: 'ring-2 ring-offset-2 ring-offset-page ring-[var(--kozmetik-altin)]',
 }
 
 export const AD_RENGI_SINIFLARI: Record<string, string> = {
-  mika: 'text-[#c8a86b]',
+  mika: 'text-[var(--kozmetik-mika)]',
 }
 
 export const ROZET_SIMGELERI: Record<string, { simge: string; sinif: string; etiket: string }> = {
-  kuvars: { simge: '◆', sinif: 'text-[#b9c6cc]', etiket: 'Kuvars rozeti' },
-  gumus: { simge: '❖', sinif: 'text-[#cfd6da]', etiket: 'Gümüş nişan' },
-  kulce: { simge: '▰', sinif: 'text-[#c89544]', etiket: 'Külçe nişanı' },
-  ayar: { simge: '✦', sinif: 'text-[#e0b348]', etiket: 'Ayar rozeti' },
+  kuvars: { simge: '◆', sinif: 'text-[var(--kozmetik-kuvars)]', etiket: 'Kuvars rozeti' },
+  gumus: { simge: '❖', sinif: 'text-[var(--kozmetik-gumus)]', etiket: 'Gümüş nişan' },
+  kulce: { simge: '▰', sinif: 'text-[var(--kozmetik-kulce)]', etiket: 'Külçe nişanı' },
+  ayar: { simge: '✦', sinif: 'text-[var(--kozmetik-ayar)]', etiket: 'Ayar rozeti' },
 }
 
 export const TEMA_SINIFLARI: Record<string, string> = {

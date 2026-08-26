@@ -20,6 +20,24 @@
   --mihenk-success: #68ad99;
   --mihenk-error: #d4705a;
   --mihenk-interaction: #8fa6bd;
+
+  /*
+    Kozmetik ürün renkleri. Koyu ve açık temada ayrı tanımlanır: bu renkler
+    koyu zemine göre seçilmişti ve açık temada kontrast eşiğini kaçırıyorlardı
+    (Gümüş Nişan 1,47 · Kuvars 1,75 · Altın 1,96).
+
+    Rapor Tablo 10 kozmetik ürünlerin AA eşiğini düşüremeyeceğini taahhüt
+    ediyor; taahhüt her iki temada da geçerlidir.
+  */
+  --kozmetik-pirinc: #c89544;
+  --kozmetik-tunc: #a3672f;
+  --kozmetik-ametist: #9b7fc4;
+  --kozmetik-altin: #e0b348;
+  --kozmetik-kuvars: #b9c6cc;
+  --kozmetik-gumus: #cfd6da;
+  --kozmetik-kulce: #c89544;
+  --kozmetik-ayar: #e0b348;
+  --kozmetik-mika: #c8a86b;
 }
 
 .light {
@@ -34,6 +52,17 @@
   --mihenk-success: #2f6455;
   --mihenk-error: #93412d;
   --mihenk-interaction: #3c5d7a;
+
+  /* Açık temada ölçülerek koyulaştırıldı; hepsi #f2efe7 üzerinde AA. */
+  --kozmetik-pirinc: #8a6120;
+  --kozmetik-tunc: #8f5624;
+  --kozmetik-ametist: #6b4f96;
+  --kozmetik-altin: #7a5d10;
+  --kozmetik-kuvars: #5a6b73;
+  --kozmetik-gumus: #5f6a70;
+  --kozmetik-kulce: #8a6120;
+  --kozmetik-ayar: #7a5d10;
+  --kozmetik-mika: #7a5f2c;
 }
 
 @theme inline {
