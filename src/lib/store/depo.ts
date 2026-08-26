@@ -350,6 +350,15 @@ async function dogrulamaCalistir(
       cikti.durumu === 'gecti' ? TAM_ODUL : cikti.durumu === 'kismi' ? KISMI_ODUL : 0
 
     /*
+      Ödül yalnızca kullanıcının KENDİ gönderisi için cüzdana işlenir.
+      Akıştaki diğer yazarların gönderileri de doğrulanır ve rozetlerini
+      alır, ama kazançları bu kullanıcının bakiyesine girmez; aksi hâlde
+      hakem cüzdanda yazmadığı gönderilerin kayıtlarını görür ve
+      "ödül içeriği üretene verilir" iddiası çöker.
+    */
+    const benimGonderim = gonderi.yazarId === mevcut.veri.kullanici.id
+
+    /*
       Üst sınır, gönderinin paylaşıldığı GÜNÜN kazancına uygulanır;
       geçmiş tarihli gönderiler bugünün bütçesini tüketmez.
     */
@@ -362,7 +371,7 @@ async function dogrulamaCalistir(
     const bugunKazanilan = mevcut.veri.hareketler
       .filter((h) => h.miktar > 0 && h.tur !== 'demo' && gunBasi(h.zaman) === oGun)
       .reduce((t, h) => t + h.miktar, 0)
-    if (kazanilanJeton > 0 && bugunKazanilan + kazanilanJeton > GUNLUK_UST_SINIR) {
+    if (benimGonderim && kazanilanJeton > 0 && bugunKazanilan + kazanilanJeton > GUNLUK_UST_SINIR) {
       const eklenebilir = Math.max(0, GUNLUK_UST_SINIR - bugunKazanilan)
       gerekce.push(
         eklenebilir === 0
@@ -398,10 +407,12 @@ async function dogrulamaCalistir(
         an değil. Aksi hâlde geçmişe ait bütün gönderiler bugünün kazancı
         sayılır ve günlük üst sınırı tek seferde doldurur.
       */
-      hareketler: [
-        yeniHareket(defterAciklamasi(cikti.durumu), kazanilanJeton, gonderi.olusturmaZamani),
-        ...onceki.hareketler,
-      ],
+      hareketler: benimGonderim
+        ? [
+            yeniHareket(defterAciklamasi(cikti.durumu), kazanilanJeton, gonderi.olusturmaZamani),
+            ...onceki.hareketler,
+          ]
+        : onceki.hareketler,
     }))
 
     isleniyor.delete(gonderiId)

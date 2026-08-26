@@ -1,5 +1,66 @@
 # Değişiklik Kaydı
 
+## 2026-08-25 (dördüncü tur) — Geri bildirim düzeltmeleri
+
+### Cüzdan başkalarının gönderilerinden jeton alıyordu
+
+Doğrulama her gönderi için hareket defterine kayıt yazıyordu; akıştaki diğer
+yazarların kazançları da kullanıcının bakiyesine giriyordu. Ölçülen: bakiye 195
+jetonun **45'i başkalarının gönderilerinden** geliyordu. Hakem cüzdanı açsa
+yazmadığı gönderilerin kayıtlarını görürdü ve "ödül içeriği üretene verilir"
+iddiası çökerdi.
+
+Ödül artık yalnızca kullanıcının kendi gönderisi için işleniyor. Diğer
+yazarların gönderileri doğrulanmaya ve rozetlerini almaya devam ediyor.
+Günlük üst sınır da yalnızca kendi gönderilerine uygulanıyor.
+
+Düşük çabalı görsel gönderisi kullanıcının kendi gönderisi yapıldı: reddedilen
+kazanımın cüzdanda gerekçesiyle görünmesi için bir örnek gerekiyordu. Kopya
+değil düşük çaba seçildi; demo kullanıcısını kopyacı göstermek gereksiz.
+
+### Kozmetikler ayırt edilemiyordu
+
+Bir önceki turda hepsi AA eşiğine çekilirken aynı koyu kahve bölgesine
+sıkışmışlardı. Ölçülen ayrım (ΔE, CIE76):
+
+| Çift | Önce | Sonra |
+|---|---|---|
+| Kuvars – Gümüş (açık) | **2,4** | 24,6 |
+| Pirinç – Altın (açık) | **7,2** | 22,5 |
+| Pirinç – Tunç (açık) | **9,9** | 21,4 |
+| Kuvars – Gümüş (koyu) | **6,6** | 25,0 |
+
+ΔE < 12 pratikte ayırt edilemez demektir; açık temada beş çift bu durumdaydı.
+Palet, kontrast kısıtı korunarak yeniden dağıtıldı: **en düşük ayrım açık temada
+ΔE 20,0 · koyu temada ΔE 22,5**, tüm renkler kendi zemininde AA. Mineral kimliği
+korundu; pirinç ile tunç akraba metaller olduğu için birbirine en yakın çift
+onlar.
+
+### Akış sıralaması
+
+Rıhtımdaki araçlar ve kalabalık görseli 2. sıraya alındı — etkinliği tek karede
+anlatan en güçlü kare. Kopya tespitli gönderi 1. sırada kaldı.
+
+Ölçülen ilk ekran (900 px): kopya rozeti **353 px** · TEKNOFEST görseli
+**668 px** — ikisi de kaydırmadan görünür.
+
+Anket gönderisi bugüne alındı; günlük sınır çubuğu 10/50'den **20/50**'ye çıktı.
+
+### Simge ve bağlantı önizlemesi
+
+Sekmede ve paylaşım önizlemesinde Next.js varsayılan üçgeni görünüyordu. Ekibin
+seçtiği M monogramından `favicon.ico` (16–256 px), `icon.png`, `apple-icon.png`
+ve 1200×630 `opengraph-image.png` üretildi. Bağlantı önizlemesi meta verisi
+yazıldı; `metadataBase` eklendi (verilmezse mutlak adres üretimde localhost'a
+çözülebiliyordu).
+
+### Ölçümler
+
+Lighthouse her iki temada: **Performans 100 · Erişilebilirlik 100 · En İyi
+Uygulamalar 100 · SEO 100**. 76 test geçiyor.
+
+---
+
 ## 2026-08-25 (üçüncü tur) — UX iyileştirmeleri
 
 ### Tema sistem tercihine uyuyor

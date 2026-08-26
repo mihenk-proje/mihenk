@@ -117,10 +117,11 @@ const seed: SeedGonderi[] = [
     yorumSayisi: 1, izlenimSayisi: 96 },
 
   // 2 — ETKİNLİK GÖNDERİSİ. İlk ekranda kopya tespitiyle birlikte gerçek bir
-  //     etkinlik görseli görünsün diye akışın başına alındı.
-  { ...temel, id: 'g10', yazarId: BEN_ID, tur: 'metinGorsel',
-    metin: 'Deniz araçları yarışmasının eleme turunu izledik. Parkuru en hızlı tamamlayan takım, gövde direncini düşürmek için burun profilini baştan çizmiş.',
-    gorselUrl: '/seed/etkinlik-yuzme-yarisi.webp', olusturmaZamani: sa(2), yorumSayisi: 5, roketSayisi: 22, izlenimSayisi: 604 },
+  //     TEKNOFEST alanı görseli görünsün diye akışın başına alındı; rıhtımdaki
+  //     araçlar ve kalabalık, etkinliği tek karede anlatan en güçlü görsel.
+  { ...temel, id: 'g11', yazarId: 'kaan_demir', tur: 'metinGorsel',
+    metin: 'Rıhtımda sergilenen araçları yakından görme fırsatı oldu. Sensör yerleşimleri ve kablo kanalları beklediğimden çok daha derli topluydu.',
+    gorselUrl: '/seed/etkinlik-rihtim-gemiler.webp', olusturmaZamani: sa(2), yorumSayisi: 3, roketSayisi: 14, izlenimSayisi: 388 },
 
   // 3 — GÖRSEL DÖNÜŞÜMÜ. g03'ün görselinin filtreli hâli.
   //     Kopya, kaynağından YENİ olmalı: doğrulama eskiden yeniye çalışır,
@@ -150,25 +151,29 @@ const seed: SeedGonderi[] = [
     olusturmaZamani: sa(7), yorumSayisi: 2, roketSayisi: 8, izlenimSayisi: 154 },
 
   // 8 — DÜŞÜK ÇABA GÖRSEL. Üretilmiş bulanık görsel.
-  { ...temel, id: 'g07', yazarId: 'ayse_kaya', tur: 'metinGorsel',
+  //     Kullanıcının KENDİ gönderisi: reddedilen kazanım cüzdanda
+  //     gerekçesiyle görünsün. Kopya değil düşük çaba seçildi; demo
+  //     kullanıcısını kopyacı göstermek gereksiz.
+  { ...temel, id: 'g07', yazarId: BEN_ID, tur: 'metinGorsel',
     metin: 'Atölyeden bir kare paylaşıyorum, ayrıntı pek seçilmiyor ama ortam buydu.',
     gorselUrl: '/seed/dusuk-caba-bulanik.webp', olusturmaZamani: sa(8), izlenimSayisi: 58 },
 
-  // 9 — DOĞRULANDI, uzun teknik metin. g01 ve g06'nın kaynağı.
-  { ...temel, id: 'g08', yazarId: 'ayse_kaya', tur: 'metin', metin: KAYNAK_METIN,
-    olusturmaZamani: sa(26), yorumSayisi: 11, roketSayisi: 47, izlenimSayisi: 912 },
-
-  // 10 — ANKET.
+  // 9 — ANKET. Bugün tarihli: cüzdandaki günlük sınır çubuğu ilerlesin.
   { ...temel, id: 'g09', yazarId: BEN_ID, tur: 'anket',
     metin: 'Takımda hangi alt sistemin doğrulaması en çok vakit alıyor? Kendi deneyiminizi merak ediyorum.',
     anketSecenekleri: ['Uçuş kontrol yazılımı', 'Güç dağıtımı', 'Haberleşme bağlantısı', 'Mekanik montaj'],
-    olusturmaZamani: sa(30), yorumSayisi: 19, roketSayisi: 31, izlenimSayisi: 1240 },
+    olusturmaZamani: sa(9), yorumSayisi: 19, roketSayisi: 31, izlenimSayisi: 1240 },
+
+  // 10 — DOĞRULANDI, uzun teknik metin. g01 ve g06'nın kaynağı.
+  { ...temel, id: 'g08', yazarId: 'ayse_kaya', tur: 'metin', metin: KAYNAK_METIN,
+    olusturmaZamani: sa(26), yorumSayisi: 11, roketSayisi: 47, izlenimSayisi: 912 },
+
 
   // 11-12 — Etkinlik gönderileri.
 
-  { ...temel, id: 'g11', yazarId: 'kaan_demir', tur: 'metinGorsel',
-    metin: 'Rıhtımda sergilenen araçları yakından görme fırsatı oldu. Sensör yerleşimleri ve kablo kanalları beklediğimden çok daha derli topluydu.',
-    gorselUrl: '/seed/etkinlik-rihtim-gemiler.webp', olusturmaZamani: sa(50), yorumSayisi: 3, roketSayisi: 14, izlenimSayisi: 388 },
+  { ...temel, id: 'g10', yazarId: BEN_ID, tur: 'metinGorsel',
+    metin: 'Deniz araçları yarışmasının eleme turunu izledik. Parkuru en hızlı tamamlayan takım, gövde direncini düşürmek için burun profilini baştan çizmiş.',
+    gorselUrl: '/seed/etkinlik-yuzme-yarisi.webp', olusturmaZamani: sa(50), yorumSayisi: 5, roketSayisi: 22, izlenimSayisi: 604 },
 
   { ...temel, id: 'g12', yazarId: 'zeynep_sahin', tur: 'metinGorsel',
     metin: 'Ödül töreni alanı bu kadar kalabalıktı. Dinlediğimiz takımların çoğu, ölçüm altyapısını yarışmadan aylar önce kurmuş olmayı belirleyici saymış.',

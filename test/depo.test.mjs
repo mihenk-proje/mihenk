@@ -17,6 +17,28 @@ export async function calistir() {
   }
 
   const d = () => depo.anlikGoruntu().veri
+
+  const yeniGonderi = (id, metin) => ({
+    id,
+    yazarId: d().kullanici.id,
+    tur: 'metin',
+    metin,
+    gorselUrl: null,
+    anketSecenekleri: null,
+    olusturmaZamani: new Date().toISOString(),
+    yzBeyani: false,
+    yorumSayisi: 0,
+    yenidenPaylasimSayisi: 0,
+    roketSayisi: 0,
+    izlenimSayisi: 0,
+    dogrulamaDurumu: 'bekliyor',
+    dogrulamaSkoru: null,
+    kazanilanJeton: 0,
+    gerekce: [],
+    metinParcalari: null,
+    gorselHash: null,
+    itirazDurumu: 'yok',
+  })
   const defterToplami = () => d().hareketler.reduce((t, h) => t + h.miktar, 0)
 
   const konsol = console.log
@@ -46,7 +68,24 @@ export async function calistir() {
   // sabit değildir; ölçüt bakiyenin daima defterden türetilmesidir.
   kontrol('demo başlangıç kaydı 120 jeton', d().hareketler.some((h) => h.tur === 'demo' && h.miktar === 120))
   kontrol('bakiye defter toplamına eşit', d().kullanici.jetonBakiyesi === defterToplami(), `→ ${d().kullanici.jetonBakiyesi}`)
-  kontrol('reddedilen kazanımlar da deftere geçti', d().hareketler.some((h) => h.miktar === 0 && h.aciklama.includes('Kazanç verilmedi')))
+  // Not: seed'deki reddedilen gönderi bulanık görsel taşır ve görsel kademesi
+  // canvas gerektirir. Ortamdan bağımsız olsun diye burada düşük çabalı bir
+  // metin paylaşılıp defter ölçülür.
+  sustur()
+  const dusukG = yeniGonderi('dusuk-defter', 'Süper.')
+  depo.gonderiEkle(dusukG)
+  await new Promise((cozumle) => depo.dogrulamaTetikle(dusukG.id, cozumle))
+  ac()
+  kontrol(
+    'reddedilen kazanım deftere 0 jetonla ve gerekçesiyle geçti',
+    d().hareketler.some((h) => h.miktar === 0 && h.aciklama.includes('Kazanç verilmedi')),
+    `→ ${d().hareketler[0]?.aciklama}`
+  )
+  kontrol(
+    'başka kullanıcının gönderisi cüzdana girmedi',
+    d().hareketler.length === d().gonderiler.filter((g) => g.yazarId === d().kullanici.id).length + 1,
+    `→ ${d().hareketler.length} kayıt`
+  )
 
   console.log('\n— Satın alma —')
   // u1 demo açılışında envanterde geldiği için sahip olunmayan bir ürün seçilir
@@ -83,27 +122,6 @@ export async function calistir() {
   kontrol('kalıcı ürün hiç dolmaz', suresiDoldu(altin, eski) === false)
 
   console.log('\n— Doğrulama ve günlük tavan —')
-  const yeniGonderi = (id, metin) => ({
-    id,
-    yazarId: d().kullanici.id,
-    tur: 'metin',
-    metin,
-    gorselUrl: null,
-    anketSecenekleri: null,
-    olusturmaZamani: new Date().toISOString(),
-    yzBeyani: false,
-    yorumSayisi: 0,
-    yenidenPaylasimSayisi: 0,
-    roketSayisi: 0,
-    izlenimSayisi: 0,
-    dogrulamaDurumu: 'bekliyor',
-    dogrulamaSkoru: null,
-    kazanilanJeton: 0,
-    gerekce: [],
-    metinParcalari: null,
-    gorselHash: null,
-    itirazDurumu: 'yok',
-  })
 
   const metinler = [
     'Bahçeye yeni fidanlar diktim, önümüzdeki bahar meyve vermelerini bekliyorum sabırla.',
