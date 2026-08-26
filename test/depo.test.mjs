@@ -1,5 +1,6 @@
 /** Depo katmanının bütünleşim testleri: bakiye tutarlılığı, tavan, süre dolumu. */
 import * as depo from '@/lib/store/depo'
+import { varsayilanDurum } from '@/lib/store/demoData'
 import { suresiDoldu, yururluktekiUrunler } from '@/lib/store/efektler'
 
 export async function calistir() {
@@ -34,6 +35,11 @@ export async function calistir() {
   await depo.hidratla()
   kontrol('hidrasyondan sonra hidre', depo.anlikGoruntu().hidre === true)
   kontrol('localStorage yazıldı', localStorage.getItem('mihenk_state_v3') !== null)
+
+  console.log('\n— Seed sürümü —')
+  const surum = depo.anlikGoruntu().veri.seedSurumu
+  kontrol('durum bir seed sürümü taşıyor', typeof surum === 'string' && /^[0-9a-f]{8}$/.test(surum), `→ ${surum}`)
+  kontrol('sürüm çağrılar arasında sabit', varsayilanDurum().seedSurumu === surum)
 
   console.log('\n— Bakiye hareket defterinden türetilir —')
   // Seed gönderileri hidrasyonda doğrulanıp jeton kazandığı için bakiye

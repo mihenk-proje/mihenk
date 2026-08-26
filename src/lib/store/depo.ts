@@ -16,7 +16,7 @@ import {
   dogrula,
   hesapYasiGun,
 } from '@/lib/verification'
-import { varsayilanDurum } from './demoData'
+import { SEED_SURUMU, varsayilanDurum } from './demoData'
 import { suresiDoldu } from './efektler'
 import type { AppState, DogrulamaSonucu, Gonderi, HareketKaydi, Urun } from './types'
 
@@ -89,6 +89,7 @@ function gecerliDurumMu(veri: unknown): veri is AppState {
   if (typeof veri !== 'object' || veri === null) return false
   const d = veri as Partial<AppState>
   return (
+    typeof d.seedSurumu === 'string' &&
     Array.isArray(d.gonderiler) &&
     Array.isArray(d.hareketler) &&
     Array.isArray(d.magaza) &&
@@ -156,10 +157,24 @@ export function hidratla(): Promise<void> {
     const kayitli = localStorage.getItem(DEPO_ANAHTARI)
     if (kayitli) {
       const cozulen: unknown = JSON.parse(kayitli)
-      if (gecerliDurumMu(cozulen)) {
-        veri = cozulen
-      } else {
+      if (!gecerliDurumMu(cozulen)) {
         console.warn('[MİHENK] Kayıtlı durum beklenen şekilde değil, demo verisine dönülüyor.')
+      } else if (cozulen.seedSurumu !== SEED_SURUMU) {
+        /*
+          Seed içeriği güncellenmiş. Eski kayıt tutulursa kullanıcı yeni
+          dağıtıma rağmen eski akışı görür ve bunu düzeltmek için "Demoyu
+          sıfırla" düğmesini bulması gerektiğini bilmez.
+
+          Demo bağlamında kazanılan jetonlar ve envanter de dahil olmak
+          üzere durum tamamen sıfırlanır: yarısı eski yarısı yeni bir
+          durum, tutarsız bir akıştan daha kötüdür.
+        */
+        console.info(
+          `[MİHENK] Seed sürümü değişti (${cozulen.seedSurumu} → ${SEED_SURUMU}), ` +
+            'demo verisi yeniden yüklendi.'
+        )
+      } else {
+        veri = cozulen
       }
     }
   } catch (err) {

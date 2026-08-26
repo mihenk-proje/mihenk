@@ -163,8 +163,41 @@ export const demoGonderiler: Gonderi[] = seed.map((g) => ({
   gorselHash: null,
 }))
 
+/**
+ * Seed içeriğinin parmak izi (FNV-1a, 32 bit).
+ *
+ * Elle güncellenen bir sürüm numarası yerine içerikten türetilir: gönderi
+ * metni, görseli, anket seçenekleri veya mağaza kataloğu değiştiğinde
+ * kendiliğinden değişir, sürümü yükseltmeyi unutmak mümkün olmaz.
+ *
+ * Zaman damgaları hesaba katılmaz; onlar her yüklemede yeniden üretilir
+ * ve dahil edilseler parmak izi her açılışta değişirdi.
+ */
+function parmakIzi(gonderiler: Gonderi[], magaza: Urun[]): string {
+  const ozet =
+    gonderiler
+      .map((g) =>
+        [g.id, g.yazarId, g.tur, g.metin, g.gorselUrl ?? '', (g.anketSecenekleri ?? []).join('|')].join(
+          '\u0001'
+        )
+      )
+      .join('\u0002') +
+    '\u0003' +
+    magaza.map((u) => [u.id, u.ad, u.fiyat, String(u.sureGun)].join('\u0001')).join('\u0002')
+
+  let h = 0x811c9dc5
+  for (let i = 0; i < ozet.length; i++) {
+    h ^= ozet.charCodeAt(i)
+    h = Math.imul(h, 0x01000193) >>> 0
+  }
+  return h.toString(16).padStart(8, '0')
+}
+
+export const SEED_SURUMU = parmakIzi(demoGonderiler, demoMagaza)
+
 export function varsayilanDurum(): AppState {
   return structuredClone({
+    seedSurumu: SEED_SURUMU,
     kullanici: {
       id: BEN_ID,
       kullaniciAdi: 'ahmetyilmaz',

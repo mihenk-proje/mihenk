@@ -110,6 +110,12 @@ export type DogrulamaSonucu = {
 }
 
 export type AppState = {
+  /**
+   * Seed içeriğinden türetilen parmak izi. Kayıtlı durumun hangi demo
+   * sürümüne ait olduğunu söyler; kod güncellendiğinde eski kayıt
+   * otomatik atılır. Elle yönetilmez, `demoData.ts` hesaplar.
+   */
+  seedSurumu: string
   kullanici: Kullanici
   yazarlar: Yazar[]
   gonderiler: Gonderi[]
