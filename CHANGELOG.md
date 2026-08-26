@@ -1,5 +1,111 @@
 # Değişiklik Kaydı
 
+## 2026-08-25 (üçüncü tur) — UX iyileştirmeleri
+
+### Tema sistem tercihine uyuyor
+
+Uygulama sabit koyu temayla açılıyordu. Artık `prefers-color-scheme` okunuyor;
+elle değiştirme kullanıcı seçimini kaydedip sistem tercihini eziyor. Rapor
+Tablo 10 hareket duyarlılığı için `prefers-reduced-motion` tercihine uyulduğunu
+taahhüt ediyor; tema tercihinde uymamak bu tutarlılığı bozuyordu.
+
+**Kozmetikler açık temada kontrast eşiğini kaçırıyordu.** Ürün renkleri koyu
+zemine göre seçilmişti; açık tema açılınca dokuzunun tamamı 4,5'in altındaydı:
+
+| Ürün | Önce | Sonra |
+|---|---|---|
+| Gümüş Nişan | 1,47 | 4,83 |
+| Kuvars Rozet | 1,75 | 4,83 |
+| Altın / Ayar | 1,96 | 5,37 |
+| Mika Ad | 2,27 | 5,22 |
+| Pirinç / Külçe | 2,68 | 4,80 |
+| Ametist | 3,37 | 5,74 |
+| Tunç | 4,03 | 5,19 |
+
+Rapor Tablo 10 kozmetik ürünlerin AA eşiğini düşüremeyeceğini taahhüt ediyor;
+taahhüt artık her iki temada da geçerli.
+
+Açık temada ikincil metin de üst çubuk gibi harmanlanmış zeminlerde 4,31'e
+düşüyordu; ölçülerek `#5a6467` → `#525c5f` koyulaştırıldı (4,88).
+
+### İlk giriş tanıtım turu — İP7 pilot test bulgusuna yanıt
+
+**Görev 2 tamamlama oranı %85,7.** Rapor Tablo 12'de pilot testin en düşük
+tamamlama oranı mağazadan süreli ürün satın alma görevine ait; diğer iki görev
+%100. Mağaza akışı ölçülmüş bir zayıf noktaydı.
+
+Dört adımlı tur eklendi: Cüzdan → Mağaza → Doğrulama rozeti → Hazırsın. Her
+adımda ilgili öğe vurgulanır, tek cümle açıklama verilir. "Atla" her adımda
+görünür. Simgelerin altına kalıcı metin etiketi eklendi (Mağaza / Cüzdan) —
+tur atlansa da ne oldukları anlaşılır.
+
+Erişilebilirlik: `role="dialog"` + `aria-modal` + `aria-labelledby` +
+`aria-describedby`, odak tuzağı, Escape ile atlama, adım değişiminin
+`aria-live` ile duyurulması, `prefers-reduced-motion` altında geçişsiz.
+
+Tur durumu uygulama durumundan **ayrı** bir anahtarda tutulur; seed sürümü
+değişip durum sıfırlansa bile tur yeniden gösterilmez.
+
+### Avatarlar — fotoğraf reddedildi, palet ölçülerek ayrıştırıldı
+
+Fotoğraf avatar değerlendirildi ve reddedildi (rıza, tez çelişkisi, ürün
+görünürlüğü). Gerekçeler [`docs/avatar-karari.md`](docs/avatar-karari.md).
+
+Avatar tonları birbirine çok yakındı. Yeni palet üç kısıtı birden karşılıyor:
+beyaz baş harflerle ≥ 4,5, koyu sayfa zemininde ≥ 3, açık sayfa zemininde ≥ 3.
+On ton, hepsi 5,05 / 3,55 / 4,40.
+
+Tonlar demo yazarlarına elle atandı: karma yedi kullanıcıda bile çakışıyordu
+(on renkli palette dört kullanıcı aynı tonu paylaşıyordu). Ölçüldü: 7 kullanıcı,
+7 farklı renk.
+
+### Kozmetikler akıştaki farklı kullanıcılara dağıtıldı
+
+| Kullanıcı | Kozmetik | Dayanağı |
+|---|---|---|
+| Ahmet Yılmaz | Pirinç Çerçeve (15) | envanterden, süre takipli |
+| Ayşe Kaya | Ametist Çerçeve (300) | g08, akışın en çok etkileşim alanı |
+| Mert Yıldız | Tunç Kenar (30) | g05 |
+| Kaan Demir | Kuvars Rozet (25) | g06 + g11 |
+| Zeynep Şahin | Mika Ad (20) | g12 |
+| Burak Yılmaz | — | kopya paylaştı |
+| Elif Çelik | — | düşük çabalı içerik paylaştı |
+
+Hepsi mağaza kataloğundaki gerçek ürünler. Rapor Bölüm 5.1'deki
+"kişiselleştirme öğeleri ödeme gücüne değil katkıya bağlıdır" iddiasının görsel
+karşılığı.
+
+### Ödül töreni görselinde kazanan isimleri kırpıldı
+
+Sahne ekranında gerçek kazananların adları yazılıydı. Üstten 575 px kırpılarak
+o bant tamamen dışarıda bırakıldı; sahne tabanı ve kalabalık korundu. İşlem
+`docs/asset-credits.md`'ye kaydedildi.
+
+### Ölçümler
+
+**Lighthouse — her iki temada, altı ekranda:**
+
+| | Koyu | Açık |
+|---|---|---|
+| Performans | 100 | 100 |
+| Erişilebilirlik | 100 | 100 |
+| En İyi Uygulamalar | 100 | 100 |
+| SEO | 100 | 100 |
+
+FCP 0,2 sn · TBT 0 ms · CLS 0. Giriş, Ana akış, Cüzdan, Mağaza, Ürün önizleme
+ve Tanıtım turu ekranlarının tamamı 100/100.
+
+> Kalan tek `label-content-name-mismatch` bulgusu gerçek bir ihlal değildir:
+> işaretlenen öğeler `role="img"` taşıyan etkileşimsiz rozet ve avatarlardır ve
+> görünür metinleri zaten `aria-hidden` ile işaretlidir. WCAG 2.5.3 yalnızca
+> etkileşimli denetimler için geçerlidir; denetimin ağırlığının 0 olma sebebi
+> de budur.
+
+**İlk ekran (900 px):** kopya rozeti 353 px · +10 jeton rozeti 580 px ·
+TEKNOFEST görseli 668 px — üçü de kaydırmadan görünür.
+
+---
+
 ## 2026-08-25 (ikinci tur) — Demo içerik katmanı
 
 Öncelik değişti: İP6 metrikleri (B4/B6/B7) final sunumuna girer, demo içeriği ise

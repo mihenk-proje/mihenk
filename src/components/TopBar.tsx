@@ -40,15 +40,20 @@ export function TopBar({
             data-tanitim="cuzdan"
             onClick={onCuzdanClick}
             className="flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg hover:bg-card transition-colors border border-line-strong"
-            aria-label={`Cüzdanı aç. Bakiye: ${state.kullanici.jetonBakiyesi} jeton`}
+            /*
+              Gorunur metin erisilebilir adin icinde birebir gecmeli
+              (WCAG 2.5.3). Onceki ad "Cuzdani ac. Bakiye: 195 jeton" idi
+              ve gorunur "195 Cuzdan" dizisini icermiyordu.
+            */
+            aria-label={`Cüzdan ${state.kullanici.jetonBakiyesi} jeton, cüzdanı aç`}
           >
             <span className="flex items-center gap-1.5">
               <Wallet size={18} className="text-brand" aria-hidden="true" />
-              <span className="font-mono font-medium text-brand leading-none">
-                {state.kullanici.jetonBakiyesi}
-              </span>
+              <span className="text-[10px] font-medium leading-none text-secondary">Cüzdan</span>
             </span>
-            <span className="text-[10px] font-medium leading-none text-secondary">Cüzdan</span>
+            <span className="font-mono font-medium text-brand leading-none">
+              {state.kullanici.jetonBakiyesi}
+            </span>
           </button>
 
           <button

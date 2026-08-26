@@ -46,7 +46,11 @@
   --mihenk-line: #d9d4c7;
   --mihenk-line-strong: #b9b2a1;
   --mihenk-text: #12181a;
-  --mihenk-text-soft: #5a6467;
+  /*
+     Ikincil metin, ust cubuk gibi harmanlanmis zeminlerde (#dcd9d2) 4,31'e
+     dusuyordu. Olculerek koyulastirildi: 4,88 / 5,98 / 6,87.
+  */
+  --mihenk-text-soft: #525c5f;
   --mihenk-brand: #8a6120;
   --mihenk-brand-ink: #ffffff;
   --mihenk-success: #2f6455;
