@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { AlertCircle, CheckCircle2, Copy, X, XCircle } from "lucide-react"
 import type { DogrulamaSonucu as Sonuc } from "@/lib/store/types"
 import { Itiraz } from "./Itiraz"
@@ -9,9 +9,15 @@ import { Itiraz } from "./Itiraz"
  * "Mihenk çizgisi": skor yükseldikçe çizgi kalınlaşır ve netleşir.
  * Geçemeyen içerikte çizgi kesikli kalır.
  */
+/** Kazanç bildiriminin kendiliğinden kapanma süresi */
+const OTOMATIK_KAPANMA_MS = 7000
+
 export function DogrulamaSonucu({ sonuc, onClose }: { sonuc: Sonuc; onClose: () => void }) {
   const [cizgiGorunur, setCizgiGorunur] = useState(false)
   const [itirazAcik, setItirazAcik] = useState(false)
+  const [kalanYuzde, setKalanYuzde] = useState(100)
+  const [duraklatildi, setDuraklatildi] = useState(false)
+  const gecenRef = useRef(0)
 
   // Bileşen üst katmandan sonuc.gonderiId ile yeniden kurulduğu için
   // bu efektin yalnızca ilk bağlanmada çalışması yeterlidir.
@@ -20,11 +26,38 @@ export function DogrulamaSonucu({ sonuc, onClose }: { sonuc: Sonuc; onClose: () 
     return () => window.clearTimeout(zamanlayici)
   }, [])
 
+  const basarili = sonuc.durumu === 'gecti' || sonuc.durumu === 'kismi'
+
+  /*
+    Kazanç bildirimi kendiliğinden kapanır; kullanıcıyı çarpıya basmaya
+    zorlamanın bir anlamı yok, panel yalnızca onay taşıyor.
+
+    Başarısız sonuçlarda kapanmaz: panel gerekçeyi ve "İtiraz et ve incelet"
+    düğmesini taşır. Kendiliğinden kapanması itiraz akışına erişimi
+    kaldırırdı ve kullanıcı gerekçeyi okumadan kaybedebilirdi.
+
+    İşaretçi üzerine gelince veya odak panele girince sayaç durur
+    (WCAG 1.4.13 — içerik erişilebilir kalmalı, 2.2.1 — süre ayarlanabilir).
+  */
+  useEffect(() => {
+    if (!basarili || itirazAcik || duraklatildi) return
+    const baslangic = Date.now() - gecenRef.current
+    const sayac = window.setInterval(() => {
+      const gecen = Date.now() - baslangic
+      gecenRef.current = gecen
+      const kalan = Math.max(0, 100 - (gecen / OTOMATIK_KAPANMA_MS) * 100)
+      setKalanYuzde(kalan)
+      if (kalan === 0) {
+        window.clearInterval(sayac)
+        onClose()
+      }
+    }, 50)
+    return () => window.clearInterval(sayac)
+  }, [basarili, itirazAcik, duraklatildi, onClose])
+
   if (itirazAcik) {
     return <Itiraz sonuc={sonuc} onClose={onClose} />
   }
-
-  const basarili = sonuc.durumu === 'gecti' || sonuc.durumu === 'kismi'
   const cizgiKalinligi = Math.max(1, Math.min(8, sonuc.skor / 12))
   const cizgiSaydamligi = Math.max(0.3, sonuc.skor / 100)
 
@@ -43,7 +76,20 @@ export function DogrulamaSonucu({ sonuc, onClose }: { sonuc: Sonuc; onClose: () 
         className="bg-card w-full max-w-lg rounded-2xl border border-line-strong shadow-2xl pointer-events-auto overflow-hidden mihenk-alttan"
         role="status"
         aria-live="polite"
+        onMouseEnter={() => setDuraklatildi(true)}
+        onMouseLeave={() => setDuraklatildi(false)}
+        onFocusCapture={() => setDuraklatildi(true)}
+        onBlurCapture={() => setDuraklatildi(false)}
       >
+        {/* Kalan süre çubuğu: panelin kendiliğinden kapanacağı sürpriz olmasın */}
+        {basarili && (
+          <div className="h-0.5 bg-line" aria-hidden="true">
+            <div
+              className="h-full bg-brand"
+              style={{ width: `${kalanYuzde}%`, transition: 'width 50ms linear' }}
+            />
+          </div>
+        )}
         <div className="flex items-center justify-between p-4 border-b border-line">
           <h3 className="font-display font-bold text-lg text-primary">MİHENK doğrulaması</h3>
           <div className="flex items-center gap-3">
@@ -52,7 +98,11 @@ export function DogrulamaSonucu({ sonuc, onClose }: { sonuc: Sonuc; onClose: () 
               type="button"
               onClick={onClose}
               className="p-1 hover:bg-page rounded-full text-secondary transition-colors"
-              aria-label="Doğrulama sonucunu kapat"
+              aria-label={
+                basarili
+                  ? 'Doğrulama sonucunu şimdi kapat'
+                  : 'Doğrulama sonucunu kapat'
+              }
             >
               <X size={20} aria-hidden="true" />
             </button>
