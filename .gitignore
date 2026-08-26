@@ -52,3 +52,7 @@ data/images/normal/
 data/images/lowquality/
 data/images/variants/
 
+# Denetim sirasinda uretilen ekran goruntuleri
+*.png
+!public/**/*.png
+
