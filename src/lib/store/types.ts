@@ -25,6 +25,8 @@ export type Kullanici = {
   adSoyad: string
   /** Avatar, ağ isteği gerektirmesin diye baş harflerden üretilir. */
   avatarHarfleri: string
+  /** Avatar zemin tonu. Verilmezse kullanıcı adından türetilir. */
+  avatarTonu?: string
   jetonBakiyesi: number
   bugunKazanilan: number
   envanter: SahipOlunanUrun[]
@@ -37,6 +39,14 @@ export type Yazar = {
   adSoyad: string
   kullaniciAdi: string
   avatarHarfleri: string
+  /** Avatar zemin tonu. Verilmezse kullanıcı adından türetilir. */
+  avatarTonu?: string
+  /**
+   * Bu yazarın taşıdığı kozmetiklerin ürün kimlikleri. Mağaza kataloğundaki
+   * gerçek ürünler olmalıdır; katalogda bulunmayan bir kozmetik gösterilirse
+   * kullanıcı onu mağazada arayıp bulamaz.
+   */
+  kozmetikler?: string[]
 }
 
 export type GerekceSatiri = string

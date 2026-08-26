@@ -359,6 +359,7 @@ function UrunOnizleme({
             id={state.kullanici.id}
             harfler={state.kullanici.avatarHarfleri}
             ad={state.kullanici.adSoyad}
+            ton={state.kullanici.avatarTonu}
             boyut="lg"
             cerceveSinifi={cerceveSinifi}
           />

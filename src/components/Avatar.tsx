@@ -16,18 +16,20 @@ export function Avatar({
   id,
   harfler,
   ad,
+  ton,
   boyut = 'md',
   cerceveSinifi = '',
 }: {
   id: string
   harfler: string
   ad: string
+  ton?: string
   boyut?: keyof typeof BOYUTLAR
   cerceveSinifi?: string
 }) {
   return (
     <div
-      className={`${BOYUTLAR[boyut]} ${avatarRengi(id)} ${cerceveSinifi} shrink-0 rounded-full flex items-center justify-center font-bold tracking-wide text-white select-none`}
+      className={`${BOYUTLAR[boyut]} ${avatarRengi(id, ton as never)} ${cerceveSinifi} shrink-0 rounded-full flex items-center justify-center font-bold tracking-wide text-white select-none`}
       role="img"
       aria-label={`${ad} profil görseli`}
       title={ad}

@@ -33,6 +33,23 @@ export function aktifEfekt(state: AppState, tur: EfektTuru): Urun | undefined {
   return eslesenler[eslesenler.length - 1]
 }
 
+/**
+ * Akıştaki diğer yazarların kozmetiklerini çözer.
+ *
+ * Kullanıcının kendi kozmetikleri envanterden gelir ve süre takibine tabidir;
+ * diğer yazarlarınki demo verisinde sabit ürün kimlikleri olarak durur. İkisi
+ * de aynı mağaza kataloğuna bakar, böylece hakem akışta gördüğü her kozmetiği
+ * mağazada bulabilir.
+ */
+export function yazarEfekti(
+  magaza: Urun[],
+  kozmetikler: string[] | undefined,
+  tur: EfektTuru
+): Urun | undefined {
+  if (!kozmetikler?.length) return undefined
+  return magaza.find((u) => kozmetikler.includes(u.id) && u.efekt.tur === tur)
+}
+
 export function islevAcikMi(state: AppState, deger: string): boolean {
   return yururluktekiUrunler(state).some((u) => u.efekt.tur === 'islev' && u.efekt.deger === deger)
 }
@@ -87,35 +104,43 @@ export const TEMA_SINIFLARI: Record<string, string> = {
   Bu, parlaklığı dar bir banda hapsediyor; altı ton o bant içinde farklı
   hue'lara yerleştirildi.
 
-    ton        beyaz metin   koyu zemin   açık zemin
-    deniz         5,05          3,55         4,40
-    mor           5,05          3,55         4,40
-    zeytin        5,06          3,55         4,40
-    kiremit       5,05          3,55         4,40
-    lacivert      5,05          3,55         4,40
-    toprak        5,05          3,55         4,40
+  On ton, hepsi bu bant icinde: beyaz metin 5,05 · koyu zemin 3,55 ·
+  acik zemin 4,40.
 */
-const AVATAR_RENKLERI = [
-  'bg-[#327886]', // deniz
-  'bg-[#8c59b1]', // mor
-  'bg-[#517934]', // zeytin
-  'bg-[#bc4a24]', // kiremit
-  'bg-[#346ad5]', // lacivert
-  'bg-[#95642d]', // toprak
-]
+export const AVATAR_TONLARI = {
+  deniz: 'bg-[#327886]',
+  mor: 'bg-[#9254b6]',
+  zeytin: 'bg-[#517934]',
+  kiremit: 'bg-[#bc4a24]',
+  lacivert: 'bg-[#526dad]',
+  toprak: 'bg-[#95642d]',
+  erguvan: 'bg-[#c62f87]',
+  camyesili: 'bg-[#1c7d5a]',
+  tugla: 'bg-[#cf3046]',
+  cinko: 'bg-[#2674ab]',
+} as const
+
+export type AvatarTonu = keyof typeof AVATAR_TONLARI
+
+const TON_LISTESI = Object.values(AVATAR_TONLARI)
 
 /**
- * Kullanıcı adından deterministik renk seçimi (FNV-1a).
+ * Avatar zemin sınıfı.
  *
- * Aynı kullanıcı her yüklemede aynı rengi alır. Karakter toplamı yerine
- * karma kullanılır; toplam, benzer adlarda (ör. aynı harflerin sırası
- * değişince) çakışıyordu.
+ * `ton` verilmişse o kullanılır; demo yazarlarına birbirinden ayrık tonlar
+ * elle atanır çünkü karma, yedi kullanıcıda bile çakışabiliyor (on renkli
+ * palette Kaan ile Elif aynı kovaya düşüyordu) ve hakem kullanıcıları
+ * ayırt edemez.
+ *
+ * Ton verilmemişse kullanıcı adından FNV-1a ile türetilir: aynı kullanıcı
+ * her yüklemede aynı rengi alır, rastgelelik yoktur.
  */
-export function avatarRengi(anahtar: string): string {
+export function avatarRengi(anahtar: string, ton?: AvatarTonu): string {
+  if (ton && ton in AVATAR_TONLARI) return AVATAR_TONLARI[ton]
   let h = 0x811c9dc5
   for (let i = 0; i < anahtar.length; i++) {
     h ^= anahtar.charCodeAt(i)
     h = Math.imul(h, 0x01000193) >>> 0
   }
-  return AVATAR_RENKLERI[h % AVATAR_RENKLERI.length]
+  return TON_LISTESI[h % TON_LISTESI.length]
 }

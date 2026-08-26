@@ -40,13 +40,35 @@ export const demoMagaza: Urun[] = [
 
 export const BEN_ID = 'ahmet_yilmaz'
 
+/*
+  Avatar tonları elle atanır. Karma yedi kullanıcıda bile çakışabiliyor
+  (on renkli palette Kaan ile Elif aynı kovaya düşüyordu) ve hakem
+  kullanıcıları ayırt edemez.
+
+  Kozmetikler jeton kazanmış yazarlara dağıtılır: ürünü almış olmaları mantıklı
+  görünsün. Kopya paylaşan (Burak) ve düşük çabalı içerik paylaşan (Elif)
+  kullanıcılar kozmetiksiz kalır — kontrast bilinçlidir.
+
+  Kimlikler mağaza kataloğundaki gerçek ürünlerdir; hakem akışta gördüğü her
+  kozmetiği mağazada bulabilir.
+*/
 export const demoYazarlar: Yazar[] = [
-  { id: 'kaan_demir', adSoyad: 'Kaan Demir', kullaniciAdi: 'kaandemir', avatarHarfleri: 'KD' },
-  { id: 'ayse_kaya', adSoyad: 'Ayşe Kaya', kullaniciAdi: 'aysekaya', avatarHarfleri: 'AK' },
-  { id: 'burak_yilmaz', adSoyad: 'Burak Yılmaz', kullaniciAdi: 'burakyilmaz', avatarHarfleri: 'BY' },
-  { id: 'zeynep_sahin', adSoyad: 'Zeynep Şahin', kullaniciAdi: 'zeynepsahin', avatarHarfleri: 'ZŞ' },
-  { id: 'elif_celik', adSoyad: 'Elif Çelik', kullaniciAdi: 'elifcelik', avatarHarfleri: 'EÇ' },
-  { id: 'mert_yildiz', adSoyad: 'Mert Yıldız', kullaniciAdi: 'mertyildiz', avatarHarfleri: 'MY' },
+  // g06 (+5) ve g11 (+10) kazandı
+  { id: 'kaan_demir', adSoyad: 'Kaan Demir', kullaniciAdi: 'kaandemir', avatarHarfleri: 'KD', avatarTonu: 'cinko',
+    kozmetikler: ['u2b'] }, // Kuvars Rozet (25)
+  // g08 (+10), akışın en çok etkileşim alan gönderisi
+  { id: 'ayse_kaya', adSoyad: 'Ayşe Kaya', kullaniciAdi: 'aysekaya', avatarHarfleri: 'AK', avatarTonu: 'mor',
+    kozmetikler: ['u4c'] }, // Ametist Çerçeve (300)
+  // kopya paylaştı, kozmetiksiz
+  { id: 'burak_yilmaz', adSoyad: 'Burak Yılmaz', kullaniciAdi: 'burakyilmaz', avatarHarfleri: 'BY', avatarTonu: 'tugla' },
+  // g12 (+10)
+  { id: 'zeynep_sahin', adSoyad: 'Zeynep Şahin', kullaniciAdi: 'zeynepsahin', avatarHarfleri: 'ZŞ', avatarTonu: 'camyesili',
+    kozmetikler: ['u2'] }, // Mika Ad (20)
+  // düşük çabalı içerik paylaştı, kozmetiksiz
+  { id: 'elif_celik', adSoyad: 'Elif Çelik', kullaniciAdi: 'elifcelik', avatarHarfleri: 'EÇ', avatarTonu: 'toprak' },
+  // g05 (+10)
+  { id: 'mert_yildiz', adSoyad: 'Mert Yıldız', kullaniciAdi: 'mertyildiz', avatarHarfleri: 'MY', avatarTonu: 'zeytin',
+    kozmetikler: ['u2c'] }, // Tunç Kenar (30)
 ]
 
 export const demoHareketler: HareketKaydi[] = [
@@ -173,7 +195,7 @@ export const demoGonderiler: Gonderi[] = seed.map((g) => ({
  * Zaman damgaları hesaba katılmaz; onlar her yüklemede yeniden üretilir
  * ve dahil edilseler parmak izi her açılışta değişirdi.
  */
-function parmakIzi(gonderiler: Gonderi[], magaza: Urun[]): string {
+function parmakIzi(gonderiler: Gonderi[], magaza: Urun[], yazarlar: Yazar[]): string {
   const ozet =
     gonderiler
       .map((g) =>
@@ -183,7 +205,9 @@ function parmakIzi(gonderiler: Gonderi[], magaza: Urun[]): string {
       )
       .join('\u0002') +
     '\u0003' +
-    magaza.map((u) => [u.id, u.ad, u.fiyat, String(u.sureGun)].join('\u0001')).join('\u0002')
+    magaza.map((u) => [u.id, u.ad, u.fiyat, String(u.sureGun)].join('\u0001')).join('\u0002') +
+    '\u0003' +
+    yazarlar.map((y) => [y.id, y.adSoyad, (y.kozmetikler ?? []).join('|')].join('\u0001')).join('\u0002')
 
   let h = 0x811c9dc5
   for (let i = 0; i < ozet.length; i++) {
@@ -193,7 +217,7 @@ function parmakIzi(gonderiler: Gonderi[], magaza: Urun[]): string {
   return h.toString(16).padStart(8, '0')
 }
 
-export const SEED_SURUMU = parmakIzi(demoGonderiler, demoMagaza)
+export const SEED_SURUMU = parmakIzi(demoGonderiler, demoMagaza, demoYazarlar)
 
 export function varsayilanDurum(): AppState {
   return structuredClone({
@@ -203,6 +227,7 @@ export function varsayilanDurum(): AppState {
       kullaniciAdi: 'ahmetyilmaz',
       adSoyad: 'Ahmet Yılmaz',
       avatarHarfleri: 'AY',
+      avatarTonu: 'kiremit',
       jetonBakiyesi: 120,
       bugunKazanilan: 0,
       // Demo açılışında envanter boş görünmesin: mağaza akışının çalıştığı

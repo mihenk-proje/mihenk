@@ -121,6 +121,7 @@ export function GonderiOlustur({
           id={state.kullanici.id}
           harfler={state.kullanici.avatarHarfleri}
           ad={state.kullanici.adSoyad}
+          ton={state.kullanici.avatarTonu}
         />
 
         <div className="flex-1 min-w-0">

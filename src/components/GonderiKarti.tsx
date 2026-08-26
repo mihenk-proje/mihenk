@@ -7,6 +7,7 @@ import {
   CERCEVE_SINIFLARI,
   ROZET_SIMGELERI,
   aktifEfekt,
+  yazarEfekti,
 } from "@/lib/store/efektler"
 import type { Gonderi } from "@/lib/store/types"
 import { Avatar } from "./Avatar"
@@ -49,11 +50,23 @@ export function GonderiKarti({ gonderi }: { gonderi: Gonderi }) {
   const adSoyad = benimMi ? state.kullanici.adSoyad : (yazar?.adSoyad ?? 'Silinmiş hesap')
   const kullaniciAdi = benimMi ? state.kullanici.kullaniciAdi : (yazar?.kullaniciAdi ?? 'bilinmiyor')
   const harfler = benimMi ? state.kullanici.avatarHarfleri : (yazar?.avatarHarfleri ?? '?')
+  const ton = benimMi ? state.kullanici.avatarTonu : yazar?.avatarTonu
 
-  // Satın alınan görsel efektler yalnızca kullanıcının kendi gönderilerine uygulanır
-  const cerceve = benimMi ? aktifEfekt(state, 'cerceve') : undefined
-  const adRengi = benimMi ? aktifEfekt(state, 'adRengi') : undefined
-  const rozet = benimMi ? aktifEfekt(state, 'rozet') : undefined
+  /*
+    Kozmetikler her yazar için çözülür. Kullanıcının kendi kozmetikleri
+    envanterinden gelir ve süre takibine tabidir; akıştaki diğer yazarlarınki
+    demo verisindeki ürün kimliklerinden. İkisi de aynı mağaza kataloğuna
+    bakar, böylece akışta görülen her kozmetik mağazada bulunabilir.
+  */
+  const cerceve = benimMi
+    ? aktifEfekt(state, 'cerceve')
+    : yazarEfekti(state.magaza, yazar?.kozmetikler, 'cerceve')
+  const adRengi = benimMi
+    ? aktifEfekt(state, 'adRengi')
+    : yazarEfekti(state.magaza, yazar?.kozmetikler, 'adRengi')
+  const rozet = benimMi
+    ? aktifEfekt(state, 'rozet')
+    : yazarEfekti(state.magaza, yazar?.kozmetikler, 'rozet')
   const rozetGorunum = rozet ? ROZET_SIMGELERI[rozet.efekt.deger] : undefined
 
   const dogrulandi = gonderi.dogrulamaDurumu === 'gecti' || gonderi.dogrulamaDurumu === 'kismi'
@@ -83,6 +96,7 @@ export function GonderiKarti({ gonderi }: { gonderi: Gonderi }) {
           id={gonderi.yazarId}
           harfler={harfler}
           ad={adSoyad}
+          ton={ton}
           cerceveSinifi={cerceve ? (CERCEVE_SINIFLARI[cerceve.efekt.deger] ?? '') : ''}
         />
 
