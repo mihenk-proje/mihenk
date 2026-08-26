@@ -3,9 +3,9 @@
 import { avatarRengi } from "@/lib/store/efektler"
 
 const BOYUTLAR = {
-  sm: 'w-8 h-8 text-xs',
+  sm: 'w-8 h-8 text-[11px]',
   md: 'w-10 h-10 text-sm',
-  lg: 'w-24 h-24 text-2xl',
+  lg: 'w-24 h-24 text-3xl',
 } as const
 
 /**
@@ -27,7 +27,7 @@ export function Avatar({
 }) {
   return (
     <div
-      className={`${BOYUTLAR[boyut]} ${avatarRengi(id)} ${cerceveSinifi} shrink-0 rounded-full flex items-center justify-center font-bold text-white/95 select-none`}
+      className={`${BOYUTLAR[boyut]} ${avatarRengi(id)} ${cerceveSinifi} shrink-0 rounded-full flex items-center justify-center font-bold tracking-wide text-white select-none`}
       role="img"
       aria-label={`${ad} profil görseli`}
       title={ad}

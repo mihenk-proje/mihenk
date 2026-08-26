@@ -70,18 +70,52 @@ export const TEMA_SINIFLARI: Record<string, string> = {
   mermer: 'bg-[#d9d4c7]/10',
 }
 
-/** Avatar zemin rengi kimlikten türetilir; ağ isteği gerekmez. */
+/*
+  Avatar zemin renkleri.
+
+  FOTOĞRAF AVATAR KULLANILMIYOR. Değerlendirildi ve reddedildi:
+    1. Rıza — gerçek kişi fotoğrafları kurgusal hesaplara atfedilemez.
+    2. Tez çelişkisi — yapay zekâyla üretilmiş yüzler kullanmak, tüm iddiası
+       içeriğin özgünlüğünü denetlemek olan bir projede savunulamaz.
+    3. Ürün görünürlüğü — kozmetik katalog çerçeve, rozet ve kenar
+       vurgusundan oluşuyor; fotoğraf avatar çerçeveyi görsel olarak yutar.
+  Ayrıntı: docs/avatar-karari.md
+
+  Renkler ölçülerek seçildi. Üç kısıtı birden karşılamaları gerekiyordu:
+  beyaz baş harflerle ≥ 4,5 (metin okunabilirliği), koyu sayfa zemininde
+  ≥ 3 ve açık sayfa zemininde ≥ 3 (dairenin şekil olarak seçilebilmesi).
+  Bu, parlaklığı dar bir banda hapsediyor; altı ton o bant içinde farklı
+  hue'lara yerleştirildi.
+
+    ton        beyaz metin   koyu zemin   açık zemin
+    deniz         5,05          3,55         4,40
+    mor           5,05          3,55         4,40
+    zeytin        5,06          3,55         4,40
+    kiremit       5,05          3,55         4,40
+    lacivert      5,05          3,55         4,40
+    toprak        5,05          3,55         4,40
+*/
 const AVATAR_RENKLERI = [
-  'bg-[#5b6f7d]',
-  'bg-[#6d5c73]',
-  'bg-[#5c7364]',
-  'bg-[#7d6a52]',
-  'bg-[#4f6470]',
-  'bg-[#73605c]',
+  'bg-[#327886]', // deniz
+  'bg-[#8c59b1]', // mor
+  'bg-[#517934]', // zeytin
+  'bg-[#bc4a24]', // kiremit
+  'bg-[#346ad5]', // lacivert
+  'bg-[#95642d]', // toprak
 ]
 
-export function avatarRengi(id: string): string {
-  let toplam = 0
-  for (let i = 0; i < id.length; i++) toplam = (toplam + id.charCodeAt(i)) % 997
-  return AVATAR_RENKLERI[toplam % AVATAR_RENKLERI.length]
+/**
+ * Kullanıcı adından deterministik renk seçimi (FNV-1a).
+ *
+ * Aynı kullanıcı her yüklemede aynı rengi alır. Karakter toplamı yerine
+ * karma kullanılır; toplam, benzer adlarda (ör. aynı harflerin sırası
+ * değişince) çakışıyordu.
+ */
+export function avatarRengi(anahtar: string): string {
+  let h = 0x811c9dc5
+  for (let i = 0; i < anahtar.length; i++) {
+    h ^= anahtar.charCodeAt(i)
+    h = Math.imul(h, 0x01000193) >>> 0
+  }
+  return AVATAR_RENKLERI[h % AVATAR_RENKLERI.length]
 }
