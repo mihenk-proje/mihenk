@@ -63,7 +63,8 @@ export function Modal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-page/85 backdrop-blur-sm mihenk-solgunlas"
+      data-yuzey="mihenk"
+      className="yuzey-mihenk fixed inset-0 z-50 flex items-center justify-center p-4 bg-page/85 backdrop-blur-sm mihenk-solgunlas"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose()
       }}

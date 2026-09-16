@@ -135,7 +135,7 @@ export function Magaza({ onBack }: { onBack: () => void }) {
   }
 
   return (
-    <div ref={katmanRef} className="fixed inset-0 z-40 bg-page flex flex-col mihenk-sagdan">
+    <div ref={katmanRef} data-yuzey="mihenk" className="yuzey-mihenk fixed inset-0 z-40 bg-page flex flex-col mihenk-sagdan">
       <div className="flex-1 w-full max-w-4xl mx-auto flex flex-col h-full bg-card border-x border-line overflow-hidden">
         <div className="flex items-center justify-between p-4 border-b border-line bg-page/60">
           <div className="flex items-center gap-4">
