@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Eşik sağlamasında kullanılan örnekleri geliştirme kümesine sabitler.
 
-Jaccard eşiği (0,35) ve dHash kırpma sınırı, aşağıdaki beş metin ve beş
+Jaccard eşiği (0,35) ve dHash kırpma sınırı, aşağıdaki altı metin ve beş
 görsel üzerinde yapılan bir ön sağlamayla doğrulandı. Bu örnekler eşik
 seçimini etkilediği için **nihai test bölünmesine giremez**; aksi hâlde
 eşik test kümesiyle kontamine olur ve raporun "test kümesi sürecin hiçbir

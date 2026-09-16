@@ -103,7 +103,7 @@ npm run dev     # http://localhost:3000
 | `npm run build` | Üretim derlemesi |
 | `npm start` | Üretim sunucusu |
 | `npm run lint` | ESLint denetimi |
-| `npm test` | Doğrulama ve depo testleri (50 test) |
+| `npm test` | Doğrulama ve depo testleri (76 test) |
 
 Ortam değişkeni gerekmez; uygulama tamamen istemci tarafında çalışır ve arka uç bağlantısı yoktur.
 
@@ -124,19 +124,37 @@ src/
 │   ├── layout.tsx           Kök düzen, yazı tipleri, üst veri
 │   ├── page.tsx             Tek sayfa: giriş kapısı, akış ve ekran geçişleri
 │   ├── providers.tsx        Tema ve depo sağlayıcıları
-│   └── globals.css          Tasarım jetonları, tema değişkenleri, animasyonlar
+│   └── globals.css          Yüzey jetonları (ev sahibi / MİHENK), tema, animasyonlar
 ├── components/              Arayüz bileşenleri
+│   ├── Yuzey.tsx            Yüzey sınırı: ev sahibi (NSosyal) ↔ MİHENK
 │   ├── Giris.tsx            Demo giriş kapısı
-│   ├── TopBar.tsx           Üst çubuk: bakiye, mağaza, tema değiştirici
+│   │
+│   │                        — Ev sahibi kroması (NSosyal) —
+│   ├── TopBar.tsx           Üst çubuk: menü, kimlik işareti, bildirimler
+│   ├── AltGezinti.tsx       Alt gezinti; Cüzdan ve Mağaza pirinç MİHENK sekmesi
+│   ├── YanCekmece.tsx       Yan menü, tema anahtarı ve tanıtım turu
+│   ├── HikayeSeridi.tsx     Hikâye şeridi (yazarlardan türetilir)
+│   ├── AkisSekmeleri.tsx    Ana akış / Takip ettiklerin
+│   ├── OlusturDugmesi.tsx   Yüzen oluştur düğmesi
+│   ├── NSimgesi.tsx         NSosyal kimlik işareti (satır içi SVG)
+│   ├── KapsamNotu.tsx       Kapsam dışı bölüm bildirimi
+│   │
 │   ├── GonderiOlustur.tsx   Gönderi oluşturma (metin, görsel, anket)
 │   ├── GonderiKarti.tsx     Akıştaki tek gönderi
+│   ├── EtkilesimSeridi.tsx  Etkileşim hapları (yorum, paylaşım, roket, görüntülenme)
+│   │
+│   │                        — MİHENK ödül yüzeyi —
 │   ├── DogrulamaSonucu.tsx  Doğrulama sonucu paneli ve mihenk çizgisi
 │   ├── Itiraz.tsx           Üç adımlı itiraz akışı
 │   ├── Cuzdan.tsx           Bakiye, günlük sınır, envanter, hareket defteri
 │   ├── Magaza.tsx           Ürün listesi ve satın alma öncesi önizleme
+│   ├── Tanitim.tsx          İlk giriş tanıtım turu
+│   │
 │   ├── Modal.tsx            Erişilebilir kalıcı pencere (Escape, odak tuzağı)
+│   ├── MihenkSimgesi.tsx    MİHENK monogramı
 │   └── Avatar.tsx           Baş harflerden avatar üretimi
 └── lib/
+    ├── bicim.ts             Akıştaki sayı ve zaman biçimleri
     ├── store/               Durum katmanı
     │   ├── types.ts         Veri modeli tanımları
     │   ├── demoData.ts      Demo gönderiler, yazarlar ve mağaza kataloğu
@@ -174,7 +192,7 @@ gönderi "doğrulama tamamlanamadı" gerekçesiyle sonuçlandırılır.
 
 | Kademe | Yöntem | Eşik | Rolü |
 |---|---|---|---|
-| 1 — Metin özgünlüğü | 5 karakterlik n-gram + Jaccard benzerliği | ≥ 0,70 kopya sayılır | **Kapı** |
+| 1 — Metin özgünlüğü | 5 karakterlik n-gram + Jaccard benzerliği | ≥ 0,35 kopya sayılır | **Kapı** |
 | 1b — Düşük çaba | Ağırlıklı düşük çaba skoru (uzunluk, kelime sayısı, çeşitlilik, tekrar) | ≥ 0,65 elenir · 15 krk. sert taban | **Kapı** |
 | 1c — Metin niteliği | Uzunluk, kelime sayısı, tip/token oranı, tekrar, emoji-bağlantı, büyük harf oranı | aşağıdaki tablo | Skor |
 | 2 — Görsel özgünlüğü | 9×8 dHash + Hamming mesafesi | ≤ 10 bit aynı görsel sayılır | **Kapı** |
@@ -291,8 +309,8 @@ kullanıcıya bildirilir.
 > **Eşik değerleri hakkında:** Yukarıdaki tüm eşikler prototip değerleridir ve gözlemle
 > belirlenmiştir. Nihai değerler, etiketlenmiş bir test kümesi üzerinde eşik taraması yapılarak
 > yanlış pozitif ve yanlış negatif oranları dengelenecek şekilde belirlenecektir. Özellikle kopya
-> eşiği (0,70) ve dHash mesafesi (10 bit) alıntı içeren özgün içerikle gerçek kopya arasındaki
-> ayrımı doğrudan etkilediğinden ölçüme dayalı olarak yeniden ayarlanmalıdır.
+> eşiği (kodda 0,35) ve dHash mesafesi (10 bit) alıntı içeren özgün içerikle gerçek kopya
+> arasındaki ayrımı doğrudan etkilediğinden ölçüme dayalı olarak yeniden ayarlanmalıdır.
 
 ## Testler
 
@@ -307,16 +325,17 @@ beklediği `localStorage` ve `window` API'lerini taklit eder.
 
 | Dosya | Kapsam | Test |
 |---|---|---|
-| `test/dogrulama.test.mjs` | Türkçe normalleştirme, n-gram + Jaccard, metin niteliği, anket çeşitliliği, Hamming mesafesi, doğrulama zinciri, yeni hesap koruması | 22 |
-| `test/depo.test.mjs` | Hidrasyon, bakiye–hareket defteri tutarlılığı, satın alma, süre dolumu, günlük tavan, akış içinde kopya tespiti, itiraz, demo sıfırlama | 28 |
+| `test/dogrulama.test.mjs` | Türkçe normalleştirme, n-gram + Jaccard, metin niteliği, anket çeşitliliği, Hamming mesafesi, doğrulama zinciri, yeni hesap koruması | 34 |
+| `test/depo.test.mjs` | Hidrasyon, bakiye–hareket defteri tutarlılığı, satın alma, süre dolumu, günlük tavan, akış içinde kopya tespiti, itiraz, demo sıfırlama, kopya eşiği ve benzerlik uyarı bandı | 42 |
 
 Tarayıcı sürerek çalışan iki erişilebilirlik denetimi ayrıca bulunur. Bunlar `puppeteer-core`
 gerektirdiği için `npm test` dışında tutulmuştur; birim testleri bağımlılıksız kalsın diye.
 
 ```bash
 npm i --no-save puppeteer-core
-node test/tarayici/klavye.mjs    # klavyeyle uçtan uca gezinme (26 kontrol)
-node test/tarayici/hareket.mjs   # hareketi azaltma tercihi (8 kontrol)
+node test/tarayici/klavye.mjs          # klavyeyle uçtan uca gezinme (30 kontrol)
+node test/tarayici/hareket.mjs         # hareketi azaltma tercihi (8 kontrol)
+node test/tarayici/erisilebilirlik.mjs # axe-core, 28 ekran (axe-core da gerekir)
 ```
 
 Günlük tavan testi altı gönderiyi (6 × 10 = 60 jeton) tam 50'ye kırpar ve her adımda bakiyenin
@@ -324,21 +343,51 @@ hareket defteri toplamına eşit kaldığını doğrular.
 
 ## Erişilebilirlik
 
-Denetim, yayındaki adres üzerinde **Lighthouse 13.4.1** ile yapılmıştır. Uygulamanın ana ekranları
-giriş kapısının arkasında olduğundan tek sayfa denetimi yeterli olmaz; ekranlar Chrome sürülerek
-tek tek ölçülmüştür.
+Denetim iki ayrı araçla ve yeniden üretilebilir biçimde yapılır. Uygulamanın ekranlarının çoğu
+giriş kapısının arkasında ve tam ekran katman olarak açıldığı için tek sayfa denetimi yeterli
+değildir; ekranlara Chrome sürülerek tek tek gidilir.
 
-| Ekran | Erişilebilirlik skoru |
-|---|---|
-| Giriş ekranı | 100 / 100 |
-| Ana akış | 100 / 100 |
-| Cüzdan | 100 / 100 |
-| Mağaza | 100 / 100 |
-| Ürün önizleme penceresi | 100 / 100 |
+**axe-core — 28 ekran, sıfır ihlal.** Yedi ekran × iki tema × iki genişlik (390px / 1280px),
+kapsam `wcag2a` + `wcag2aa` + `wcag21a` + `wcag21aa`:
 
-Başarısız denetim bulunmamaktadır. Giriş sayfasının tam Lighthouse sonucu (masaüstü ön ayarı):
-**Performans 100 · Erişilebilirlik 100 · En İyi Uygulamalar 100 · SEO 100**, ilk içerikli boyama
-0,2 saniye ve düzen kayması sıfır.
+```bash
+npm run build && npm start -- -p 3100
+npm i --no-save puppeteer-core axe-core
+node test/tarayici/erisilebilirlik.mjs
+```
+
+| Ekran | açık 390 | koyu 390 | açık 1280 | koyu 1280 |
+|---|---|---|---|---|
+| Giriş | temiz | temiz | temiz | temiz |
+| Ana akış | temiz | temiz | temiz | temiz |
+| Tanıtım turu | temiz | temiz | temiz | temiz |
+| Yan çekmece | temiz | temiz | temiz | temiz |
+| Cüzdan | temiz | temiz | temiz | temiz |
+| Mağaza | temiz | temiz | temiz | temiz |
+| Ürün önizleme | temiz | temiz | temiz | temiz |
+
+**Lighthouse.** Yerelde üretim derlemesi üzerinde (`npm run build && npm start`), Lighthouse 11
+masaüstü ve mobil ön ayarlarıyla:
+
+| Kategori | Masaüstü | Mobil |
+|---|---|---|
+| Erişilebilirlik | **100** | **100** |
+| En İyi Uygulamalar | **100** | **100** |
+| SEO | **100** | **100** |
+| Performans | **99** | 88 |
+
+İlk içerikli boyama 0,2 s (masaüstü) / 0,8 s, düzen kayması sıfır, toplam engelleme süresi 0 ms.
+Mobil performans değeri Lighthouse'un Lantern simülasyonundan gelir; kısıtlama gerçekten
+uygulandığında (`--throttling-method=devtools`) **95** ve en büyük içerikli boyama ilk içerikli
+boyamayla aynı ana düşer.
+
+> **Bir ölçüm tuzağı, kayda geçirilmiştir.** Giriş kartı daha önce `opacity: 0`'dan başlayan bir
+> animasyonla açılıyordu. Chrome, ilk boyandığı anda saydam olan bir öğeyi en büyük içerikli
+> boyama adayı saymaz ve sonradan görünür hale gelse bile yeniden değerlendirmez. Bu yüzden
+> sayfanın hızlı bağlantıda hiç LCP'si olmuyordu: Lighthouse `NO_LCP` veriyor ve 25 puan ağırlıklı
+> metrik `null` döndüğü için performans kategorisi **0**'a düşüyordu. Yavaş bağlantıda yükleme
+> iskeleti yeterince uzun ekranda kaldığı için sorun görünmüyor, ölçüm 99–100 veriyordu. Animasyon
+> saydamlık oynatmayacak biçimde değiştirildi ve giriş ekranı artık ilk HTML'de geliyor.
 
 Uygulanan başlıca önlemler:
 
