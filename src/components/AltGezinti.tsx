@@ -48,7 +48,7 @@ export function AltGezinti({
       id="alt-gezinti"
       tabIndex={-1}
       aria-label="Ana gezinti"
-      className="fixed bottom-0 left-0 right-0 z-30 bg-card border-t border-line pb-[env(safe-area-inset-bottom)]"
+      className="fixed bottom-0 left-0 right-0 z-[45] bg-card border-t border-line pb-[env(safe-area-inset-bottom)]"
     >
       <div className="mx-auto w-full max-w-lg h-14 flex items-stretch">
         <button

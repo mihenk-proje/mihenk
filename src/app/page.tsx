@@ -157,15 +157,25 @@ export default function Home() {
         </div>
 
         <OlusturDugmesi />
-
-        <AltGezinti
-          gorunum={gorunum}
-          onAkis={() => setGorunum('akis')}
-          onCuzdan={() => setGorunum('cuzdan')}
-          onMagaza={() => setGorunum('magaza')}
-          onKapsamDisi={setKapsamNotu}
-        />
       </div>
+
+      {/*
+        Alt gezinti BİLEREK inert sarmalayıcının dışında ve katmanların üstünde
+        (z-[45] > katman z-40). Önceden sarmalayıcının içindeydi: Cüzdan
+        açıkken gezinti hem görünmüyor hem devre dışı kalıyordu ve Mağaza'ya
+        geçmek için önce akışa dönmek gerekiyordu. Artık gorunum gerçek bir
+        sekme durumu; yanal geçiş tek dokunuş.
+
+        Kalıcı pencereler (z-50) ve tanıtım turu (z-60) gezintinin üstünde
+        kalmaya devam eder — modal bir diyalog gezintiyi örtmeli.
+      */}
+      <AltGezinti
+        gorunum={gorunum}
+        onAkis={() => setGorunum('akis')}
+        onCuzdan={() => setGorunum('cuzdan')}
+        onMagaza={() => setGorunum('magaza')}
+        onKapsamDisi={setKapsamNotu}
+      />
 
       {cekmeceAcik && (
         <YanCekmece

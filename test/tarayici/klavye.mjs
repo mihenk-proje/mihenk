@@ -146,6 +146,29 @@ kontrol(
   'cüzdan açıldı',
   await sayfa.evaluate(() => document.body.innerText.includes('Hareket defteri'))
 )
+
+/*
+  Alt gezinti katmanların ÜSTÜNDE ve inert dışında. Önceden katman açıkken
+  hem görünmüyor hem devre dışıydı; Mağaza'ya geçmek için önce akışa dönmek
+  gerekiyordu. Odağı bozmamak için gezinme yapılmaz, yalnızca erişilebilir
+  ve görünür olduğu doğrulanır.
+*/
+kontrol(
+  'katman açıkken alt gezinti erişilebilir ve görünür kalıyor',
+  await sayfa.evaluate(() => {
+    const gezinti = document.getElementById('alt-gezinti')
+    if (!gezinti || gezinti.closest('[inert]')) return false
+    const magaza = [...gezinti.querySelectorAll('button')].find((b) =>
+      (b.getAttribute('aria-label') ?? '').toLowerCase().includes('mağazayı aç')
+    )
+    if (!magaza) return false
+    const kutu = magaza.getBoundingClientRect()
+    // Gezinti gerçekten en üstte mi, yoksa katman üzerine mi biniyor?
+    const ustteki = document.elementFromPoint(kutu.left + kutu.width / 2, kutu.top + kutu.height / 2)
+    return kutu.height > 0 && Boolean(ustteki?.closest('#alt-gezinti'))
+  })
+)
+
 const geri = await tabla('Akışa geri dön')
 kontrol('geri düğmesine Tab ile ulaşılıyor', geri !== null)
 await sayfa.keyboard.press('Enter')
