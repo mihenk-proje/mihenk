@@ -61,6 +61,11 @@ export const demoMagaza: Urun[] = [
   { id: 'u8', ad: 'Geniş Anket', aciklama: '30 gün boyunca 6 seçenekli anketler aç.', kategori: 'islevsel', fiyat: 80, sureGun: 30, efekt: { tur: 'islev', deger: 'gelismis_anket' } },
   { id: 'u17', ad: 'Mika Merceği', aciklama: '30 gün boyunca kendi gönderilerinde doğrulama gerekçesinin tamamını ve skor bandını gör.', kategori: 'islevsel', fiyat: 40, sureGun: 30, efekt: { tur: 'islev', deger: 'ayrintili_rapor' } },
   { id: 'u18', ad: 'Ayar Taşı', aciklama: '30 gün boyunca paylaşmadan önce metnin nitelik tahminini gör.', kategori: 'islevsel', fiyat: 60, sureGun: 30, efekt: { tur: 'islev', deger: 'on_olcum' } },
+  /*
+    Net zararlı: 60 jetona bir gün için en çok +20. Alan hiçbir zaman ödediğinden
+    fazlasını geri alamaz. Açıklama bunu gizlemiyor — bkz. depo.ts gunlukTavan.
+  */
+  { id: 'u19', ad: 'Gümüş Tavan', aciklama: 'Bir gün için günlük üst sınırı 70 jetona çıkarır. Maliyeti, kazandırabileceğinden yüksektir.', kategori: 'islevsel', fiyat: 60, sureGun: 1, efekt: { tur: 'islev', deger: 'tavan_artisi' } },
 ]
 
 /**

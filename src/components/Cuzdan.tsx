@@ -3,8 +3,8 @@
 import { useState } from "react"
 import { ArrowDownRight, ArrowUpRight, RefreshCcw } from "lucide-react"
 import { useStore } from "@/lib/store/kanca"
+import { gunlukTavan } from "@/lib/store/depo"
 import { kalanSure, suresiDoldu } from "@/lib/store/efektler"
-import { GUNLUK_UST_SINIR } from "@/lib/verification"
 import { KatmanEkran } from "./KatmanEkran"
 import { ETKI_METNI, KozmetikGorseli } from "./KozmetikGorseli"
 import { Modal } from "./Modal"
@@ -15,7 +15,8 @@ export function Cuzdan({ onBack }: { onBack: () => void }) {
   const { jetonBakiyesi, bugunKazanilan } = state.kullanici
   const [sifirlamaSoruluyor, setSifirlamaSoruluyor] = useState(false)
 
-  const gunlukYuzde = Math.min(100, (bugunKazanilan / GUNLUK_UST_SINIR) * 100)
+  const tavan = gunlukTavan(state)
+  const gunlukYuzde = Math.min(100, (bugunKazanilan / tavan) * 100)
 
   const envanter = state.kullanici.envanter
     .map((sahip) => ({ sahip, urun: state.magaza.find((u) => u.id === sahip.urunId) }))
@@ -63,7 +64,7 @@ export function Cuzdan({ onBack }: { onBack: () => void }) {
             <div className="flex justify-between text-xs text-secondary mb-2">
               <span>Günlük üst sınır</span>
               <span className="font-mono">
-                {bugunKazanilan} / {GUNLUK_UST_SINIR}
+                {bugunKazanilan} / {tavan}
               </span>
             </div>
             <div
@@ -71,7 +72,7 @@ export function Cuzdan({ onBack }: { onBack: () => void }) {
               role="progressbar"
               aria-valuenow={bugunKazanilan}
               aria-valuemin={0}
-              aria-valuemax={GUNLUK_UST_SINIR}
+              aria-valuemax={tavan}
               aria-label="Bugün kazanılan jeton"
             >
               <div

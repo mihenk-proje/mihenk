@@ -41,6 +41,31 @@ değiştirmezdi. **Üç kademenin üçünde de yayımlanan eşik ölçümden ge�
 
 `npm run olcum` artık beş adım; skorlama zincire girdi.
 
+### Gümüş Tavan (u19)
+
+Bir gün için günlük üst sınırı 70'e çıkaran işlevsel ürün. **Net zararlı
+fiyatlandı:** 60 jeton ödeyip en çok 20 fazla kazanılabiliyor. "Jeton öde,
+daha çok jeton kazan" bir çiftlik döngüsü olurdu ve günlük tavan tam da
+çiftliğe karşı argüman. Satılan şey tavan değil, yoğun bir günü tek seferlik
+esnetme hakkı — fiyatı kazandırdığından yüksek ve açıklama bunu gizlemiyor.
+
+`gunlukTavan()` ayrıcalığı şu an itibarıyla değerlendiriyor, tavan ise
+gönderinin gününe uygulanıyor. Bir günlük ürün için tutarlı; otuz günlük bir
+sürümde olmazdı. Kodda yazılı.
+
+### Tam ekran yazma katmanı
+
+Yüzen düğme önceden gömülü alana odaklanıyordu; telefonda sayfayı kaydırıp
+küçük bir kutuya odaklanmak, referans uygulamanın tam ekran yazma deneyiminin
+yanında eksik kalıyordu. Aynı bileşen artık `KatmanEkran` içinde tam ekran
+açılıyor; paylaşınca kapanıyor. Gömülü kutu yerinde.
+
+Aynı bileşenin iki kurulumu iki aynı `id` demekti — `label[for]` çözümlemesi
+bozulur, klavye denetimi metin alanını bulamazdı. `idOneki` prop oldu:
+`gonderi-metni` ve `yazma-metni`. Doğrulandı: sayfada tekrar eden id yok.
+
+Denetimler: 106 birim · klavye 31/31 · hareket 8/8 · **axe 40 ekran, 0 ihlal**.
+
 ## 2026-09-17 (yedinci tur) — Jeton ekonomisi, profil, bildirimler ve telefona kurulum
 
 Kullanıcı uygulamayı gerçekten kullanarak beş sorun buldu. Hepsi kapandı.

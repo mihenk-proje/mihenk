@@ -103,7 +103,7 @@ npm run dev     # http://localhost:3000
 | `npm run build` | Üretim derlemesi |
 | `npm start` | Üretim sunucusu |
 | `npm run lint` | ESLint denetimi |
-| `npm test` | Doğrulama ve depo testleri (99 test) |
+| `npm test` | Doğrulama ve depo testleri (106 test) |
 
 Ortam değişkeni gerekmez; uygulama tamamen istemci tarafında çalışır ve arka uç bağlantısı yoktur.
 
@@ -141,7 +141,8 @@ src/
 │   ├── NSimgesi.tsx         NSosyal kimlik işareti (satır içi SVG)
 │   ├── KapsamNotu.tsx       Kapsam dışı bölüm bildirimi
 │   │
-│   ├── GonderiOlustur.tsx   Gönderi oluşturma (metin, görsel, anket)
+│   ├── GonderiOlustur.tsx   Gönderi oluşturma (metin, görsel, anket) — gömülü ve tam ekran
+│   ├── YazmaKatmani.tsx     Yüzen düğmeyle açılan tam ekran yazma ekranı
 │   ├── GonderiKarti.tsx     Akıştaki tek gönderi
 │   ├── EtkilesimSeridi.tsx  Etkileşim hapları (yorum, paylaşım, roket, görüntülenme)
 │   │
@@ -334,7 +335,7 @@ beklediği `localStorage` ve `window` API'lerini taklit eder.
 | Dosya | Kapsam | Test |
 |---|---|---|
 | `test/dogrulama.test.mjs` | Türkçe normalleştirme, n-gram + Jaccard, metin niteliği, anket çeşitliliği, Hamming mesafesi, doğrulama zinciri, yeni hesap koruması | 42 |
-| `test/depo.test.mjs` | Hidrasyon, bakiye–hareket defteri tutarlılığı, satın alma, tür başına tek slot, süre dolumu, günlük tavan, akış içinde kopya tespiti, itiraz, koleksiyon ödülü, demo sıfırlama, kopya eşiği ve benzerlik uyarı bandı | 57 |
+| `test/depo.test.mjs` | Hidrasyon, bakiye–hareket defteri tutarlılığı, satın alma, tür başına tek slot, süre dolumu, günlük tavan ve Gümüş Tavan esnetmesi, akış içinde kopya tespiti, itiraz, koleksiyon ödülü, demo sıfırlama, kopya eşiği ve benzerlik uyarı bandı | 64 |
 
 Tarayıcı sürerek çalışan iki erişilebilirlik denetimi ayrıca bulunur. Bunlar `puppeteer-core`
 gerektirdiği için `npm test` dışında tutulmuştur; birim testleri bağımlılıksız kalsın diye.
@@ -343,7 +344,7 @@ gerektirdiği için `npm test` dışında tutulmuştur; birim testleri bağıml�
 npm i --no-save puppeteer-core
 node test/tarayici/klavye.mjs          # klavyeyle uçtan uca gezinme (31 kontrol)
 node test/tarayici/hareket.mjs         # hareketi azaltma tercihi (8 kontrol)
-node test/tarayici/erisilebilirlik.mjs # axe-core, 36 ekran (axe-core da gerekir)
+node test/tarayici/erisilebilirlik.mjs # axe-core, 40 ekran (axe-core da gerekir)
 ```
 
 Günlük tavan testi altı gönderiyi (6 × 10 = 60 jeton) tam 50'ye kırpar ve her adımda bakiyenin
@@ -355,7 +356,7 @@ Denetim iki ayrı araçla ve yeniden üretilebilir biçimde yapılır. Uygulaman
 giriş kapısının arkasında ve tam ekran katman olarak açıldığı için tek sayfa denetimi yeterli
 değildir; ekranlara Chrome sürülerek tek tek gidilir.
 
-**axe-core — 36 ekran, sıfır ihlal.** Dokuz ekran × iki tema × iki genişlik (390px / 1280px),
+**axe-core — 40 ekran, sıfır ihlal.** On ekran × iki tema × iki genişlik (390px / 1280px),
 kapsam `wcag2a` + `wcag2aa` + `wcag21a` + `wcag21aa`:
 
 ```bash
@@ -375,6 +376,7 @@ node test/tarayici/erisilebilirlik.mjs
 | Ürün önizleme | temiz | temiz | temiz | temiz |
 | Profil | temiz | temiz | temiz | temiz |
 | Bildirimler | temiz | temiz | temiz | temiz |
+| Yazma katmanı | temiz | temiz | temiz | temiz |
 
 **Lighthouse 11.** Hem yayındaki adreste hem de yerel üretim derlemesinde
 (`npm run build && npm start`):

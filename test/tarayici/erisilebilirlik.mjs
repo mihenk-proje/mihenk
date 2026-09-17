@@ -42,6 +42,7 @@ const EKRANLAR = [
   ['Ürün önizleme', ['gir', 'esc', 'mağazayı aç', 'dene']],
   ['Profil', ['gir', 'esc', 'profil']],
   ['Bildirimler', ['gir', 'esc', 'bildirimler']],
+  ['Yazma katmanı', ['gir', 'esc', 'gönderi oluştur']],
 ]
 
 const DURUMLAR = [

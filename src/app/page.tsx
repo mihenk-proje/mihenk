@@ -25,6 +25,7 @@ import { OlusturDugmesi } from "@/components/OlusturDugmesi"
 import { Tanitim, tanitimGoruldu } from "@/components/Tanitim"
 import { TopBar } from "@/components/TopBar"
 import { YanCekmece } from "@/components/YanCekmece"
+import { YazmaKatmani } from "@/components/YazmaKatmani"
 
 const GIRIS_ANAHTARI = 'mihenk_entered'
 
@@ -63,6 +64,7 @@ export default function Home() {
   const [sonuc, setSonuc] = useState<Sonuc | null>(null)
   const [gorunum, setGorunum] = useState<Gorunum>('akis')
   const [cekmeceAcik, setCekmeceAcik] = useState(false)
+  const [yazmaAcik, setYazmaAcik] = useState(false)
   const [sekme, setSekme] = useState('Ana akış')
   const [kapsamNotu, setKapsamNotu] = useState<string | null>(null)
 
@@ -110,7 +112,7 @@ export default function Home() {
     return <DepoYukleniyor />
   }
 
-  const katmanAcik = gorunum !== 'akis' || cekmeceAcik
+  const katmanAcik = gorunum !== 'akis' || cekmeceAcik || yazmaAcik
 
   /* Ekranı açmak her şeyi okunmuş sayar; rozet aynı karede sıfırlanır. */
   const bildirimleriAc = () => {
@@ -187,7 +189,7 @@ export default function Home() {
           </main>
         </div>
 
-        <OlusturDugmesi />
+        <OlusturDugmesi onAc={() => setYazmaAcik(true)} />
       </div>
 
       {/*
@@ -208,6 +210,10 @@ export default function Home() {
         onProfil={() => setGorunum('profil')}
         onKapsamDisi={setKapsamNotu}
       />
+
+      {yazmaAcik && (
+        <YazmaKatmani onKapat={() => setYazmaAcik(false)} onDogrulamaSonucu={setSonuc} />
+      )}
 
       {cekmeceAcik && (
         <YanCekmece

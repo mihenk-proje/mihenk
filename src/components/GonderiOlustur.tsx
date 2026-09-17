@@ -17,8 +17,19 @@ const EN_BUYUK_GORSEL_BYTE = 2 * 1024 * 1024
 
 export function GonderiOlustur({
   onDogrulamaSonucu,
+  onPaylasildi,
+  idOneki = 'gonderi',
 }: {
   onDogrulamaSonucu: (sonuc: DogrulamaSonucu) => void
+  /** Paylaşım başarıyla yapıldığında — tam ekran katman kendini kapatmak için kullanır */
+  onPaylasildi?: () => void
+  /**
+   * Aynı bileşen iki yerde birden kuruluyor: akışın içinde gömülü ve yüzen
+   * düğmeyle açılan tam ekran katmanda. İkisi aynı id'yi taşısaydı
+   * `label[for]` çözümlemesi bozulur ve klavye denetimi metin alanını
+   * bulamazdı — inert öğeler DOM'da kalıyor, çakışma gerçek.
+   */
+  idOneki?: string
 }) {
   const { state, gonderiEkle, dogrulamaTetikle } = useStore()
   const [metin, setMetin] = useState("")
@@ -141,6 +152,7 @@ export function GonderiOlustur({
     setHata(null)
 
     dogrulamaTetikle(yeniGonderi.id, onDogrulamaSonucu)
+    onPaylasildi?.()
   }
 
   return (
@@ -161,11 +173,11 @@ export function GonderiOlustur({
         />
 
         <div className="flex-1 min-w-0">
-          <label htmlFor="gonderi-metni" className="sr-only">
+          <label htmlFor={`${idOneki}-metni`} className="sr-only">
             Gönderi metni
           </label>
           <textarea
-            id="gonderi-metni"
+            id={`${idOneki}-metni`}
             value={metin}
             onChange={(e) => setMetin(e.target.value.slice(0, maxKarakter))}
             placeholder="Aklında ne var?"
@@ -202,11 +214,11 @@ export function GonderiOlustur({
 
               {anket.map((secenek, idx) => (
                 <div key={`secenek-${idx}`} className="flex items-center gap-2">
-                  <label htmlFor={`anket-secenek-${idx}`} className="sr-only">
+                  <label htmlFor={`${idOneki}-anket-secenek-${idx}`} className="sr-only">
                     {idx + 1}. seçenek
                   </label>
                   <input
-                    id={`anket-secenek-${idx}`}
+                    id={`${idOneki}-anket-secenek-${idx}`}
                     value={secenek}
                     onChange={(e) =>
                       setAnket(anket.map((s, i) => (i === idx ? e.target.value.slice(0, 60) : s)))

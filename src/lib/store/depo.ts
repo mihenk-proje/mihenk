@@ -17,7 +17,7 @@ import {
   hesapYasiGun,
 } from '@/lib/verification'
 import { KOLEKSIYONLAR, SEED_SURUMU, varsayilanDurum } from './demoData'
-import { suresiDoldu, tekSlotUygula } from './efektler'
+import { islevAcikMi, suresiDoldu, tekSlotUygula } from './efektler'
 import type { AppState, DogrulamaSonucu, Gonderi, HareketKaydi, SahipOlunanUrun, Urun } from './types'
 
 /*
@@ -288,6 +288,23 @@ function koleksiyonOdulleri(
   return { envanter: sonuc, kayitlar }
 }
 
+/**
+ * Bugünkü günlük üst sınır.
+ *
+ * Gümüş Tavan (u19) takılıysa +20. Ürün bilerek NET ZARARLI fiyatlandı:
+ * 60 jeton ödeyip bir gün için en çok 20 jeton fazla kazanılabiliyor.
+ * "Jeton öde, daha çok jeton kazan" bir çiftlik döngüsü olurdu ve günlük
+ * tavan tam da çiftliğe karşı argüman. Satılan şey tavan değil, yoğun bir
+ * günü tek seferlik esnetme hakkı — ve fiyatı kazandırdığından yüksek.
+ *
+ * Dürüstlük notu: bu fonksiyon ayrıcalığı ŞU AN itibarıyla değerlendirir,
+ * oysa tavan gönderinin GÜNÜNE uygulanır. Bir günlük ürün için bu tutarlı;
+ * otuz günlük bir sürümde olmazdı. sureGun'un 1 olmasının nedenlerinden biri.
+ */
+export function gunlukTavan(durum: AppState): number {
+  return GUNLUK_UST_SINIR + (islevAcikMi(durum, 'tavan_artisi') ? 20 : 0)
+}
+
 export function urunSatinAl(urun: Urun): boolean {
   /*
     Kilitli ürün satılmaz. İLK SATIR olması zorunlu: koleksiyon ödülünün
@@ -484,12 +501,13 @@ async function dogrulamaCalistir(
     const bugunKazanilan = mevcut.veri.hareketler
       .filter((h) => h.miktar > 0 && h.tur !== 'demo' && gunBasi(h.zaman) === oGun)
       .reduce((t, h) => t + h.miktar, 0)
-    if (benimGonderim && kazanilanJeton > 0 && bugunKazanilan + kazanilanJeton > GUNLUK_UST_SINIR) {
-      const eklenebilir = Math.max(0, GUNLUK_UST_SINIR - bugunKazanilan)
+    const tavan = gunlukTavan(mevcut.veri)
+    if (benimGonderim && kazanilanJeton > 0 && bugunKazanilan + kazanilanJeton > tavan) {
+      const eklenebilir = Math.max(0, tavan - bugunKazanilan)
       gerekce.push(
         eklenebilir === 0
-          ? `Günlük üst sınıra (${GUNLUK_UST_SINIR}) ulaşıldı, bu gönderi jeton kazanmadı.`
-          : `Günlük üst sınıra (${GUNLUK_UST_SINIR}) ulaşıldı, jetonun bir kısmı verildi.`
+          ? `Günlük üst sınıra (${tavan}) ulaşıldı, bu gönderi jeton kazanmadı.`
+          : `Günlük üst sınıra (${tavan}) ulaşıldı, jetonun bir kısmı verildi.`
       )
       kazanilanJeton = eklenebilir
     }

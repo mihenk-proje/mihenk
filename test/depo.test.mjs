@@ -257,6 +257,31 @@ export async function calistir() {
   )
   kontrol('bakiye hâlâ defterle tutarlı', d().kullanici.jetonBakiyesi === defterToplami())
 
+  console.log('\n— Gümüş Tavan —')
+  /*
+    Tavan 50'de doymuş durumda. Gümüş Tavan (u19) alınınca tavan 70 olmalı ve
+    aynı gün paylaşılan yedinci gönderi artık tam kazanmalı. Ürün 60 jeton;
+    bakiye yetiyor mu önce kontrol edilir — bu test bakiyeye değil tavana
+    bakıyor, yetersizse bakiye dolduran bir kazanç değil ürün fiyatı düşürülür.
+  */
+  kontrol('tavan varsayılan 50', depo.gunlukTavan(d()) === 50)
+  const gumusTavan = d().magaza.find((u) => u.id === 'u19')
+  kontrol('Gümüş Tavan alındı', depo.urunSatinAl(gumusTavan) === true, `→ bakiye ${d().kullanici.jetonBakiyesi}`)
+  kontrol('tavan 70 oldu', depo.gunlukTavan(d()) === 70, `→ ${depo.gunlukTavan(d())}`)
+
+  sustur()
+  const yedinci = yeniGonderi('t7', 'Balkondaki fesleğen nihayet tohuma durdu, gelecek yıl için ayırdım hepsini özenle.')
+  depo.gonderiEkle(yedinci)
+  await new Promise((cozumle) => depo.dogrulamaTetikle(yedinci.id, cozumle))
+  ac()
+  const yedinciSonuc = d().gonderiler.find((x) => x.id === 'g_t7' || x.id === yedinci.id)
+  kontrol('yedinci gönderi esnetilmiş tavanla kazandı', d().kullanici.bugunKazanilan > 50, `→ ${d().kullanici.bugunKazanilan}`)
+  kontrol('yeni tavanı aşmadı', d().kullanici.bugunKazanilan <= 70)
+  kontrol('yedinci gönderi tavan gerekçesi almadı',
+    yedinciSonuc && !yedinciSonuc.gerekce.some((x) => x.includes('üst sınır')),
+    `→ ${yedinciSonuc?.gerekce?.join(' | ')}`)
+  kontrol('bakiye defterle tutarlı', d().kullanici.jetonBakiyesi === defterToplami())
+
   console.log('\n— Akış içinde kopya tespiti —')
   sustur()
   // Seed'deki kaynak metnin aynısı; motorun kopya olarak işaretlemesi beklenir
