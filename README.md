@@ -376,20 +376,25 @@ node test/tarayici/erisilebilirlik.mjs
 | Profil | temiz | temiz | temiz | temiz |
 | Bildirimler | temiz | temiz | temiz | temiz |
 
-**Lighthouse.** Yerelde üretim derlemesi üzerinde (`npm run build && npm start`), Lighthouse 11
-masaüstü ve mobil ön ayarlarıyla:
+**Lighthouse 11.** Hem yayındaki adreste hem de yerel üretim derlemesinde
+(`npm run build && npm start`):
 
-| Kategori | Masaüstü | Mobil |
-|---|---|---|
-| Erişilebilirlik | **100** | **100** |
-| En İyi Uygulamalar | **100** | **100** |
-| SEO | **100** | **100** |
-| Performans | **99** | 88 |
+| Kategori | Canlı — masaüstü | Canlı — mobil | Yerel — masaüstü | Yerel — mobil |
+|---|---|---|---|---|
+| Erişilebilirlik | **100** | **100** | **100** | **100** |
+| En İyi Uygulamalar | **100** | **100** | **100** | **100** |
+| SEO | **100** | **100** | **100** | **100** |
+| Performans | **100** | **99** | 99 | 86 |
 
-İlk içerikli boyama 0,2 s (masaüstü) / 0,8 s, düzen kayması sıfır, toplam engelleme süresi 0 ms.
-Mobil performans değeri Lighthouse'un Lantern simülasyonundan gelir; kısıtlama gerçekten
-uygulandığında (`--throttling-method=devtools`) **95** ve en büyük içerikli boyama ilk içerikli
-boyamayla aynı ana düşer.
+Düzen kayması her ölçümde sıfır, toplam engelleme süresi masaüstünde 0 ms.
+
+Yereldeki mobil değerinin düşük görünmesinin sebebi uygulamada değil ölçüm
+yöntemindedir: Lighthouse'un öntanımlı Lantern simülasyonu localhost'un sıfıra
+yakın ağ gecikmesini modeline oturtamıyor ve en büyük içerikli boyamayı
+olduğundan geç tahmin ediyor. Kısıtlama gerçekten uygulandığında
+(`--throttling-method=devtools`) yerel mobil değeri **95** oluyor ve en büyük
+içerikli boyama ilk içerikli boyamayla aynı ana düşüyor. Gerçek koşulu temsil
+eden sütun canlı ölçümdür.
 
 > **Bir ölçüm tuzağı, kayda geçirilmiştir.** Giriş kartı daha önce `opacity: 0`'dan başlayan bir
 > animasyonla açılıyordu. Chrome, ilk boyandığı anda saydam olan bir öğeyi en büyük içerikli
