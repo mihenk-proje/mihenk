@@ -58,3 +58,8 @@ data/images/variants/
 # ona takiliyor ve uretimde og:image kayboluyordu.
 /*.png
 
+
+# Ara tarama çıktısı: her eşik için ham skor dizileri, ~3 MB.
+# Yayımlanan çıktılar results/metrics.json ve results/olcum-raporu.md;
+# ikisi de bu dosyadan `npm run olcum` ile yeniden üretilir.
+results/sweep.json

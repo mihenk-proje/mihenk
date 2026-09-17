@@ -500,16 +500,67 @@ test bölünmesine giremez.
 python3 scripts/fix_dev_split.py --dogrula
 ```
 
-### 7. Eşik taraması ve ölçüm
+### 7. Varyant üretimi
+
+Eşik taramasının pozitif çiftleri buradan gelir: her özgün kayıttan dört metin
+varyantı ve beş görsel dönüşümü türetilir. Üretim deterministiktir; aynı `--seed`
+aynı kümeyi verir.
 
 ```bash
-python3 scripts/threshold_sweep.py    # yalnızca geliştirme + doğrulama
-python3 scripts/evaluate.py           # test kümesinde tek seferlik
-python3 scripts/build_report.py       # sunuma hazır tablolar
+python3 scripts/gen_text_variants.py --girdi data/metin/ozgun_500.jsonl \
+  --out data/metin/varyant_havuzu.jsonl --seed 42
+python3 scripts/gen_image_variants.py --girdi-dir data/images/originals \
+  --out-dir data/images/variants --count 5 --seed 42 --bicim jpg \
+  --jsonl data/images/variants_manifest.jsonl
 ```
+
+### 8. Eşik taraması ve ölçüm
+
+Ölçüm betikleri **Node ile** çalışır, Python ile değil. Sebep: metin ve hash
+tarafının çalışma zamanı karşılığı (`normalizeTurkce`, `parcalaraAyir`,
+`jaccardBenzerligi`, `hesaplaDHash`, `hammingMesafesi`) TypeScript'te yazılı.
+Python'a portlamak ikinci bir uygulama yaratır ve ölçüm ile üretim sessizce
+sapabilir. Betikler `test/cozumleyici.mjs` çözümleyicisiyle kaynağı doğrudan
+içe aktarır: **tek gerçek uygulama kalır.**
+
+```bash
+npm run olcum          # aşağıdaki dört adımın tamamı
+```
+
+Adım adım:
+
+```bash
+# dHash canvas ister; algoritma gerçek kaynaktan alınıp başsız Chrome'a enjekte edilir
+node scripts/hash_gorseller.mjs --manifest data/images/manifest.jsonl \
+  --manifest data/images/variants_manifest.jsonl --out data/images/dhash.json
+node scripts/threshold_sweep.mjs --out results/sweep.json
+node scripts/evaluate.mjs --sweep results/sweep.json --out results/metrics.json
+node scripts/build_report.mjs --metrics results/metrics.json --out results/olcum-raporu.md
+```
+
+Çıktı: [`results/olcum-raporu.md`](results/olcum-raporu.md) ve makine okunur
+`results/metrics.json`.
 
 Eşik taraması test bölünmesini hiçbir koşulda okumaz. Ayrıntı için
 [`splits/README.md`](splits/README.md).
+
+#### Ölçülen değerler
+
+| Kademe | Eşik | Kesinlik | Duyarlılık | Yanlış pozitif |
+|---|---|---|---|---|
+| Metin özgünlüğü (Jaccard) | 0,35 | %100,0 | %83,6 | 4 / 124.750 (%0,0032) |
+| Görsel özgünlüğü (Hamming) | 10 bit | %99,7 | %62,6 | 267 / 124.750 (%0,214) |
+
+Görsel duyarlılığındaki düşüklüğün tek bir sebebi var ve gizlenmiyor: **kırpma.**
+Dönüşüm türü bazında duyarlılık — yeniden boyutlandırma %100 · sıkıştırma %99,2 ·
+filtre %98,6 · **kırpma %7,8** · kırpma+filtre %7,2. Kırpılmış görsellerin ortalama
+Hamming mesafesi 21,6; ilişkisiz görsellerinkiyle örtüşüyor. Bu eşik ayarıyla
+çözülmez, farklı bir imza gerekir: [`results/bilinen-sinirlar.md`](results/bilinen-sinirlar.md).
+
+Eşik kararı F1'i değil, **yanlış pozitif oranı bugünkünden kötü olmamak kaydıyla
+en yüksek duyarlılığı** ölçüt alır; yanlış pozitif, özgün içerik üreten kullanıcının
+ödülünü kesmek demektir. Bu ölçütle her iki kademede de optimum, kodda yürürlükte
+olan değere denk çıktı.
 
 ## Dağıtım
 

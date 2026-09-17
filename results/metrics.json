@@ -1,0 +1,1642 @@
+{
+ "uretim": "2026-09-17",
+ "not": "Raporun Tablo 9 ve 13 değerleri ön pilot ölçüm olarak sunulmuştu; o ölçümün veri seti tekrar üretilebilir biçimde mevcut değildir. Aşağıdaki değerler İP6 kümesi üzerinde sıfırdan ölçülmüştür.",
+ "kademeler": {
+  "metin": {
+   "olcu": "Jaccard benzerliği (5 karakterlik n-gram)",
+   "kume": {
+    "ozgun": 500,
+    "pozitif": 2000,
+    "dengeliNegatif": 2000,
+    "tamNegatifCift": 124750
+   },
+   "yururlukteki": {
+    "esik": 0.35,
+    "kesinlik": 1,
+    "duyarlilik": 0.836,
+    "f1": 0.9106753812636166,
+    "dengeliKume": {
+     "tp": 1672,
+     "fp": 0,
+     "fn": 328,
+     "tn": 2000
+    },
+    "tamNegatif": {
+     "cift": 124750,
+     "yanlisPozitif": 4,
+     "oran": 0.000032064128256513025
+    },
+    "turBazinda": {
+     "birebir_kopya": {
+      "adet": 500,
+      "yakalanan": 500,
+      "duyarlilik": 1,
+      "ortalamaSkor": 1
+     },
+     "kismi_kopya": {
+      "adet": 500,
+      "yakalanan": 365,
+      "duyarlilik": 0.73,
+      "ortalamaSkor": 0.408883702752142
+     },
+     "yeniden_yazim": {
+      "adet": 500,
+      "yakalanan": 488,
+      "duyarlilik": 0.976,
+      "ortalamaSkor": 0.7116149455952294
+     },
+     "kisaltma": {
+      "adet": 500,
+      "yakalanan": 319,
+      "duyarlilik": 0.638,
+      "ortalamaSkor": 0.4106086316709489
+     }
+    }
+   },
+   "f1Optimum": {
+    "esik": 0.08,
+    "kesinlik": 0.9959819186338523,
+    "duyarlilik": 0.9915,
+    "f1": 0.9937359057880231,
+    "dengeliKume": {
+     "tp": 1983,
+     "fp": 8,
+     "fn": 17,
+     "tn": 1992
+    },
+    "tamNegatif": {
+     "cift": 124750,
+     "yanlisPozitif": 637,
+     "oran": 0.005106212424849699
+    },
+    "turBazinda": {
+     "birebir_kopya": {
+      "adet": 500,
+      "yakalanan": 500,
+      "duyarlilik": 1,
+      "ortalamaSkor": 1
+     },
+     "kismi_kopya": {
+      "adet": 500,
+      "yakalanan": 483,
+      "duyarlilik": 0.966,
+      "ortalamaSkor": 0.408883702752142
+     },
+     "yeniden_yazim": {
+      "adet": 500,
+      "yakalanan": 500,
+      "duyarlilik": 1,
+      "ortalamaSkor": 0.7116149455952294
+     },
+     "kisaltma": {
+      "adet": 500,
+      "yakalanan": 500,
+      "duyarlilik": 1,
+      "ortalamaSkor": 0.4106086316709489
+     }
+    }
+   },
+   "kisitliOptimum": {
+    "esik": 0.34,
+    "kesinlik": 1,
+    "duyarlilik": 0.8485,
+    "f1": 0.9180416553962673,
+    "dengeliKume": {
+     "tp": 1697,
+     "fp": 0,
+     "fn": 303,
+     "tn": 2000
+    },
+    "tamNegatif": {
+     "cift": 124750,
+     "yanlisPozitif": 4,
+     "oran": 0.000032064128256513025
+    },
+    "turBazinda": {
+     "birebir_kopya": {
+      "adet": 500,
+      "yakalanan": 500,
+      "duyarlilik": 1,
+      "ortalamaSkor": 1
+     },
+     "kismi_kopya": {
+      "adet": 500,
+      "yakalanan": 374,
+      "duyarlilik": 0.748,
+      "ortalamaSkor": 0.408883702752142
+     },
+     "yeniden_yazim": {
+      "adet": 500,
+      "yakalanan": 488,
+      "duyarlilik": 0.976,
+      "ortalamaSkor": 0.7116149455952294
+     },
+     "kisaltma": {
+      "adet": 500,
+      "yakalanan": 335,
+      "duyarlilik": 0.67,
+      "ortalamaSkor": 0.4106086316709489
+     }
+    }
+   },
+   "egri": [
+    {
+     "esik": 0,
+     "f1": 0.6666666666666666,
+     "kesinlik": 0.5,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 0.01,
+     "f1": 0.8845557278971858,
+     "kesinlik": 0.7942697970553124,
+     "duyarlilik": 0.998
+    },
+    {
+     "esik": 0.02,
+     "f1": 0.9511555873242792,
+     "kesinlik": 0.9085116067364588,
+     "duyarlilik": 0.998
+    },
+    {
+     "esik": 0.03,
+     "f1": 0.9752390291738172,
+     "kesinlik": 0.9567099567099567,
+     "duyarlilik": 0.9945
+    },
+    {
+     "esik": 0.04,
+     "f1": 0.9839228295819935,
+     "kesinlik": 0.973568281938326,
+     "duyarlilik": 0.9945
+    },
+    {
+     "esik": 0.05,
+     "f1": 0.9890438247011952,
+     "kesinlik": 0.9851190476190477,
+     "duyarlilik": 0.993
+    },
+    {
+     "esik": 0.06,
+     "f1": 0.9907615480649189,
+     "kesinlik": 0.9895261845386534,
+     "duyarlilik": 0.992
+    },
+    {
+     "esik": 0.07,
+     "f1": 0.9927445584188141,
+     "kesinlik": 0.9934902353530295,
+     "duyarlilik": 0.992
+    },
+    {
+     "esik": 0.08,
+     "f1": 0.9937359057880231,
+     "kesinlik": 0.9959819186338523,
+     "duyarlilik": 0.9915
+    },
+    {
+     "esik": 0.09,
+     "f1": 0.9927227101631115,
+     "kesinlik": 0.9964735516372796,
+     "duyarlilik": 0.989
+    },
+    {
+     "esik": 0.1,
+     "f1": 0.9929718875502007,
+     "kesinlik": 0.9969758064516129,
+     "duyarlilik": 0.989
+    },
+    {
+     "esik": 0.11,
+     "f1": 0.9924660974384732,
+     "kesinlik": 0.9969727547931383,
+     "duyarlilik": 0.988
+    },
+    {
+     "esik": 0.12,
+     "f1": 0.9922090977632572,
+     "kesinlik": 0.9974734714502274,
+     "duyarlilik": 0.987
+    },
+    {
+     "esik": 0.13,
+     "f1": 0.9916981132075471,
+     "kesinlik": 0.9979746835443037,
+     "duyarlilik": 0.9855
+    },
+    {
+     "esik": 0.14,
+     "f1": 0.9916939340548704,
+     "kesinlik": 0.9984794728839331,
+     "duyarlilik": 0.985
+    },
+    {
+     "esik": 0.15,
+     "f1": 0.9911860992193402,
+     "kesinlik": 0.9984779299847792,
+     "duyarlilik": 0.984
+    },
+    {
+     "esik": 0.16,
+     "f1": 0.9909274193548387,
+     "kesinlik": 0.9989837398373984,
+     "duyarlilik": 0.983
+    },
+    {
+     "esik": 0.17,
+     "f1": 0.9901639344262294,
+     "kesinlik": 0.9989821882951654,
+     "duyarlilik": 0.9815
+    },
+    {
+     "esik": 0.18,
+     "f1": 0.9888888888888889,
+     "kesinlik": 0.9989795918367347,
+     "duyarlilik": 0.979
+    },
+    {
+     "esik": 0.19,
+     "f1": 0.9870984062737163,
+     "kesinlik": 0.9989759344598055,
+     "duyarlilik": 0.9755
+    },
+    {
+     "esik": 0.2,
+     "f1": 0.985044359949303,
+     "kesinlik": 0.9989717223650385,
+     "duyarlilik": 0.9715
+    },
+    {
+     "esik": 0.21,
+     "f1": 0.9821973550356053,
+     "kesinlik": 0.9994824016563147,
+     "duyarlilik": 0.9655
+    },
+    {
+     "esik": 0.22,
+     "f1": 0.9809014514896868,
+     "kesinlik": 0.9994810586403736,
+     "duyarlilik": 0.963
+    },
+    {
+     "esik": 0.23,
+     "f1": 0.9764585465711361,
+     "kesinlik": 1,
+     "duyarlilik": 0.954
+    },
+    {
+     "esik": 0.24,
+     "f1": 0.9735694123684885,
+     "kesinlik": 1,
+     "duyarlilik": 0.9485
+    },
+    {
+     "esik": 0.25,
+     "f1": 0.9703989703989705,
+     "kesinlik": 1,
+     "duyarlilik": 0.9425
+    },
+    {
+     "esik": 0.26,
+     "f1": 0.9674754775425917,
+     "kesinlik": 1,
+     "duyarlilik": 0.937
+    },
+    {
+     "esik": 0.27,
+     "f1": 0.9626556016597512,
+     "kesinlik": 1,
+     "duyarlilik": 0.928
+    },
+    {
+     "esik": 0.28,
+     "f1": 0.958061995311279,
+     "kesinlik": 1,
+     "duyarlilik": 0.9195
+    },
+    {
+     "esik": 0.29,
+     "f1": 0.952056588944197,
+     "kesinlik": 1,
+     "duyarlilik": 0.9085
+    },
+    {
+     "esik": 0.3,
+     "f1": 0.9445910290237467,
+     "kesinlik": 1,
+     "duyarlilik": 0.895
+    },
+    {
+     "esik": 0.31,
+     "f1": 0.9341859845456967,
+     "kesinlik": 1,
+     "duyarlilik": 0.8765
+    },
+    {
+     "esik": 0.32,
+     "f1": 0.9299090422685928,
+     "kesinlik": 1,
+     "duyarlilik": 0.869
+    },
+    {
+     "esik": 0.33,
+     "f1": 0.9229940764674206,
+     "kesinlik": 1,
+     "duyarlilik": 0.857
+    },
+    {
+     "esik": 0.34,
+     "f1": 0.9180416553962673,
+     "kesinlik": 1,
+     "duyarlilik": 0.8485
+    },
+    {
+     "esik": 0.35,
+     "f1": 0.9106753812636166,
+     "kesinlik": 1,
+     "duyarlilik": 0.836
+    },
+    {
+     "esik": 0.36,
+     "f1": 0.9014007140895358,
+     "kesinlik": 1,
+     "duyarlilik": 0.8205
+    },
+    {
+     "esik": 0.37,
+     "f1": 0.8928867976750623,
+     "kesinlik": 1,
+     "duyarlilik": 0.8065
+    },
+    {
+     "esik": 0.38,
+     "f1": 0.884862001672707,
+     "kesinlik": 1,
+     "duyarlilik": 0.7935
+    },
+    {
+     "esik": 0.39,
+     "f1": 0.8754568456564521,
+     "kesinlik": 1,
+     "duyarlilik": 0.7785
+    },
+    {
+     "esik": 0.4,
+     "f1": 0.8690981057393271,
+     "kesinlik": 1,
+     "duyarlilik": 0.7685
+    },
+    {
+     "esik": 0.41,
+     "f1": 0.8594240091246079,
+     "kesinlik": 1,
+     "duyarlilik": 0.7535
+    },
+    {
+     "esik": 0.42,
+     "f1": 0.8489208633093526,
+     "kesinlik": 1,
+     "duyarlilik": 0.7375
+    },
+    {
+     "esik": 0.43,
+     "f1": 0.8378849506101104,
+     "kesinlik": 1,
+     "duyarlilik": 0.721
+    },
+    {
+     "esik": 0.44,
+     "f1": 0.8242210464432685,
+     "kesinlik": 1,
+     "duyarlilik": 0.701
+    },
+    {
+     "esik": 0.45,
+     "f1": 0.8098780124962809,
+     "kesinlik": 1,
+     "duyarlilik": 0.6805
+    },
+    {
+     "esik": 0.46,
+     "f1": 0.7962684321396328,
+     "kesinlik": 1,
+     "duyarlilik": 0.6615
+    },
+    {
+     "esik": 0.47,
+     "f1": 0.7838248707813925,
+     "kesinlik": 1,
+     "duyarlilik": 0.6445
+    },
+    {
+     "esik": 0.48,
+     "f1": 0.7714987714987714,
+     "kesinlik": 1,
+     "duyarlilik": 0.628
+    },
+    {
+     "esik": 0.49,
+     "f1": 0.7566055331053777,
+     "kesinlik": 1,
+     "duyarlilik": 0.6085
+    },
+    {
+     "esik": 0.5,
+     "f1": 0.7449011609664261,
+     "kesinlik": 1,
+     "duyarlilik": 0.5935
+    },
+    {
+     "esik": 0.51,
+     "f1": 0.7257088244663905,
+     "kesinlik": 1,
+     "duyarlilik": 0.5695
+    },
+    {
+     "esik": 0.52,
+     "f1": 0.707175177763413,
+     "kesinlik": 1,
+     "duyarlilik": 0.547
+    },
+    {
+     "esik": 0.53,
+     "f1": 0.6970684039087948,
+     "kesinlik": 1,
+     "duyarlilik": 0.535
+    },
+    {
+     "esik": 0.54,
+     "f1": 0.6855077226421294,
+     "kesinlik": 1,
+     "duyarlilik": 0.5215
+    },
+    {
+     "esik": 0.55,
+     "f1": 0.6728599867285998,
+     "kesinlik": 1,
+     "duyarlilik": 0.507
+    },
+    {
+     "esik": 0.56,
+     "f1": 0.664440734557596,
+     "kesinlik": 1,
+     "duyarlilik": 0.4975
+    },
+    {
+     "esik": 0.57,
+     "f1": 0.6559139784946236,
+     "kesinlik": 1,
+     "duyarlilik": 0.488
+    },
+    {
+     "esik": 0.58,
+     "f1": 0.6459038591740014,
+     "kesinlik": 1,
+     "duyarlilik": 0.477
+    },
+    {
+     "esik": 0.59,
+     "f1": 0.6380660537963908,
+     "kesinlik": 1,
+     "duyarlilik": 0.4685
+    },
+    {
+     "esik": 0.6,
+     "f1": 0.6310746064339493,
+     "kesinlik": 1,
+     "duyarlilik": 0.461
+    },
+    {
+     "esik": 0.61,
+     "f1": 0.624484181568088,
+     "kesinlik": 1,
+     "duyarlilik": 0.454
+    },
+    {
+     "esik": 0.62,
+     "f1": 0.6183074265975821,
+     "kesinlik": 1,
+     "duyarlilik": 0.4475
+    },
+    {
+     "esik": 0.63,
+     "f1": 0.6125563648976761,
+     "kesinlik": 1,
+     "duyarlilik": 0.4415
+    },
+    {
+     "esik": 0.64,
+     "f1": 0.6028641285365002,
+     "kesinlik": 1,
+     "duyarlilik": 0.4315
+    },
+    {
+     "esik": 0.65,
+     "f1": 0.5979670522257273,
+     "kesinlik": 1,
+     "duyarlilik": 0.4265
+    },
+    {
+     "esik": 0.66,
+     "f1": 0.5915492957746479,
+     "kesinlik": 1,
+     "duyarlilik": 0.42
+    },
+    {
+     "esik": 0.67,
+     "f1": 0.5830676585193056,
+     "kesinlik": 1,
+     "duyarlilik": 0.4115
+    },
+    {
+     "esik": 0.68,
+     "f1": 0.5760056959772161,
+     "kesinlik": 1,
+     "duyarlilik": 0.4045
+    },
+    {
+     "esik": 0.69,
+     "f1": 0.5714285714285715,
+     "kesinlik": 1,
+     "duyarlilik": 0.4
+    },
+    {
+     "esik": 0.7,
+     "f1": 0.5637342908438061,
+     "kesinlik": 1,
+     "duyarlilik": 0.3925
+    },
+    {
+     "esik": 0.71,
+     "f1": 0.5580389329488104,
+     "kesinlik": 1,
+     "duyarlilik": 0.387
+    },
+    {
+     "esik": 0.72,
+     "f1": 0.5533453887884268,
+     "kesinlik": 1,
+     "duyarlilik": 0.3825
+    },
+    {
+     "esik": 0.73,
+     "f1": 0.5470395931710861,
+     "kesinlik": 1,
+     "duyarlilik": 0.3765
+    },
+    {
+     "esik": 0.74,
+     "f1": 0.5401459854014599,
+     "kesinlik": 1,
+     "duyarlilik": 0.37
+    },
+    {
+     "esik": 0.75,
+     "f1": 0.5353350421091175,
+     "kesinlik": 1,
+     "duyarlilik": 0.3655
+    },
+    {
+     "esik": 0.76,
+     "f1": 0.5294117647058824,
+     "kesinlik": 1,
+     "duyarlilik": 0.36
+    },
+    {
+     "esik": 0.77,
+     "f1": 0.5239852398523985,
+     "kesinlik": 1,
+     "duyarlilik": 0.355
+    },
+    {
+     "esik": 0.78,
+     "f1": 0.5168705969595847,
+     "kesinlik": 1,
+     "duyarlilik": 0.3485
+    },
+    {
+     "esik": 0.79,
+     "f1": 0.5124581628858311,
+     "kesinlik": 1,
+     "duyarlilik": 0.3445
+    },
+    {
+     "esik": 0.8,
+     "f1": 0.5080193957478553,
+     "kesinlik": 1,
+     "duyarlilik": 0.3405
+    },
+    {
+     "esik": 0.81,
+     "f1": 0.5035540591096147,
+     "kesinlik": 1,
+     "duyarlilik": 0.3365
+    },
+    {
+     "esik": 0.82,
+     "f1": 0.49906191369606007,
+     "kesinlik": 1,
+     "duyarlilik": 0.3325
+    },
+    {
+     "esik": 0.83,
+     "f1": 0.4934086629001883,
+     "kesinlik": 1,
+     "duyarlilik": 0.3275
+    },
+    {
+     "esik": 0.84,
+     "f1": 0.48714069591527986,
+     "kesinlik": 1,
+     "duyarlilik": 0.322
+    },
+    {
+     "esik": 0.85,
+     "f1": 0.48312476298824425,
+     "kesinlik": 1,
+     "duyarlilik": 0.3185
+    },
+    {
+     "esik": 0.86,
+     "f1": 0.47619047619047616,
+     "kesinlik": 1,
+     "duyarlilik": 0.3125
+    },
+    {
+     "esik": 0.87,
+     "f1": 0.46684553468761975,
+     "kesinlik": 1,
+     "duyarlilik": 0.3045
+    },
+    {
+     "esik": 0.88,
+     "f1": 0.4591679506933744,
+     "kesinlik": 1,
+     "duyarlilik": 0.298
+    },
+    {
+     "esik": 0.89,
+     "f1": 0.4567901234567901,
+     "kesinlik": 1,
+     "duyarlilik": 0.296
+    },
+    {
+     "esik": 0.9,
+     "f1": 0.45141308555942694,
+     "kesinlik": 1,
+     "duyarlilik": 0.2915
+    },
+    {
+     "esik": 0.91,
+     "f1": 0.44720496894409933,
+     "kesinlik": 1,
+     "duyarlilik": 0.288
+    },
+    {
+     "esik": 0.92,
+     "f1": 0.4399375975039001,
+     "kesinlik": 1,
+     "duyarlilik": 0.282
+    },
+    {
+     "esik": 0.93,
+     "f1": 0.43566679702776695,
+     "kesinlik": 1,
+     "duyarlilik": 0.2785
+    },
+    {
+     "esik": 0.94,
+     "f1": 0.4319874558996472,
+     "kesinlik": 1,
+     "duyarlilik": 0.2755
+    },
+    {
+     "esik": 0.95,
+     "f1": 0.430757159670459,
+     "kesinlik": 1,
+     "duyarlilik": 0.2745
+    },
+    {
+     "esik": 0.96,
+     "f1": 0.42952493129171576,
+     "kesinlik": 1,
+     "duyarlilik": 0.2735
+    },
+    {
+     "esik": 0.97,
+     "f1": 0.4282907662082515,
+     "kesinlik": 1,
+     "duyarlilik": 0.2725
+    },
+    {
+     "esik": 0.98,
+     "f1": 0.4282907662082515,
+     "kesinlik": 1,
+     "duyarlilik": 0.2725
+    },
+    {
+     "esik": 0.99,
+     "f1": 0.4282907662082515,
+     "kesinlik": 1,
+     "duyarlilik": 0.2725
+    },
+    {
+     "esik": 1,
+     "f1": 0.4282907662082515,
+     "kesinlik": 1,
+     "duyarlilik": 0.2725
+    }
+   ]
+  },
+  "gorsel": {
+   "olcu": "9×8 dHash, Hamming mesafesi",
+   "kume": {
+    "ozgun": 500,
+    "pozitif": 2500,
+    "dengeliNegatif": 2500,
+    "tamNegatifCift": 124750
+   },
+   "yururlukteki": {
+    "esik": 10,
+    "kesinlik": 0.9974489795918368,
+    "duyarlilik": 0.6256,
+    "f1": 0.7689282202556539,
+    "dengeliKume": {
+     "tp": 1564,
+     "fp": 4,
+     "fn": 936,
+     "tn": 2496
+    },
+    "tamNegatif": {
+     "cift": 124750,
+     "yanlisPozitif": 267,
+     "oran": 0.0021402805611222446
+    },
+    "turBazinda": {
+     "yeniden_boyutlandirma": {
+      "adet": 500,
+      "yakalanan": 500,
+      "duyarlilik": 1,
+      "ortalamaSkor": 0.868
+     },
+     "sikistirma": {
+      "adet": 500,
+      "yakalanan": 496,
+      "duyarlilik": 0.992,
+      "ortalamaSkor": 1.636
+     },
+     "kirpma": {
+      "adet": 500,
+      "yakalanan": 39,
+      "duyarlilik": 0.078,
+      "ortalamaSkor": 21.554
+     },
+     "filtre": {
+      "adet": 500,
+      "yakalanan": 493,
+      "duyarlilik": 0.986,
+      "ortalamaSkor": 2.084
+     },
+     "kirpma_filtre": {
+      "adet": 500,
+      "yakalanan": 36,
+      "duyarlilik": 0.072,
+      "ortalamaSkor": 21.33
+     }
+    }
+   },
+   "f1Optimum": {
+    "esik": 22,
+    "kesinlik": 0.9022026431718062,
+    "duyarlilik": 0.8192,
+    "f1": 0.8587002096436058,
+    "dengeliKume": {
+     "tp": 2048,
+     "fp": 222,
+     "fn": 452,
+     "tn": 2278
+    },
+    "tamNegatif": {
+     "cift": 124750,
+     "yanlisPozitif": 12838,
+     "oran": 0.10290981963927856
+    },
+    "turBazinda": {
+     "yeniden_boyutlandirma": {
+      "adet": 500,
+      "yakalanan": 500,
+      "duyarlilik": 1,
+      "ortalamaSkor": 0.868
+     },
+     "sikistirma": {
+      "adet": 500,
+      "yakalanan": 500,
+      "duyarlilik": 1,
+      "ortalamaSkor": 1.636
+     },
+     "kirpma": {
+      "adet": 500,
+      "yakalanan": 268,
+      "duyarlilik": 0.536,
+      "ortalamaSkor": 21.554
+     },
+     "filtre": {
+      "adet": 500,
+      "yakalanan": 500,
+      "duyarlilik": 1,
+      "ortalamaSkor": 2.084
+     },
+     "kirpma_filtre": {
+      "adet": 500,
+      "yakalanan": 280,
+      "duyarlilik": 0.56,
+      "ortalamaSkor": 21.33
+     }
+    }
+   },
+   "kisitliOptimum": {
+    "esik": 10,
+    "kesinlik": 0.9974489795918368,
+    "duyarlilik": 0.6256,
+    "f1": 0.7689282202556539,
+    "dengeliKume": {
+     "tp": 1564,
+     "fp": 4,
+     "fn": 936,
+     "tn": 2496
+    },
+    "tamNegatif": {
+     "cift": 124750,
+     "yanlisPozitif": 267,
+     "oran": 0.0021402805611222446
+    },
+    "turBazinda": {
+     "yeniden_boyutlandirma": {
+      "adet": 500,
+      "yakalanan": 500,
+      "duyarlilik": 1,
+      "ortalamaSkor": 0.868
+     },
+     "sikistirma": {
+      "adet": 500,
+      "yakalanan": 496,
+      "duyarlilik": 0.992,
+      "ortalamaSkor": 1.636
+     },
+     "kirpma": {
+      "adet": 500,
+      "yakalanan": 39,
+      "duyarlilik": 0.078,
+      "ortalamaSkor": 21.554
+     },
+     "filtre": {
+      "adet": 500,
+      "yakalanan": 493,
+      "duyarlilik": 0.986,
+      "ortalamaSkor": 2.084
+     },
+     "kirpma_filtre": {
+      "adet": 500,
+      "yakalanan": 36,
+      "duyarlilik": 0.072,
+      "ortalamaSkor": 21.33
+     }
+    }
+   },
+   "kirpmaHaricOptimum": {
+    "esik": 13,
+    "tp": 1498,
+    "fp": 9,
+    "fn": 2,
+    "tn": 1491,
+    "kesinlik": 0.9940278699402787,
+    "duyarlilik": 0.9986666666666667,
+    "f1": 0.9963418689723978
+   },
+   "egri": [
+    {
+     "esik": 0,
+     "f1": 0.35363845900559765,
+     "kesinlik": 1,
+     "duyarlilik": 0.2148
+    },
+    {
+     "esik": 1,
+     "f1": 0.5507246376811594,
+     "kesinlik": 1,
+     "duyarlilik": 0.38
+    },
+    {
+     "esik": 2,
+     "f1": 0.6490137800594434,
+     "kesinlik": 1,
+     "duyarlilik": 0.4804
+    },
+    {
+     "esik": 3,
+     "f1": 0.6996098829648895,
+     "kesinlik": 1,
+     "duyarlilik": 0.538
+    },
+    {
+     "esik": 4,
+     "f1": 0.7241643276346006,
+     "kesinlik": 1,
+     "duyarlilik": 0.5676
+    },
+    {
+     "esik": 5,
+     "f1": 0.7335359675785208,
+     "kesinlik": 1,
+     "duyarlilik": 0.5792
+    },
+    {
+     "esik": 6,
+     "f1": 0.7430869783810959,
+     "kesinlik": 1,
+     "duyarlilik": 0.5912
+    },
+    {
+     "esik": 7,
+     "f1": 0.7493746873436719,
+     "kesinlik": 1,
+     "duyarlilik": 0.5992
+    },
+    {
+     "esik": 8,
+     "f1": 0.7536737235367372,
+     "kesinlik": 0.9986798679867986,
+     "duyarlilik": 0.6052
+    },
+    {
+     "esik": 9,
+     "f1": 0.761315854563443,
+     "kesinlik": 0.9974076474400518,
+     "duyarlilik": 0.6156
+    },
+    {
+     "esik": 10,
+     "f1": 0.7689282202556539,
+     "kesinlik": 0.9974489795918368,
+     "duyarlilik": 0.6256
+    },
+    {
+     "esik": 11,
+     "f1": 0.7759882869692534,
+     "kesinlik": 0.9949937421777222,
+     "duyarlilik": 0.636
+    },
+    {
+     "esik": 12,
+     "f1": 0.7826297913634158,
+     "kesinlik": 0.9944512946979038,
+     "duyarlilik": 0.6452
+    },
+    {
+     "esik": 13,
+     "f1": 0.7914361318258359,
+     "kesinlik": 0.9927579963789982,
+     "duyarlilik": 0.658
+    },
+    {
+     "esik": 14,
+     "f1": 0.8001905215527507,
+     "kesinlik": 0.9888169511477339,
+     "duyarlilik": 0.672
+    },
+    {
+     "esik": 15,
+     "f1": 0.8091423185673892,
+     "kesinlik": 0.9845183486238532,
+     "duyarlilik": 0.6868
+    },
+    {
+     "esik": 16,
+     "f1": 0.8196187819618782,
+     "kesinlik": 0.9783573806881243,
+     "duyarlilik": 0.7052
+    },
+    {
+     "esik": 17,
+     "f1": 0.8290559120073328,
+     "kesinlik": 0.9704935622317596,
+     "duyarlilik": 0.7236
+    },
+    {
+     "esik": 18,
+     "f1": 0.834955852388499,
+     "kesinlik": 0.9619196661450182,
+     "duyarlilik": 0.7376
+    },
+    {
+     "esik": 19,
+     "f1": 0.8427365615282097,
+     "kesinlik": 0.9475524475524476,
+     "duyarlilik": 0.7588
+    },
+    {
+     "esik": 20,
+     "f1": 0.850338649770592,
+     "kesinlik": 0.9369282619162254,
+     "duyarlilik": 0.7784
+    },
+    {
+     "esik": 21,
+     "f1": 0.853339059480352,
+     "kesinlik": 0.9211868335651368,
+     "duyarlilik": 0.7948
+    },
+    {
+     "esik": 22,
+     "f1": 0.8587002096436058,
+     "kesinlik": 0.9022026431718062,
+     "duyarlilik": 0.8192
+    },
+    {
+     "esik": 23,
+     "f1": 0.8532409294741133,
+     "kesinlik": 0.8699085619285121,
+     "duyarlilik": 0.8372
+    },
+    {
+     "esik": 24,
+     "f1": 0.8509710661910425,
+     "kesinlik": 0.8432835820895522,
+     "duyarlilik": 0.8588
+    },
+    {
+     "esik": 25,
+     "f1": 0.844804318488529,
+     "kesinlik": 0.8154075176777075,
+     "duyarlilik": 0.8764
+    },
+    {
+     "esik": 26,
+     "f1": 0.8372875023351393,
+     "kesinlik": 0.7854889589905363,
+     "duyarlilik": 0.8964
+    },
+    {
+     "esik": 27,
+     "f1": 0.823741656142883,
+     "kesinlik": 0.7502464673020046,
+     "duyarlilik": 0.9132
+    },
+    {
+     "esik": 28,
+     "f1": 0.8099721059972106,
+     "kesinlik": 0.7178615574783683,
+     "duyarlilik": 0.9292
+    },
+    {
+     "esik": 29,
+     "f1": 0.7975728973537839,
+     "kesinlik": 0.6891931255461695,
+     "duyarlilik": 0.9464
+    },
+    {
+     "esik": 30,
+     "f1": 0.7788649706457925,
+     "kesinlik": 0.6574889867841409,
+     "duyarlilik": 0.9552
+    },
+    {
+     "esik": 31,
+     "f1": 0.7579146322255473,
+     "kesinlik": 0.6250974279033515,
+     "duyarlilik": 0.9624
+    },
+    {
+     "esik": 32,
+     "f1": 0.7416895394937482,
+     "kesinlik": 0.5993100049285363,
+     "duyarlilik": 0.9728
+    },
+    {
+     "esik": 33,
+     "f1": 0.7278124072425052,
+     "kesinlik": 0.5785747994336952,
+     "duyarlilik": 0.9808
+    },
+    {
+     "esik": 34,
+     "f1": 0.7123644251626898,
+     "kesinlik": 0.5578708946772367,
+     "duyarlilik": 0.9852
+    },
+    {
+     "esik": 35,
+     "f1": 0.7014714204867006,
+     "kesinlik": 0.5426882661996497,
+     "duyarlilik": 0.9916
+    },
+    {
+     "esik": 36,
+     "f1": 0.6934673366834171,
+     "kesinlik": 0.532590051457976,
+     "duyarlilik": 0.9936
+    },
+    {
+     "esik": 37,
+     "f1": 0.6869829012686156,
+     "kesinlik": 0.5242003367003367,
+     "duyarlilik": 0.9964
+    },
+    {
+     "esik": 38,
+     "f1": 0.6811297584936553,
+     "kesinlik": 0.5168772002484987,
+     "duyarlilik": 0.9984
+    },
+    {
+     "esik": 39,
+     "f1": 0.6765940165155003,
+     "kesinlik": 0.5113566605279313,
+     "duyarlilik": 0.9996
+    },
+    {
+     "esik": 40,
+     "f1": 0.6726783310901749,
+     "kesinlik": 0.506896551724138,
+     "duyarlilik": 0.9996
+    },
+    {
+     "esik": 41,
+     "f1": 0.6709608158883521,
+     "kesinlik": 0.5048465266558966,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 42,
+     "f1": 0.6696129637069773,
+     "kesinlik": 0.50332192470304,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 43,
+     "f1": 0.668985817500669,
+     "kesinlik": 0.5026135906714918,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 44,
+     "f1": 0.6682705159048383,
+     "kesinlik": 0.5018065034122843,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 45,
+     "f1": 0.6678242286630159,
+     "kesinlik": 0.5013033888109084,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 46,
+     "f1": 0.6675567423230975,
+     "kesinlik": 0.501002004008016,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 47,
+     "f1": 0.66711140760507,
+     "kesinlik": 0.5005005005005005,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 48,
+     "f1": 0.6668444918644971,
+     "kesinlik": 0.5002000800320128,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 49,
+     "f1": 0.6668444918644971,
+     "kesinlik": 0.5002000800320128,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 50,
+     "f1": 0.6666666666666666,
+     "kesinlik": 0.5,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 51,
+     "f1": 0.6666666666666666,
+     "kesinlik": 0.5,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 52,
+     "f1": 0.6666666666666666,
+     "kesinlik": 0.5,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 53,
+     "f1": 0.6666666666666666,
+     "kesinlik": 0.5,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 54,
+     "f1": 0.6666666666666666,
+     "kesinlik": 0.5,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 55,
+     "f1": 0.6666666666666666,
+     "kesinlik": 0.5,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 56,
+     "f1": 0.6666666666666666,
+     "kesinlik": 0.5,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 57,
+     "f1": 0.6666666666666666,
+     "kesinlik": 0.5,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 58,
+     "f1": 0.6666666666666666,
+     "kesinlik": 0.5,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 59,
+     "f1": 0.6666666666666666,
+     "kesinlik": 0.5,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 60,
+     "f1": 0.6666666666666666,
+     "kesinlik": 0.5,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 61,
+     "f1": 0.6666666666666666,
+     "kesinlik": 0.5,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 62,
+     "f1": 0.6666666666666666,
+     "kesinlik": 0.5,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 63,
+     "f1": 0.6666666666666666,
+     "kesinlik": 0.5,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 64,
+     "f1": 0.6666666666666666,
+     "kesinlik": 0.5,
+     "duyarlilik": 1
+    }
+   ],
+   "egriKirpmaHaric": [
+    {
+     "esik": 0,
+     "f1": 0.5272459499263622,
+     "duyarlilik": 0.358
+    },
+    {
+     "esik": 1,
+     "f1": 0.7750102082482646,
+     "duyarlilik": 0.6326666666666667
+    },
+    {
+     "esik": 2,
+     "f1": 0.8884772137828826,
+     "duyarlilik": 0.7993333333333333
+    },
+    {
+     "esik": 3,
+     "f1": 0.9436619718309859,
+     "duyarlilik": 0.8933333333333333
+    },
+    {
+     "esik": 4,
+     "f1": 0.968363136176066,
+     "duyarlilik": 0.9386666666666666
+    },
+    {
+     "esik": 5,
+     "f1": 0.9764585465711361,
+     "duyarlilik": 0.954
+    },
+    {
+     "esik": 6,
+     "f1": 0.984427894380501,
+     "duyarlilik": 0.9693333333333334
+    },
+    {
+     "esik": 7,
+     "f1": 0.9878542510121457,
+     "duyarlilik": 0.976
+    },
+    {
+     "esik": 8,
+     "f1": 0.9895658027600135,
+     "duyarlilik": 0.98
+    },
+    {
+     "esik": 9,
+     "f1": 0.9936348408710218,
+     "duyarlilik": 0.9886666666666667
+    },
+    {
+     "esik": 10,
+     "f1": 0.9956536275493146,
+     "duyarlilik": 0.9926666666666667
+    },
+    {
+     "esik": 11,
+     "f1": 0.9956652217405801,
+     "duyarlilik": 0.9953333333333333
+    },
+    {
+     "esik": 12,
+     "f1": 0.9963345551482838,
+     "duyarlilik": 0.9966666666666667
+    },
+    {
+     "esik": 13,
+     "f1": 0.9963418689723978,
+     "duyarlilik": 0.9986666666666667
+    },
+    {
+     "esik": 14,
+     "f1": 0.9946879150066401,
+     "duyarlilik": 0.9986666666666667
+    },
+    {
+     "esik": 15,
+     "f1": 0.9933730947647449,
+     "duyarlilik": 0.9993333333333333
+    },
+    {
+     "esik": 16,
+     "f1": 0.9914021164021165,
+     "duyarlilik": 0.9993333333333333
+    },
+    {
+     "esik": 17,
+     "f1": 0.9891196834817012,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 18,
+     "f1": 0.9852216748768473,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 19,
+     "f1": 0.9781545484186501,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 20,
+     "f1": 0.974025974025974,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 21,
+     "f1": 0.966183574879227,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 22,
+     "f1": 0.9572431397574984,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 23,
+     "f1": 0.9419152276295133,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 24,
+     "f1": 0.927357032457496,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 25,
+     "f1": 0.9096422073984233,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 26,
+     "f1": 0.8928571428571428,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 27,
+     "f1": 0.8700696055684455,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 28,
+     "f1": 0.8479366873940078,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 29,
+     "f1": 0.826901874310915,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 30,
+     "f1": 0.8034279592929834,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 31,
+     "f1": 0.77720207253886,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 32,
+     "f1": 0.7547169811320755,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 33,
+     "f1": 0.7372818874416318,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 34,
+     "f1": 0.7201152184349495,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 35,
+     "f1": 0.7053844345168117,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 36,
+     "f1": 0.6963788300835655,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 37,
+     "f1": 0.6883891693437357,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 38,
+     "f1": 0.6813536225300931,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 39,
+     "f1": 0.6767426122264832,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 40,
+     "f1": 0.6729475100942127,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 41,
+     "f1": 0.6705409029950826,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 42,
+     "f1": 0.6693440428380187,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 43,
+     "f1": 0.6690454950936664,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 44,
+     "f1": 0.6680026720106881,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 45,
+     "f1": 0.6675567423230975,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 46,
+     "f1": 0.6674082313681868,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 47,
+     "f1": 0.66711140760507,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 48,
+     "f1": 0.6669630947087595,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 49,
+     "f1": 0.6669630947087595,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 50,
+     "f1": 0.6666666666666666,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 51,
+     "f1": 0.6666666666666666,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 52,
+     "f1": 0.6666666666666666,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 53,
+     "f1": 0.6666666666666666,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 54,
+     "f1": 0.6666666666666666,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 55,
+     "f1": 0.6666666666666666,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 56,
+     "f1": 0.6666666666666666,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 57,
+     "f1": 0.6666666666666666,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 58,
+     "f1": 0.6666666666666666,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 59,
+     "f1": 0.6666666666666666,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 60,
+     "f1": 0.6666666666666666,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 61,
+     "f1": 0.6666666666666666,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 62,
+     "f1": 0.6666666666666666,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 63,
+     "f1": 0.6666666666666666,
+     "duyarlilik": 1
+    },
+    {
+     "esik": 64,
+     "f1": 0.6666666666666666,
+     "duyarlilik": 1
+    }
+   ]
+  },
+  "dusukCaba": {
+   "durum": "ölçülmedi",
+   "yururluktekiEsik": 0.65,
+   "neden": "Negatif taraf (500 normal görselin düşük çaba skoru) üretilmedi; tek yanlı bir duyarlılık sayısı yanıltıcı olurdu. Bkz. results/dusuk-caba-kalibrasyonu.md"
+  }
+ }
+}

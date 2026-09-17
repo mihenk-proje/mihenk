@@ -130,6 +130,69 @@ axe-core o anki DOM üzerinde çalıştırılıyor.
 Tema başına ayrı tarayıcı açılıyor: ilk sürümde tek Chrome örneği uzun koşuda
 düşüyor ve denetim hiçbir çıktı vermeden asılı kalıyordu.
 
+### Ölçüm boru hattı çalıştırıldı — README'nin andığı üç betik artık var
+
+README `threshold_sweep.py`, `evaluate.py` ve `build_report.py` betiklerini
+tarif ediyordu; **üçü de depoda yoktu.** README'yi takip eden hakem üç kez
+dosya bulamıyordu.
+
+Betikler Node ile yazıldı, Python'a portlanmadı. Metin ve hash tarafının
+çalışma zamanı karşılığı TypeScript'te; portlamak ikinci bir uygulama yaratır
+ve ölçüm ile üretim sessizce sapabilir. Betikler `test/cozumleyici.mjs`
+çözümleyicisiyle kaynağı doğrudan içe aktarıyor.
+
+`hesaplaDHash` canvas istediği için Node'da çalışmıyor. Algoritma **kendi
+kaynağından, tür soyulmuş haliyle** başsız Chrome'a enjekte ediliyor
+(`scripts/hash_gorseller.mjs`); sayfaya ayrıca verilen tek şey görsel yükleme
+tesisatı. Ölçülen algoritmanın tek bir kaynağı kalıyor.
+
+**Üretilen küme:** 500 özgün metin → 2.000 varyant (dört tür) · 500 özgün
+görsel → 2.500 dönüşüm (beş tür) · 3.500 dHash.
+
+İki ayrı negatif küme kullanıldı. Dengeli küme (her varyant için ebeveyni
+olmayan rastgele bir özgün) F1'in sınıf dengesizliğinden şişmesini engelliyor;
+yanlış pozitif oranı ise bütün özgün–özgün çiftlerinden (124.750 çift)
+hesaplanıyor — akışta karşılaşılan dağılım bu.
+
+#### Ölçülen değerler
+
+| Kademe | Eşik | Kesinlik | Duyarlılık | F1 | Yanlış pozitif |
+|---|---|---|---|---|---|
+| Metin (Jaccard) | 0,35 | %100,0 | %83,6 | 0,9107 | 4 / 124.750 (%0,0032) |
+| Görsel (Hamming) | 10 bit | %99,7 | %62,6 | 0,7689 | 267 / 124.750 (%0,214) |
+
+Dönüşüm türü bazında görsel duyarlılığı: yeniden boyutlandırma %100 ·
+sıkıştırma %99,2 · filtre %98,6 · **kırpma %7,8** · kırpma+filtre %7,2.
+Kırpılmış görsellerin ortalama Hamming mesafesi 21,6; ilişkisiz görsellerinkiyle
+örtüşüyor. Daha önce nitel olarak belgelenen kırpma sınırı artık sayıyla duruyor.
+
+#### Eşik kararı
+
+F1 optimumu metinde 0,08, görselde 22 çıktı — ikisi de uygulanmadı ve gerekçe
+ölçümün kendisinden geliyor.
+
+F1, yanlış pozitif ile yanlış negatifi eşit maliyetli sayar. MİHENK'te
+değiller: yanlış negatif bir kopyanın jeton kazanmasıdır, yanlış pozitif özgün
+içerik üreten bir kullanıcının ödülünün kesilmesidir. Ölçüt olarak **yanlış
+pozitif oranı bugünkünden kötü olmamak kaydıyla en yüksek duyarlılık**
+alındı.
+
+| Kademe | Yürürlükteki | Kısıtlı optimum | F1 optimumu |
+|---|---|---|---|
+| Metin | 0,35 | 0,34 | 0,08 → yanlış pozitif **159 katı** (%0,0032 → %0,511) |
+| Görsel | 10 | **10** | 22 → ilişkisiz çiftlerin **%10,3'ü** kopya sayılıyor |
+
+Her iki kademede de kısıtlı optimum yürürlükteki değere denk çıktı. Metindeki
+0,01'lik fark taramanın adım çözünürlüğü kadar; raporda belgelenen değeri bu
+büyüklükte bir kazanç için oynatmak izlenebilirliği kazançtan pahalıya mal
+ederdi. **Yayımlanan iki eşik de ölçümden geçti.**
+
+#### Ölçülmeyen kademe gizlenmedi
+
+Düşük çaba kademesinin negatif tarafı (500 normal görselin düşük çaba skoru)
+üretilmedi. `results/metrics.json` bu kademeyi `"durum": "ölçülmedi"` olarak
+işaretliyor ve nedenini yazıyor; tek yanlı bir duyarlılık sayısı üretilmedi.
+
 ### Depo tutarlılığı
 
 README'de kod ile çelişen yedi değer düzeltildi: kopya eşiği 0,70 → **0,35**
