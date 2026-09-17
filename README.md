@@ -152,6 +152,7 @@ src/
 │   ├── Cuzdan.tsx           Bakiye, günlük sınır, envanter, hareket defteri
 │   ├── Profil.tsx           Kapak, kuşanılmış kozmetikler, envanter, kendi gönderileri
 │   ├── Bildirimler.tsx      Kazanç, doğrulama ve süre bitimi bildirimleri
+│   ├── Mesajlar.tsx         Sohbet listesi ve sohbet; zemin ve çıkartma kozmetikleri burada
 │   ├── KimlikOnizleme.tsx   Avatar + ad + rozet bileşimi (profil ve mağaza önizlemesi)
 │   ├── KozmetikGorseli.tsx  Kozmetiğin ne olduğunu gösteren görsel
 │   ├── Magaza.tsx           Ürün listesi ve satın alma öncesi önizleme
@@ -344,7 +345,7 @@ gerektirdiği için `npm test` dışında tutulmuştur; birim testleri bağıml�
 npm i --no-save puppeteer-core
 node test/tarayici/klavye.mjs          # klavyeyle uçtan uca gezinme (31 kontrol)
 node test/tarayici/hareket.mjs         # hareketi azaltma tercihi (8 kontrol)
-node test/tarayici/erisilebilirlik.mjs # axe-core, 40 ekran (axe-core da gerekir)
+node test/tarayici/erisilebilirlik.mjs # axe-core, 48 ekran (axe-core da gerekir)
 ```
 
 Günlük tavan testi altı gönderiyi (6 × 10 = 60 jeton) tam 50'ye kırpar ve her adımda bakiyenin
@@ -356,7 +357,7 @@ Denetim iki ayrı araçla ve yeniden üretilebilir biçimde yapılır. Uygulaman
 giriş kapısının arkasında ve tam ekran katman olarak açıldığı için tek sayfa denetimi yeterli
 değildir; ekranlara Chrome sürülerek tek tek gidilir.
 
-**axe-core — 40 ekran, sıfır ihlal.** On ekran × iki tema × iki genişlik (390px / 1280px),
+**axe-core — 48 ekran, sıfır ihlal.** On iki ekran × iki tema × iki genişlik (390px / 1280px),
 kapsam `wcag2a` + `wcag2aa` + `wcag21a` + `wcag21aa`:
 
 ```bash
@@ -377,6 +378,8 @@ node test/tarayici/erisilebilirlik.mjs
 | Profil | temiz | temiz | temiz | temiz |
 | Bildirimler | temiz | temiz | temiz | temiz |
 | Yazma katmanı | temiz | temiz | temiz | temiz |
+| Mesajlar | temiz | temiz | temiz | temiz |
+| Sohbet | temiz | temiz | temiz | temiz |
 
 **Lighthouse 11.** Hem yayındaki adreste hem de yerel üretim derlemesinde
 (`npm run build && npm start`):

@@ -16,7 +16,7 @@
        gönderisini paylaştığı anda içerik akışta görünür, doğrulama
        sonucunu beklemez".
 */
-import type { AppState, Gonderi, HareketKaydi, Urun, Yazar } from './types'
+import type { AppState, Gonderi, HareketKaydi, Mesaj, Urun, Yazar } from './types'
 
 export const demoMagaza: Urun[] = [
   { id: 'u1', ad: 'Pirinç Çerçeve', aciklama: 'Profil fotoğrafın için pirinç renginde zarif bir çerçeve.', kategori: 'sureli', fiyat: 15, sureGun: 1, efekt: { tur: 'cerceve', deger: 'pirinc' } },
@@ -32,6 +32,8 @@ export const demoMagaza: Urun[] = [
   { id: 'u10', ad: 'Pirinç Şerit', aciklama: 'Gönderi kartlarına 24 saatlik pirinç kenarlığı.', kategori: 'sureli', fiyat: 20, sureGun: 1, efekt: { tur: 'kenarlik', deger: 'pirinc' } },
   { id: 'u11', ad: 'Tunç Şerit', aciklama: 'Gönderi kartlarına 24 saatlik tunç kenarlığı.', kategori: 'sureli', fiyat: 20, sureGun: 1, efekt: { tur: 'kenarlik', deger: 'tunc' } },
   { id: 'u12', ad: 'Tunç Ad', aciklama: 'Kullanıcı adını 24 saatliğine tunç tonuna çevir.', kategori: 'sureli', fiyat: 20, sureGun: 1, efekt: { tur: 'adRengi', deger: 'tunc' } },
+  { id: 'u20', ad: 'Pirinç Sohbet Zemini', aciklama: 'Sohbet ekranının zeminine 24 saatlik pirinç dokusu.', kategori: 'sureli', fiyat: 25, sureGun: 1, efekt: { tur: 'sohbetZemini', deger: 'pirinc' } },
+  { id: 'u21', ad: 'Kuvars Çıkartmaları', aciklama: 'Sohbette 24 saat kullanabileceğin altı kuvars kristali çıkartması.', kategori: 'sureli', fiyat: 35, sureGun: 1, efekt: { tur: 'cikartma', deger: 'kuvars' } },
 
   { id: 'u3', ad: 'Somaki Tema', aciklama: 'Profil kapağına 30 günlük somaki taşı dokusu.', kategori: 'sezonluk', fiyat: 150, sureGun: 30, efekt: { tur: 'tema', deger: 'somaki' } },
   { id: 'u4', ad: 'Gümüş Nişan', aciklama: 'Adının yanında parlayan bir gümüş nişan.', kategori: 'sezonluk', fiyat: 200, sureGun: 30, efekt: { tur: 'rozet', deger: 'gumus' } },
@@ -39,6 +41,8 @@ export const demoMagaza: Urun[] = [
   { id: 'u4c', ad: 'Ametist Çerçeve', aciklama: '30 günlük mor ışıltılı ametist çerçeve.', kategori: 'sezonluk', fiyat: 300, sureGun: 30, efekt: { tur: 'cerceve', deger: 'ametist' } },
   { id: 'u13', ad: 'Kuvars Şerit', aciklama: '30 gün boyunca gönderi kartlarında kuvars kenarlığı.', kategori: 'sezonluk', fiyat: 180, sureGun: 30, efekt: { tur: 'kenarlik', deger: 'kuvars' } },
   { id: 'u14', ad: 'Ametist Zemin', aciklama: 'Profil kapağına 30 günlük ametist dokusu.', kategori: 'sezonluk', fiyat: 220, sureGun: 30, efekt: { tur: 'tema', deger: 'ametist' } },
+  { id: 'u22', ad: 'Somaki Sohbet Zemini', aciklama: 'Sohbet ekranının zeminine 30 günlük somaki dokusu.', kategori: 'sezonluk', fiyat: 180, sureGun: 30, efekt: { tur: 'sohbetZemini', deger: 'somaki' } },
+  { id: 'u23', ad: 'Tunç Çıkartmaları', aciklama: '30 gün boyunca sohbette altı tunç kristali çıkartması.', kategori: 'sezonluk', fiyat: 220, sureGun: 30, efekt: { tur: 'cikartma', deger: 'tunc' } },
   /*
     KOLEKSİYON ÖDÜLÜ — satın alınamaz.
 
@@ -56,6 +60,8 @@ export const demoMagaza: Urun[] = [
   { id: 'u6b', ad: 'Mermer Zemin', aciklama: 'Profil kapağına kalıcı mermer dokusu.', kategori: 'kalici', fiyat: 1000, sureGun: null, efekt: { tur: 'tema', deger: 'mermer' } },
   { id: 'u6c', ad: 'Ayar Rozeti', aciklama: 'Tam ayar saf içerik üreticisi rozeti.', kategori: 'kalici', fiyat: 1500, sureGun: null, efekt: { tur: 'rozet', deger: 'ayar' } },
   { id: 'u16', ad: 'Altın Şerit', aciklama: 'Kalıcı altın kenarlık; her gönderi kartında görünür.', kategori: 'kalici', fiyat: 900, sureGun: null, efekt: { tur: 'kenarlik', deger: 'altin' } },
+  { id: 'u24', ad: 'Mermer Sohbet Zemini', aciklama: 'Sohbet ekranının zeminine kalıcı mermer dokusu.', kategori: 'kalici', fiyat: 900, sureGun: null, efekt: { tur: 'sohbetZemini', deger: 'mermer' } },
+  { id: 'u25', ad: 'Altın Çıkartmaları', aciklama: 'Kalıcı altı altın kristali çıkartması.', kategori: 'kalici', fiyat: 1000, sureGun: null, efekt: { tur: 'cikartma', deger: 'altin' } },
 
   { id: 'u7', ad: 'Geniş Karakter', aciklama: '30 gün boyunca 1000 karakterlik gönderi paylaş.', kategori: 'islevsel', fiyat: 50, sureGun: 30, efekt: { tur: 'islev', deger: 'uzun_gonderi' } },
   { id: 'u8', ad: 'Geniş Anket', aciklama: '30 gün boyunca 6 seçenekli anketler aç.', kategori: 'islevsel', fiyat: 80, sureGun: 30, efekt: { tur: 'islev', deger: 'gelismis_anket' } },
@@ -290,6 +296,24 @@ function parmakIzi(gonderiler: Gonderi[], magaza: Urun[], yazarlar: Yazar[]): st
 
 export const SEED_SURUMU = parmakIzi(demoGonderiler, demoMagaza, demoYazarlar)
 
+/*
+  Tohum sohbetler — akıştaki KURGUSAL yazarlarla. Karşı taraf yanıt yazmaz;
+  bu bir prototip ve sahte bir sohbet arkadaşı uydurmak, ekranda "kapsam dışı"
+  demekten daha yanıltıcı olurdu. Sohbet geçmişi kozmetiklerin (zemin,
+  çıkartma) görünebileceği bir sahne sağlar, o kadar.
+
+  Zamanlar açılışa GÖRELİ üretilir ki "2 saat önce" hep 2 saat önce kalsın.
+*/
+const saatOnce = (saat: number) => new Date(Date.now() - saat * 3_600_000).toISOString()
+
+export const demoMesajlar: Mesaj[] = [
+  { id: 'm1', sohbetId: 'ayse_kaya', gonderen: 'ayse_kaya', metin: 'Selam, dün paylaştığın rıhtım fotoğrafı çok iyiydi.', cikartma: null, zaman: saatOnce(5) },
+  { id: 'm2', sohbetId: 'ayse_kaya', gonderen: 'ben', metin: 'Teşekkürler! Doğrulamadan tam puanla geçti, jeton da düştü.', cikartma: null, zaman: saatOnce(4.8) },
+  { id: 'm3', sohbetId: 'ayse_kaya', gonderen: 'ayse_kaya', metin: 'Ben de bu hafta bir seri deniyorum, bakalım tavana kaç günde varacağım.', cikartma: null, zaman: saatOnce(4.5) },
+  { id: 'm4', sohbetId: 'kaan_demir', gonderen: 'kaan_demir', metin: 'Anket sonuçlarını gördün mü? Üçüncü seçenek açık ara önde.', cikartma: null, zaman: saatOnce(26) },
+  { id: 'm5', sohbetId: 'kaan_demir', gonderen: 'ben', metin: 'Gördüm, şaşırmadım açıkçası.', cikartma: null, zaman: saatOnce(25) },
+]
+
 export function varsayilanDurum(): AppState {
   return structuredClone({
     seedSurumu: SEED_SURUMU,
@@ -312,5 +336,6 @@ export function varsayilanDurum(): AppState {
     gonderiler: demoGonderiler,
     hareketler: demoHareketler,
     magaza: demoMagaza,
+    mesajlar: demoMesajlar,
   })
 }

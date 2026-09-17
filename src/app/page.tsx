@@ -20,6 +20,7 @@ import { GonderiOlustur } from "@/components/GonderiOlustur"
 import { HikayeSeridi } from "@/components/HikayeSeridi"
 import { KapsamNotu } from "@/components/KapsamNotu"
 import { Magaza } from "@/components/Magaza"
+import { Mesajlar } from "@/components/Mesajlar"
 import { Profil } from "@/components/Profil"
 import { OlusturDugmesi } from "@/components/OlusturDugmesi"
 import { Tanitim, tanitimGoruldu } from "@/components/Tanitim"
@@ -208,7 +209,7 @@ export default function Home() {
         onCuzdan={() => setGorunum('cuzdan')}
         onMagaza={() => setGorunum('magaza')}
         onProfil={() => setGorunum('profil')}
-        onKapsamDisi={setKapsamNotu}
+        onMesajlar={() => setGorunum('mesajlar')}
       />
 
       {yazmaAcik && (
@@ -227,6 +228,7 @@ export default function Home() {
       {gorunum === 'cuzdan' && <Cuzdan onBack={() => setGorunum('akis')} />}
       {gorunum === 'magaza' && <Magaza onBack={() => setGorunum('akis')} />}
       {gorunum === 'profil' && <Profil onBack={() => setGorunum('akis')} />}
+      {gorunum === 'mesajlar' && <Mesajlar onBack={() => setGorunum('akis')} />}
       {gorunum === 'bildirimler' && <Bildirimler onBack={() => setGorunum('akis')} />}
 
       {tanitimAcik && <Tanitim onKapat={() => setTurIstegi(false)} />}

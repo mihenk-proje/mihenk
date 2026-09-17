@@ -1,6 +1,6 @@
 "use client"
 
-import { ROZET_SIMGELERI } from "@/lib/store/efektler"
+import { CIKARTMA_YOLLARI, ROZET_SIMGELERI } from "@/lib/store/efektler"
 import type { EfektTuru } from "@/lib/store/types"
 
 /**
@@ -84,6 +84,35 @@ export function KozmetikGorseli({
     )
   }
 
+  if (tur === 'sohbetZemini') {
+    // Zemin + üstünde iki küçük baloncuk: sohbet ekranının minyatürü
+    return (
+      <span
+        className={`${ortak} rounded-md border border-line relative overflow-hidden`}
+        style={{ backgroundColor: TEMA_DEGISKENI(deger) }}
+        aria-hidden="true"
+      >
+        <span className="absolute left-1 top-1.5 w-4 h-2 rounded-sm bg-card" />
+        <span className="absolute right-1 bottom-1.5 w-4 h-2 rounded-sm bg-brand" />
+      </span>
+    )
+  }
+
+  if (tur === 'cikartma') {
+    // Paketin ilk kristali, paketin renginde
+    return (
+      <span
+        className={`${ortak} rounded-md bg-page border border-line flex items-center justify-center`}
+        style={{ color: KOZMETIK_DEGISKENI(deger) }}
+        aria-hidden="true"
+      >
+        <svg viewBox="0 0 24 24" width={buyuk ? 28 : 20} height={buyuk ? 28 : 20} fill="currentColor">
+          <path d={CIKARTMA_YOLLARI[0]} />
+        </svg>
+      </span>
+    )
+  }
+
   if (tur === 'tema') {
     // Dolu kare: profil kapağının küçük hâli
     return (
@@ -117,5 +146,7 @@ export const ETKI_METNI: Record<EfektTuru, string> = {
   adRengi: 'Kullanıcı adı rengi',
   rozet: 'Ad yanındaki rozet',
   tema: 'Profil kapağı',
+  sohbetZemini: 'Sohbet zemini',
+  cikartma: 'Çıkartma paketi',
   islev: 'Sistem işlevi',
 }

@@ -66,6 +66,38 @@ bozulur, klavye denetimi metin alanını bulamazdı. `idOneki` prop oldu:
 
 Denetimler: 106 birim · klavye 31/31 · hareket 8/8 · **axe 40 ekran, 0 ihlal**.
 
+### Mesajlaşma — kozmetiklerin ikinci sahnesi
+
+Kullanıcı NSosyal'ın mesajlaşma ekranını gösterdi: jetonların harcanacağı yeni
+bir yüzey. **Keşfet sekmesi Mesajlar oldu** — Keşfet kapsam notundan ibaretti,
+referans uygulamada da mesajlar alt gezintide.
+
+Ekran görüntüsünde gerçek bir kişi vardı. Kör değerlendirme gereği yalnızca
+düzen kopyalandı; tohum sohbetler akıştaki **kurgusal** yazarlarla.
+
+**Karşı taraf yanıt yazmaz.** Sahte bir sohbet arkadaşı uydurmak, sohbeti canlı
+göstermek adına kullanıcıya yalan söylemek olurdu; ekran bunu açıkça yazıyor.
+Tohum sohbetler kozmetiklerin görünebileceği bir sahne sağlıyor, o kadar.
+
+`AppState.mesajlar` isteğe bağlı alan: eksikse hidrasyon tohum sohbetlerle
+dolduruyor, `DEPO_ANAHTARI` v3 kalıyor.
+
+İki yeni efekt türü, **sıfır yeni renk:**
+
+| Tür | Ne yapar | Renk |
+|---|---|---|
+| `sohbetZemini` | Sohbet ekranının zeminini boyar | Profil kapağıyla aynı ölçülmüş tema renkleri. Baloncuklar opak kart; metin zemine değil baloncuğa oturuyor, yeni kontrast çifti doğmuyor |
+| `cikartma` | Altı mineral kristali çıkartması | Satır içi SVG yolları, paketin `--kozmetik-*` rengi. Varlık dosyası yok, lisans sorunu yok |
+
+Çıkartma paketleri tek slotlu DEĞİL — birden fazla paket aynı anda
+kullanılabilir. Baloncuk rengi bilerek yapılmadı: dokuz yeni metin/zemin
+kontrast ölçümü isterdi.
+
+Katalog 25 → 31: üç sohbet zemini (25 · 180 · 900), üç çıkartma paketi
+(35 · 220 · 1000).
+
+Denetimler: 106 birim · klavye 31/31 · hareket 8/8 · **axe 48 ekran, 0 ihlal**.
+
 ## 2026-09-17 (yedinci tur) — Jeton ekonomisi, profil, bildirimler ve telefona kurulum
 
 Kullanıcı uygulamayı gerçekten kullanarak beş sorun buldu. Hepsi kapandı.

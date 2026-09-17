@@ -41,7 +41,15 @@ export function yururluktekiUrunler(state: AppState): Urun[] {
  * `islev` bilerek DIŞARIDA: Geniş Karakter ile Geniş Anket aynı anda açık
  * olabilmeli. Onlar süs değil, yetenek.
  */
-export const TEK_SLOT: readonly EfektTuru[] = ['cerceve', 'adRengi', 'rozet', 'tema', 'kenarlik']
+export const TEK_SLOT: readonly EfektTuru[] = [
+  'cerceve',
+  'adRengi',
+  'rozet',
+  'tema',
+  'kenarlik',
+  'sohbetZemini',
+  // cikartma BİLEREK dışarıda: birden fazla paket aynı anda kullanılabilir
+]
 
 /**
  * Bir türün yürürlükteki ürünü.
@@ -168,6 +176,44 @@ export const KENARLIK_SINIFLARI: Record<string, string> = {
  * animasyon sınıfı — yalnızca koleksiyon ödülü gibi ayrıcalıklı rozetlerin
  * taşıdığı ek bir işaret, okuyan taraf yoksa da her şey çalışır.
  */
+/*
+  Sohbet zemini, profil kapağıyla AYNI ölçülmüş tema renklerini kullanır.
+  Ayrı bir renk seti tanımlamak sıfır kazanç, on yeni ölçüm demekti.
+  Baloncuklar zeminin üstünde opak kartlar; metin zemine değil baloncuğa
+  oturuyor, yani yeni bir metin/zemin çifti doğmuyor.
+*/
+export const SOHBET_ZEMINI_SINIFLARI: Record<string, string> = {
+  pirinc: 'bg-[var(--kozmetik-tema-pirinc)]',
+  somaki: 'bg-[var(--kozmetik-tema-somaki)]',
+  mermer: 'bg-[var(--kozmetik-tema-mermer)]',
+}
+
+/*
+  Çıkartma paketleri — her paket altı mineral kristali, satır içi SVG yolu.
+  Varlık dosyası yok, lisans sorunu yok, tema-duyarlı: renk paketin
+  --kozmetik-* değişkeninden gelir. Yollar 24×24 kutuda.
+*/
+export const CIKARTMA_YOLLARI: readonly string[] = [
+  'M12 2 L20 9 L16 22 L8 22 L4 9 Z',                       // beşgen kristal
+  'M12 2 L18 12 L12 22 L6 12 Z',                            // eşkenar dörtgen
+  'M12 3 L21 8 L21 16 L12 21 L3 16 L3 8 Z',                 // altıgen
+  'M4 20 L9 6 L12 12 L15 4 L20 20 Z',                       // ikiz tepe
+  'M12 2 L14 9 L21 9 L15.5 13.5 L17.5 21 L12 16.5 L6.5 21 L8.5 13.5 L3 9 L10 9 Z', // yıldız
+  'M6 4 L18 4 L21 12 L12 22 L3 12 Z',                       // elmas kesim
+]
+
+/** Bir paketteki çıkartma anahtarları: "<paket>-<sıra>" */
+export function paketCikartmalari(paket: string): string[] {
+  return CIKARTMA_YOLLARI.map((_, i) => `${paket}-${i}`)
+}
+
+/** Kullanıcının kullanabildiği bütün çıkartmalar — sahip olduğu her paketten */
+export function kullanilabilirCikartmalar(state: AppState): string[] {
+  return yururluktekiUrunler(state)
+    .filter((u) => u.efekt.tur === 'cikartma')
+    .flatMap((u) => paketCikartmalari(u.efekt.deger))
+}
+
 export const ROZET_SIMGELERI: Record<
   string,
   { simge: string; sinif: string; etiket: string; hareket?: string }

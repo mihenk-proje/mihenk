@@ -4,9 +4,17 @@
  * page.tsx ile AltGezinti bu birleşimi elle iki kez yazıyordu; eşitlemeyi
  * unutmak sessiz bir hata kaynağıydı. Tek kaynak burası.
  */
-export type Gorunum = 'akis' | 'cuzdan' | 'magaza' | 'profil' | 'bildirimler'
+export type Gorunum = 'akis' | 'mesajlar' | 'cuzdan' | 'magaza' | 'profil' | 'bildirimler'
 
-export type EfektTuru = 'cerceve' | 'adRengi' | 'rozet' | 'tema' | 'kenarlik' | 'islev'
+export type EfektTuru =
+  | 'cerceve'
+  | 'adRengi'
+  | 'rozet'
+  | 'tema'
+  | 'kenarlik'
+  | 'sohbetZemini'
+  | 'cikartma'
+  | 'islev'
 
 export type Urun = {
   id: string
@@ -133,6 +141,24 @@ export type DogrulamaSonucu = {
   gonderiId: string
 }
 
+/**
+ * Bir sohbet mesajı. Sohbet, karşı tarafın yazar kimliğiyle tanımlanır;
+ * ayrı bir sohbet nesnesi yok — iki kişi arasında zaten tek sohbet olur.
+ *
+ * `metin` ya da `cikartma`'dan tam biri dolu.
+ */
+export type Mesaj = {
+  id: string
+  /** Karşı tarafın yazar kimliği */
+  sohbetId: string
+  /** 'ben' ya da karşı tarafın yazar kimliği */
+  gonderen: string
+  metin: string | null
+  /** Çıkartma anahtarı: `<paket>-<sıra>`, ör. "kuvars-3" */
+  cikartma: string | null
+  zaman: string
+}
+
 export type AppState = {
   /**
    * Seed içeriğinden türetilen parmak izi. Kayıtlı durumun hangi demo
@@ -145,4 +171,9 @@ export type AppState = {
   gonderiler: Gonderi[]
   hareketler: HareketKaydi[]
   magaza: Urun[]
+  /**
+   * İsteğe bağlı: eski kayıtlı durumlarda yok. Hidrasyon eksik alanı boş
+   * diziyle dolduruyor, DEPO_ANAHTARI v3 kalıyor.
+   */
+  mesajlar?: Mesaj[]
 }

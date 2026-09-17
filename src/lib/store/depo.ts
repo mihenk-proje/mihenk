@@ -18,7 +18,7 @@ import {
 } from '@/lib/verification'
 import { KOLEKSIYONLAR, SEED_SURUMU, varsayilanDurum } from './demoData'
 import { islevAcikMi, suresiDoldu, tekSlotUygula } from './efektler'
-import type { AppState, DogrulamaSonucu, Gonderi, HareketKaydi, SahipOlunanUrun, Urun } from './types'
+import type { AppState, DogrulamaSonucu, Gonderi, HareketKaydi, Mesaj, SahipOlunanUrun, Urun } from './types'
 
 /*
   Veri modeli veya ürün kataloğu değiştiğinde eski kayıtlar okunmasın diye
@@ -174,7 +174,12 @@ export function hidratla(): Promise<void> {
             'demo verisi yeniden yüklendi.'
         )
       } else {
-        veri = cozulen
+        /*
+          `mesajlar` sonradan eklendi ve isteğe bağlı; aynı seed sürümüyle
+          kaydedilmiş bir durumda olmayabilir. Eksikse tohum sohbetlerle
+          dolar — şema sürümü (v3) değişmeden geriye uyumluluk.
+        */
+        veri = { ...cozulen, mesajlar: cozulen.mesajlar ?? varsayilanDurum().mesajlar }
       }
     }
   } catch (err) {
@@ -384,6 +389,26 @@ export function urunAcKapa(urunId: string) {
       },
     }
   })
+}
+
+/**
+ * Sohbete mesaj ekler. Metin ya da çıkartma — ikisi birden değil.
+ *
+ * Karşı taraf yanıt YAZMAZ. Bu bir prototip; sahte bir sohbet arkadaşı
+ * uydurmak, sohbeti canlı göstermek adına kullanıcıya yalan söylemek olurdu.
+ * Ekran bunu açıkça yazıyor.
+ */
+export function mesajGonder(sohbetId: string, icerik: { metin: string } | { cikartma: string }) {
+  const mesaj: Mesaj = {
+    id: `m_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`,
+    sohbetId,
+    gonderen: 'ben',
+    metin: 'metin' in icerik ? icerik.metin.trim() : null,
+    cikartma: 'cikartma' in icerik ? icerik.cikartma : null,
+    zaman: new Date().toISOString(),
+  }
+  if (!mesaj.metin && !mesaj.cikartma) return
+  guncelle((onceki) => ({ ...onceki, mesajlar: [...(onceki.mesajlar ?? []), mesaj] }))
 }
 
 export function itirazEt(gonderiId: string) {

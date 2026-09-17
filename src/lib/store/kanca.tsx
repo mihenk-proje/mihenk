@@ -8,6 +8,7 @@ import {
   gonderiEkle,
   hidratla,
   itirazEt,
+  mesajGonder,
   resetToDemo,
   sunucuGoruntusu,
   urunAcKapa,
@@ -72,6 +73,7 @@ export function useStore() {
     urunSatinAl,
     urunAcKapa,
     itirazEt,
+    mesajGonder,
     dogrulamaTetikle,
   }
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { Compass, Home, ShoppingBag, User, Wallet } from "lucide-react"
+import { Home, MessageCircle, ShoppingBag, User, Wallet } from "lucide-react"
 import { useStore } from "@/lib/store/kanca"
 import { MihenkSimgesi } from "./MihenkSimgesi"
 import type { Gorunum } from "@/lib/store/types"
@@ -21,9 +21,7 @@ import type { Gorunum } from "@/lib/store/types"
  * <nav> kendiliğinden odak alamaz. Sekme sırasına girmez, yalnızca
  * programatik odak kabul eder.
  *
- * Çalışmayan sekmeler (Keşfet, Profil) de gerçek düğmedir ve basıldığında
- * kapsam dışı olduklarını söyler. Tıklanınca hiçbir şey yapmayan bir sekme,
- * sessizce yutulan bir tıklamadan daha dürüsttür.
+ * Beş sekmenin beşi de gerçek bir ekrana gidiyor.
  */
 export function AltGezinti({
   gorunum,
@@ -31,14 +29,14 @@ export function AltGezinti({
   onCuzdan,
   onMagaza,
   onProfil,
-  onKapsamDisi,
+  onMesajlar,
 }: {
   gorunum: Gorunum
   onAkis: () => void
   onCuzdan: () => void
   onMagaza: () => void
   onProfil: () => void
-  onKapsamDisi: (ad: string) => void
+  onMesajlar: () => void
 }) {
   const { state } = useStore()
   const bakiye = state.kullanici.jetonBakiyesi
@@ -64,13 +62,18 @@ export function AltGezinti({
           <span className="text-[10px] font-medium leading-none">Akış</span>
         </button>
 
+        {/*
+          Keşfet'in yerini aldı. Keşfet kapsam notundan ibaretti; referans
+          uygulamada da mesajlar alt gezintide duruyor.
+        */}
         <button
           type="button"
-          onClick={() => onKapsamDisi('Keşfet')}
-          className={`${temel} text-secondary`}
+          onClick={onMesajlar}
+          aria-current={gorunum === 'mesajlar' ? 'page' : undefined}
+          className={`${temel} ${gorunum === 'mesajlar' ? 'text-brand' : 'text-secondary'}`}
         >
-          <Compass size={22} aria-hidden="true" />
-          <span className="text-[10px] font-medium leading-none">Keşfet</span>
+          <MessageCircle size={22} aria-hidden="true" />
+          <span className="text-[10px] font-medium leading-none">Mesajlar</span>
         </button>
 
         {/*

@@ -43,6 +43,8 @@ const EKRANLAR = [
   ['Profil', ['gir', 'esc', 'profil']],
   ['Bildirimler', ['gir', 'esc', 'bildirimler']],
   ['Yazma katmanı', ['gir', 'esc', 'gönderi oluştur']],
+  ['Mesajlar', ['gir', 'esc', 'mesajlar']],
+  ['Sohbet', ['gir', 'esc', 'mesajlar', 'ayşe kaya']],
 ]
 
 const DURUMLAR = [
