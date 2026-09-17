@@ -551,9 +551,10 @@ npm run olcum          # aşağıdaki dört adımın tamamı
 Adım adım:
 
 ```bash
-# dHash canvas ister; algoritma gerçek kaynaktan alınıp başsız Chrome'a enjekte edilir
+# dHash ve düşük çaba canvas ister; algoritma gerçek kaynaktan alınıp başsız Chrome'a enjekte edilir
 node scripts/hash_gorseller.mjs --manifest data/images/manifest.jsonl \
   --manifest data/images/variants_manifest.jsonl --out data/images/dhash.json
+node scripts/skorla_dusuk_caba.mjs --out data/images/dusuk_caba_skorlari.json
 node scripts/threshold_sweep.mjs --out results/sweep.json
 node scripts/evaluate.mjs --sweep results/sweep.json --out results/metrics.json
 node scripts/build_report.mjs --metrics results/metrics.json --out results/olcum-raporu.md
@@ -571,6 +572,11 @@ Eşik taraması test bölünmesini hiçbir koşulda okumaz. Ayrıntı için
 |---|---|---|---|---|
 | Metin özgünlüğü (Jaccard) | 0,35 | %100,0 | %83,6 | 4 / 124.750 (%0,0032) |
 | Görsel özgünlüğü (Hamming) | 10 bit | %99,7 | %62,6 | 267 / 124.750 (%0,214) |
+| Düşük çaba (görsel) | 0,65 | %97,6 | %66,7 | 1 / 500 (%0,2) |
+
+Düşük çaba duyarlılığının sebebi de tek ve gizlenmiyor: **gürültü.** Aile bazında —
+tek renk 20/20 · bulanık 20/20 · **gürültü 0/20**. Düz gürültü üç ölçüyü de "canlı
+fotoğraf" gibi okutur; eşik ayarıyla çözülmez. Bilinen sınır artık sayıyla duruyor.
 
 Görsel duyarlılığındaki düşüklüğün tek bir sebebi var ve gizlenmiyor: **kırpma.**
 Dönüşüm türü bazında duyarlılık — yeniden boyutlandırma %100 · sıkıştırma %99,2 ·
@@ -580,7 +586,7 @@ Hamming mesafesi 21,6; ilişkisiz görsellerinkiyle örtüşüyor. Bu eşik ayar
 
 Eşik kararı F1'i değil, **yanlış pozitif oranı bugünkünden kötü olmamak kaydıyla
 en yüksek duyarlılığı** ölçüt alır; yanlış pozitif, özgün içerik üreten kullanıcının
-ödülünü kesmek demektir. Bu ölçütle her iki kademede de optimum, kodda yürürlükte
+ödülünü kesmek demektir. Bu ölçütle üç kademede de optimum, kodda yürürlükte
 olan değere denk çıktı.
 
 ## Telefona kurulum

@@ -225,6 +225,52 @@ function gorselKademesi() {
   }
 }
 
+// ------------------------------------------------------------ DÜŞÜK ÇABA
+
+function dusukCabaKademesi() {
+  const yol = 'data/images/dusuk_caba_skorlari.json'
+  if (!existsSync(yol)) {
+    console.error(`${yol} yok. Önce: node scripts/skorla_dusuk_caba.mjs --out ${yol}`)
+    process.exit(2)
+  }
+  const skorlar = Object.values(JSON.parse(readFileSync(yol, 'utf8'))).filter((k) => k.skor !== null)
+
+  /*
+    Burada dengeli/tam negatif ayrımı yok: kümenin kendisi zaten ikili
+    etiketli (60 üretilmiş düşük çabalı · 500 gerçek fotoğraf). Yanlış pozitif
+    oranı bütün gerçek fotoğraflar üzerinden — akışta karşılaşılan dağılım bu.
+  */
+  const pozitif = skorlar.filter((k) => k.etiket === 'dusuk_cabali').map((k) => k.skor)
+  const negatif = skorlar.filter((k) => k.etiket === 'normal').map((k) => k.skor)
+
+  const turBazinda = {}
+  for (const k of skorlar) {
+    if (k.etiket !== 'dusuk_cabali') continue
+    ;(turBazinda[k.aile] ??= []).push(k.skor)
+  }
+
+  const esikler = Array.from({ length: 101 }, (_, i) => i / 100)
+  const { egri, enIyi } = tara(pozitif, negatif, esikler, 'ustu')
+
+  return {
+    kademe: 'dusukCaba',
+    olcu: 'Düşük çaba skoru (entropi + Laplas varyansı + tek renk oranı)',
+    ozgun: negatif.length,
+    pozitif: pozitif.length,
+    dengeliNegatif: negatif.length,
+    tamNegatifCift: negatif.length,
+    enIyi,
+    egri,
+    turBazinda: Object.fromEntries(
+      Object.entries(turBazinda).map(([t, s]) => [
+        t,
+        { adet: s.length, ortalama: s.reduce((a, b) => a + b, 0) / s.length, skorlar: s },
+      ])
+    ),
+    tamNegatif: negatif,
+  }
+}
+
 // ----------------------------------------------------------------- ÇIKTI
 
 const istenen = arg('--kademe', 'hepsi')
@@ -233,6 +279,7 @@ const cikti = arg('--out', 'results/sweep.json')
 const sonuc = {}
 if (istenen === 'hepsi' || istenen === 'metin') sonuc.metin = metinKademesi()
 if (istenen === 'hepsi' || istenen === 'gorsel') sonuc.gorsel = gorselKademesi()
+if (istenen === 'hepsi' || istenen === 'dusukCaba') sonuc.dusukCaba = dusukCabaKademesi()
 
 for (const k of Object.values(sonuc)) {
   console.log(`\n=== ${k.kademe.toUpperCase()} — ${k.olcu} ===`)

@@ -13,7 +13,7 @@
     "lint": "eslint",
     "test": "node test/calistir.mjs",
     "typecheck": "tsc --noEmit",
-    "olcum": "node scripts/hash_gorseller.mjs --manifest data/images/manifest.jsonl --manifest data/images/variants_manifest.jsonl --out data/images/dhash.json && node scripts/threshold_sweep.mjs --out results/sweep.json && node scripts/evaluate.mjs --sweep results/sweep.json --out results/metrics.json && node scripts/build_report.mjs --metrics results/metrics.json --out results/olcum-raporu.md"
+    "olcum": "node scripts/hash_gorseller.mjs --manifest data/images/manifest.jsonl --manifest data/images/variants_manifest.jsonl --out data/images/dhash.json && node scripts/skorla_dusuk_caba.mjs --out data/images/dusuk_caba_skorlari.json && node scripts/threshold_sweep.mjs --out results/sweep.json && node scripts/evaluate.mjs --sweep results/sweep.json --out results/metrics.json && node scripts/build_report.mjs --metrics results/metrics.json --out results/olcum-raporu.md"
   },
   "dependencies": {
     "lucide-react": "^1.33.0",

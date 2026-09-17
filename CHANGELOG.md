@@ -1,5 +1,46 @@
 # Değişiklik Kaydı
 
+## 2026-09-18 — Düşük çaba kademesi ölçüldü
+
+`results/metrics.json` bu kademeyi `"durum": "ölçülmedi"` diye işaretliyordu:
+pozitif taraf hazırdı (60 üretilmiş görsel), negatif taraf (500 gerçek
+fotoğrafın skoru) üretilmemişti. Tek yanlı bir duyarlılık sayısı yanıltıcı
+olacağı için boş bırakılmıştı. Şimdi üretildi.
+
+### Ölçüm zinciri — ikinci kopya yok
+
+`olcDusukCaba` canvas istiyor, Node'da çalışmıyor. İş ikiye bölündü ve iki yarı
+da gerçek kaynaktan: piksel çıkarımı başsız Chrome'da (`olcDusukCaba` ve
+`laplasVaryansi` tür soyulmuş haliyle birebir enjekte), puanlama Node'da
+(`gorselDusukCabaSkoru` doğrudan içe aktarım).
+
+Neden bölündü: puanlayıcı dokuz modül düzeyi sabite ve yardımcıya bağlı. Onları
+sayfaya tek tek taşımak, biri değişince sessizce eskiyen ikinci bir kopya demek.
+
+**İlk sürüm bunu yapmıyordu ve 560 görselin hepsi 1,000 skor aldı** — sayfada
+tanımsız kalan puanlayıcı `ReferenceError` fırlatıyor, `catch` dalı
+"işlenemedi" varsayılanını döndürüyordu. Ölçüm gibi görünen bir hata; ortalama
+kontrol edilmeseydi rapora girerdi.
+
+### Sonuç
+
+| Eşik | Kesinlik | Duyarlılık | F1 | Yanlış pozitif |
+|---|---|---|---|---|
+| 0,65 (yürürlükteki) | %97,6 | %66,7 | 0,7921 | 1 / 500 (%0,2) |
+
+Aile bazında: **tek renk 20/20 · bulanık 20/20 · gürültü 0/20.**
+
+Gürültü, `bilinen-sinirlar.md`'de zaten "yapısal sınır" olarak yazılıydı;
+ölçüm bunu sayıya döktü. Düz gürültü üç ölçüyü de canlı fotoğraf gibi okutur —
+entropi yüksek, Laplas varyansı yüksek, tek renk oranı sıfır. Eşik ayarıyla
+çözülmez.
+
+F1 optimumu 0,58 çıktı ama 0,58 ile 0,65 arasına hiçbir örnek düşmüyor; eğri
+bu aralıkta düz. Yürürlükteki değer düzlüğün içinde, oynatmak hiçbir şey
+değiştirmezdi. **Üç kademenin üçünde de yayımlanan eşik ölçümden geçti.**
+
+`npm run olcum` artık beş adım; skorlama zincire girdi.
+
 ## 2026-09-17 (yedinci tur) — Jeton ekonomisi, profil, bildirimler ve telefona kurulum
 
 Kullanıcı uygulamayı gerçekten kullanarak beş sorun buldu. Hepsi kapandı.

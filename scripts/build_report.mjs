@@ -38,6 +38,7 @@ const tr = (s) => s.replace(/_/g, ' ')
 const ON_PILOT = {
   metin: { esik: '0,35', kesinlik: '—', duyarlilik: '—' },
   gorsel: { esik: '10 bit', kesinlik: '—', duyarlilik: '—' },
+  dusukCaba: { esik: '0,65', kesinlik: '—', duyarlilik: '—' },
 }
 
 const s = []
@@ -59,7 +60,8 @@ s.push('```')
 s.push('')
 
 for (const [ad, k] of Object.entries(m.kademeler)) {
-  const baslik = { metin: 'Kademe 1 — Metin özgünlüğü', gorsel: 'Kademe 2 — Görsel özgünlüğü', dusukCaba: 'Kademe 1b/2b — Düşük çaba' }[ad] ?? ad
+  const baslik = { metin: 'Kademe 1 — Metin özgünlüğü', gorsel: 'Kademe 2 — Görsel özgünlüğü', dusukCaba: 'Kademe 2b — Düşük çaba (görsel)' }[ad] ?? ad
+  const turEtiketi = ad === 'dusukCaba' ? 'Aile' : 'Dönüşüm'
   s.push(`## ${baslik}`)
   s.push('')
 
@@ -74,7 +76,15 @@ for (const [ad, k] of Object.entries(m.kademeler)) {
 
   s.push(`Ölçü: ${k.olcu}`)
   s.push('')
-  s.push(`Küme: ${k.kume.ozgun} özgün · ${k.kume.pozitif} pozitif çift · ${k.kume.dengeliNegatif} dengeli negatif · ${k.kume.tamNegatifCift.toLocaleString('tr-TR')} tam negatif çift`)
+  if (ad === 'dusukCaba') {
+    s.push(`Küme: ${k.kume.pozitif} üretilmiş düşük çabalı görsel (üç aile) · ${k.kume.ozgun} gerçek fotoğraf`)
+    s.push('')
+    s.push('Skorlar gerçek çalışma zamanı motoruyla üretildi: piksel çıkarımı başsız Chrome\'da')
+    s.push('(`olcDusukCaba` ve `laplasVaryansi` kaynaktan birebir enjekte), puanlama Node\'da')
+    s.push('(`gorselDusukCabaSkoru` doğrudan içe aktarım). Algoritmanın ikinci bir kopyası yok.')
+  } else {
+    s.push(`Küme: ${k.kume.ozgun} özgün · ${k.kume.pozitif} pozitif çift · ${k.kume.dengeliNegatif} dengeli negatif · ${k.kume.tamNegatifCift.toLocaleString('tr-TR')} tam negatif çift`)
+  }
   s.push('')
   const ko = k.kisitliOptimum
   const fp = (x) => `${x.tamNegatif.yanlisPozitif} / ${x.tamNegatif.cift.toLocaleString('tr-TR')} · ${yz(x.tamNegatif.oran)}`
@@ -89,17 +99,28 @@ for (const [ad, k] of Object.entries(m.kademeler)) {
   s.push('**Kısıtlı optimum**: yanlış pozitif oranı yürürlüktekinden kötü olmamak kaydıyla')
   s.push('duyarlılığı en büyükleyen eşik. Gerekçesi aşağıda.')
   s.push('')
-  s.push('### Dönüşüm türü bazında duyarlılık')
+  s.push(`### ${turEtiketi} bazında duyarlılık`)
   s.push('')
-  s.push('Tek bir birleşik duyarlılık sayısı, tek bir dönüşümün tamamen kaçtığını gizler.')
+  s.push(`Tek bir birleşik duyarlılık sayısı, tek bir ${turEtiketi.toLowerCase()}nin tamamen kaçtığını gizler.`)
   s.push('')
-  s.push(`| Dönüşüm | n | Ortalama skor | Eşik ${vir(String(k.yururlukteki.esik))} | Eşik ${vir(String(k.f1Optimum.esik))} |`)
+  s.push(`| ${turEtiketi} | n | Ortalama skor | Eşik ${vir(String(k.yururlukteki.esik))} | Eşik ${vir(String(k.f1Optimum.esik))} |`)
   s.push('|---|---|---|---|---|')
   for (const [t, v] of Object.entries(k.yururlukteki.turBazinda)) {
     const o = k.f1Optimum.turBazinda[t]
     s.push(`| ${tr(t)} | ${v.adet} | ${sayi(v.ortalamaSkor)} | ${v.yakalanan}/${v.adet} · ${yz(v.duyarlilik)} | ${o.yakalanan}/${o.adet} · ${yz(o.duyarlilik)} |`)
   }
   s.push('')
+
+  if (ad === 'dusukCaba') {
+    s.push('### Gürültü — yapısal sınır')
+    s.push('')
+    s.push('Düz gürültü görselleri üç ölçünün üçünü de "canlı fotoğraf" gibi okutur: entropi')
+    s.push('yüksek (her ton var), Laplas varyansı yüksek (her piksel kenar), tek renk oranı')
+    s.push('sıfır. Skorlayıcı bunu ayırt edemez ve edemeyeceği baştan biliniyordu; ölçüm')
+    s.push('bunu 0/20 ile sayıya döktü. Eşik ayarıyla çözülmez — ölçüler gürültüyü')
+    s.push('görmüyor. Ayrıntı: [bilinen-sinirlar.md](bilinen-sinirlar.md)')
+    s.push('')
+  }
 
   if (k.kirpmaHaricOptimum) {
     s.push('### Kırpma dahil ve hariç — iki seri')
@@ -142,18 +163,28 @@ for (const [ad, k] of Object.entries(m.kademeler)) {
   const y = k.yururlukteki
   const o = k.f1Optimum
   const ko = k.kisitliOptimum
-  const etiket = ad === 'metin' ? 'Metin' : 'Görsel'
+  const etiket = { metin: 'Metin', gorsel: 'Görsel', dusukCaba: 'Düşük çaba' }[ad] ?? ad
   s.push(`**${etiket}.** Yürürlükteki eşik ${vir(String(y.esik))}, kısıtlı optimum ${vir(String(ko.esik))}, F1 optimumu ${vir(String(o.esik))}.`)
+  const ayniSonuc =
+    ko.duyarlilik === y.duyarlilik && ko.tamNegatif.yanlisPozitif === y.tamNegatif.yanlisPozitif
+
   if (ko.esik === y.esik) {
     s.push(`Kısıtlı optimum yürürlüktekinin aynısı: kesinlikten ödün vermeden kazanılacak duyarlılık yok.`)
+  } else if (ayniSonuc) {
+    s.push(`İki eşik de aynı sonucu veriyor: ${vir(String(ko.esik))} ile ${vir(String(y.esik))} arasında hiçbir örnek düşmüyor, eğri bu aralıkta düz.`)
+    s.push(`Yürürlükteki değer bu düzlüğün içinde; oynatmak hiçbir şey değiştirmezdi.`)
   } else {
     s.push(`Kısıtlı optimum duyarlılığı ${yz(y.duyarlilik)} → ${yz(ko.duyarlilik)} taşıyor, yanlış pozitif oranı değişmiyor.`)
     s.push(`Fark ${vir(Math.abs(ko.esik - y.esik).toFixed(2))} birim, yani taramanın adım çözünürlüğü kadar; kod değiştirilmedi.`)
     s.push(`Raporda belgelenen değeri bu büyüklükte bir kazanç için oynatmak, izlenebilirliği kazançtan pahalıya mal olurdu.`)
   }
-  const kat = o.tamNegatif.yanlisPozitif / Math.max(1, y.tamNegatif.yanlisPozitif)
-  s.push(`F1 optimumu ise yanlış pozitifi ${y.tamNegatif.yanlisPozitif}'ten ${o.tamNegatif.yanlisPozitif}'e — ${vir(kat.toFixed(0))} katına —`)
-  s.push(`çıkarıyor (${yz(y.tamNegatif.oran)} → ${yz(o.tamNegatif.oran)}); F1'deki kazanç ${sy(y.f1)} → ${sy(o.f1)}.`)
+
+  const f1Ayni = o.f1 === y.f1 && o.tamNegatif.yanlisPozitif === y.tamNegatif.yanlisPozitif
+  if (!f1Ayni) {
+    const kat = o.tamNegatif.yanlisPozitif / Math.max(1, y.tamNegatif.yanlisPozitif)
+    s.push(`F1 optimumu ise yanlış pozitifi ${y.tamNegatif.yanlisPozitif}'ten ${o.tamNegatif.yanlisPozitif}'e — ${vir(kat.toFixed(0))} katına —`)
+    s.push(`çıkarıyor (${yz(y.tamNegatif.oran)} → ${yz(o.tamNegatif.oran)}); F1'deki kazanç ${sy(y.f1)} → ${sy(o.f1)}.`)
+  }
   s.push('')
 }
 

@@ -33,8 +33,10 @@ const cikti = arg('--out', 'results/metrics.json')
 
 /** Belirli bir eşikte kademeyi puanlar. */
 function puanla(kademe, esik) {
-  const isaretli = (s) => (kademe.kademe === 'metin' ? s >= esik : s <= esik)
-  const nokta = kademe.egri.find((n) => n.esik === esik)
+  // Metin (Jaccard) ve düşük çaba skoru eşiğin ÜSTÜ pozitif; Hamming ALTI.
+  const ustuPozitif = kademe.kademe === 'metin' || kademe.kademe === 'dusukCaba'
+  const isaretli = (s) => (ustuPozitif ? s >= esik : s <= esik)
+  const nokta = kademe.egri.find((n) => Math.abs(n.esik - esik) < 1e-9)
 
   const turler = Object.fromEntries(
     Object.entries(kademe.turBazinda).map(([t, v]) => {
@@ -71,8 +73,8 @@ function puanla(kademe, esik) {
  */
 function kisitliEnIyi(kademe, yururlukteki) {
   const tavan = yururlukteki.tamNegatif.oran
-  const isaretli = (esik) => (s) =>
-    kademe.kademe === 'metin' ? s >= esik : s <= esik
+  const ustuPozitif = kademe.kademe === 'metin' || kademe.kademe === 'dusukCaba'
+  const isaretli = (esik) => (s) => (ustuPozitif ? s >= esik : s <= esik)
 
   let aday = null
   for (const n of kademe.egri) {
@@ -133,18 +135,34 @@ if (sweep.gorsel) {
   }
 }
 
-/*
-  Düşük çaba kademesi bu ölçümde YOK ve uydurulmuyor. Pozitif taraf
-  (data/images/lowquality_manifest.jsonl) hazır ama negatif taraf için 500
-  normal görselin düşük çaba skoru üretilmemiş durumda. Kalibrasyonun
-  ayrıntısı results/dusuk-caba-kalibrasyonu.md içinde.
-*/
-metrikler.kademeler.dusukCaba = {
-  durum: 'ölçülmedi',
-  yururluktekiEsik: DUSUK_CABA_ESIGI,
-  neden:
-    'Negatif taraf (500 normal görselin düşük çaba skoru) üretilmedi; tek yanlı ' +
-    'bir duyarlılık sayısı yanıltıcı olurdu. Bkz. results/dusuk-caba-kalibrasyonu.md',
+if (sweep.dusukCaba) {
+  /*
+    `puanla` metin için >= , diğerleri için <= karşılaştırır; düşük çaba
+    skoru da metin gibi "eşiğin üstü pozitif". Kademeyi metin adıyla geçici
+    olarak yeniden etiketlemek yerine `puanla`'nın yön kuralı genişletildi.
+  */
+  metrikler.kademeler.dusukCaba = {
+    olcu: sweep.dusukCaba.olcu,
+    kume: {
+      ozgun: sweep.dusukCaba.ozgun,
+      pozitif: sweep.dusukCaba.pozitif,
+      dengeliNegatif: sweep.dusukCaba.dengeliNegatif,
+      tamNegatifCift: sweep.dusukCaba.tamNegatifCift,
+    },
+    yururlukteki: puanla(sweep.dusukCaba, DUSUK_CABA_ESIGI),
+    f1Optimum: puanla(sweep.dusukCaba, sweep.dusukCaba.enIyi.esik),
+    kisitliOptimum: (() => {
+      const a = kisitliEnIyi(sweep.dusukCaba, puanla(sweep.dusukCaba, DUSUK_CABA_ESIGI))
+      return a ? puanla(sweep.dusukCaba, a.esik) : null
+    })(),
+    egri: sweep.dusukCaba.egri.map(({ esik, f1, kesinlik, duyarlilik }) => ({ esik, f1, kesinlik, duyarlilik })),
+  }
+} else {
+  metrikler.kademeler.dusukCaba = {
+    durum: 'ölçülmedi',
+    yururluktekiEsik: DUSUK_CABA_ESIGI,
+    neden: 'data/images/dusuk_caba_skorlari.json üretilmemiş; node scripts/skorla_dusuk_caba.mjs',
+  }
 }
 
 mkdirSync(dirname(cikti), { recursive: true })
