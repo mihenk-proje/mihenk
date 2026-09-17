@@ -1,6 +1,6 @@
 "use client"
 
-import { BarChart2, Bot, CheckCircle2, CircleSlash, Copy, MessageCircle, Repeat2, Rocket, Scale } from "lucide-react"
+import { Bot, CheckCircle2, CircleSlash, Copy, MoreHorizontal, Scale } from "lucide-react"
 import { useStore } from "@/lib/store/kanca"
 import {
   AD_RENGI_SINIFLARI,
@@ -10,36 +10,10 @@ import {
   yazarEfekti,
 } from "@/lib/store/efektler"
 import type { Gonderi } from "@/lib/store/types"
+import { goreliZaman } from "@/lib/bicim"
 import { Avatar } from "./Avatar"
-
-function goreliZaman(dateStr: string) {
-  const tarih = new Date(dateStr)
-  const saniye = Math.floor((Date.now() - tarih.getTime()) / 1000)
-  const dakika = Math.floor(saniye / 60)
-  const saat = Math.floor(dakika / 60)
-  const gun = Math.floor(saat / 24)
-
-  if (gun >= 7) return tarih.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })
-  if (gun > 0) return `${gun} g`
-  if (saat > 0) return `${saat} sa`
-  if (dakika > 0) return `${dakika} dk`
-  return `${Math.max(1, saniye)} sn`
-}
-
-function sayiBicimle(n: number) {
-  if (n >= 1000) return `${(n / 1000).toFixed(1).replace('.', ',').replace(',0', '')} B`
-  return String(n)
-}
-
-/**
- * WCAG 2.5.3 (Label in Name): erisilebilir ad, butonun gorunur metnini
- * birebir icermeli. Sayaclar kisaltilarak gosterildigi icin (2100 -> "2,1 B")
- * etiket ham sayiyi degil gorunen metni tasir.
- */
-function etkilesimEtiketi(fiil: string, sayi: number) {
-  const gorunen = sayi > 0 ? sayiBicimle(sayi) : ''
-  return { gorunen, etiket: gorunen ? `${fiil}: ${gorunen}` : fiil }
-}
+import { EtkilesimSeridi } from "./EtkilesimSeridi"
+import { Yuzey } from "./Yuzey"
 
 export function GonderiKarti({ gonderi }: { gonderi: Gonderi }) {
   const { state } = useStore()
@@ -86,154 +60,187 @@ export function GonderiKarti({ gonderi }: { gonderi: Gonderi }) {
   // Akışta gerekçenin ilk satırı gösterilir; tamamı doğrulama panelinde
   const anaGerekce = gonderi.gerekce[0]
 
+  const mihenkRozetiVar =
+    dogrulandi || kopya || gecemedi || gonderi.dogrulamaDurumu === 'bekliyor' ||
+    (benimMi && gonderi.itirazDurumu === 'incelemede') ||
+    (benimMi && gonderi.kazanilanJeton > 0)
+
   return (
     <article
       id={`gonderi-${gonderi.id}`}
-      className="border-b border-line p-4 hover:bg-card/40 transition-colors scroll-mt-32"
+      /*
+        scroll-mt yapışkan yığının yüksekliğine eşit olmalı: üst çubuk h-14
+        (56px) + akış sekmeleri h-12 (48px) = 104px. Eksik bırakılırsa
+        "Kaynak gönderiyi gör" çapası başlığın altına düşer ve kopya anlatısı
+        demo ortasında kırılır.
+      */
+      className="bg-card px-4 py-3 scroll-mt-28"
     >
       <div className="flex gap-3">
-        <Avatar
-          id={gonderi.yazarId}
-          harfler={harfler}
-          ad={adSoyad}
-          ton={ton}
-          cerceveSinifi={cerceve ? (CERCEVE_SINIFLARI[cerceve.efekt.deger] ?? '') : ''}
-        />
+        {/*
+          Avatar sütunu. Altındaki dikey çizgi NSosyal'ın iplik çizgisi;
+          tamamen dekoratif, ekran okuyucuya duyurulmaz.
+        */}
+        <div className="flex flex-col items-center shrink-0">
+          <Avatar
+            id={gonderi.yazarId}
+            harfler={harfler}
+            ad={adSoyad}
+            ton={ton}
+            boyut="xl"
+            cerceveSinifi={cerceve ? (CERCEVE_SINIFLARI[cerceve.efekt.deger] ?? '') : ''}
+          />
+          <span className="flex-1 w-px bg-line mt-2" aria-hidden="true" />
+        </div>
 
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5 flex-wrap mb-1">
-            <span
-              className={`font-bold truncate ${
-                adRengi ? (AD_RENGI_SINIFLARI[adRengi.efekt.deger] ?? 'text-primary') : 'text-primary'
-              }`}
-            >
-              {adSoyad}
-            </span>
-            {rozetGorunum && (
-              <span className={rozetGorunum.sinif} title={rozetGorunum.etiket} aria-label={rozetGorunum.etiket}>
-                {rozetGorunum.simge}
+          <div className="flex items-start gap-1.5">
+            <div className="flex items-center gap-1.5 flex-wrap min-w-0 flex-1">
+              <span
+                className={`font-bold truncate ${
+                  adRengi ? (AD_RENGI_SINIFLARI[adRengi.efekt.deger] ?? 'text-primary') : 'text-primary'
+                }`}
+              >
+                {adSoyad}
               </span>
-            )}
-            <span className="text-secondary text-sm">@{kullaniciAdi}</span>
-            <span className="text-secondary text-sm" aria-hidden="true">·</span>
-            <time className="text-secondary text-sm" dateTime={gonderi.olusturmaZamani}>
-              {goreliZaman(gonderi.olusturmaZamani)}
-            </time>
+              {rozetGorunum && (
+                <span className={rozetGorunum.sinif} title={rozetGorunum.etiket} aria-label={rozetGorunum.etiket}>
+                  {rozetGorunum.simge}
+                </span>
+              )}
+              <span className="text-secondary text-sm truncate">@{kullaniciAdi}</span>
+              <span className="text-secondary text-sm" aria-hidden="true">·</span>
+              <time className="text-secondary text-sm tabular-nums" dateTime={gonderi.olusturmaZamani}>
+                {goreliZaman(gonderi.olusturmaZamani)}
+              </time>
+            </div>
+            {/* Gönderi menüsü bu sürümde dekoratif; bkz. EtkilesimSeridi. */}
+            <MoreHorizontal size={18} className="text-secondary shrink-0 mt-0.5" aria-hidden="true" />
           </div>
 
           {/*
-            Etiketler: YZ beyanı ve MİHENK doğrulama durumu.
-            Hiçbiri yalnızca renge dayanmaz; her rozet kendi ikonunu ve
-            metnini taşır, ekran okuyucu için de açık bir ad verilir.
+            MİHENK YÜZEYİ — iddianın ekrandaki kanıtı.
+
+            Nötr gri/mavi bir NSosyal gönderi kartının içinde, yalnızca
+            doğrulama rozetleri pirinç renginde. Renk geçişi CSS değişkeni
+            kapsamıyla olur; bu blokta tek bir sınıf bile MİHENK'e özel değil.
+
+            Hiçbir rozet yalnızca renge dayanmaz: her biri kendi ikonunu ve
+            metnini taşır, ekran okuyucu için açık bir ad verilir.
           */}
-          <div className="flex items-center gap-2 mb-2 flex-wrap">
-            {gonderi.yzBeyani && (
-              <span
-                className="inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded bg-primary/10 text-secondary border border-line"
-                role="img"
-                aria-label="Yapay zekâ destekli içerik"
-                title="Yapay zekâ destekli içerik"
-              >
-                <Bot size={12} aria-hidden="true" />
-                <span aria-hidden="true">YZ destekli</span>
-              </span>
-            )}
-
-            {dogrulandi && (
-              <span
-                data-tanitim="rozet"
-                className="inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded border border-success/40 text-success"
-                role="img"
-                aria-label={`${
-                  gonderi.dogrulamaDurumu === 'gecti'
-                    ? 'Doğrulama geçti'
-                    : 'Doğrulama kısmen geçti'
-                }, MİHENK skoru ${gonderi.dogrulamaSkoru ?? 'bilinmiyor'}`}
-                title={`MİHENK skoru: ${gonderi.dogrulamaSkoru ?? '-'}`}
-              >
-                <CheckCircle2 size={12} aria-hidden="true" />
-                <span aria-hidden="true">
-                  {gonderi.dogrulamaDurumu === 'gecti' ? 'Doğrulandı' : 'Kısmen doğrulandı'}
+          {mihenkRozetiVar && (
+            <Yuzey tur="mihenk" className="flex items-center gap-2 mt-1.5 flex-wrap">
+              {gonderi.yzBeyani && (
+                <span
+                  className="inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded bg-primary/10 text-secondary border border-line"
+                  role="img"
+                  aria-label="Yapay zekâ destekli içerik"
+                  title="Yapay zekâ destekli içerik"
+                >
+                  <Bot size={12} aria-hidden="true" />
+                  <span aria-hidden="true">YZ destekli</span>
                 </span>
-              </span>
-            )}
+              )}
 
-            {kopya && (
-              <span
-                className="inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded border border-error/50 text-error"
-                role="img"
-                aria-label={`Kopya tespit edildi${
-                  gonderi.kopyaTuru === 'gorsel' ? ', görsel eşleşmesi' : ', metin örtüşmesi'
-                }`}
-              >
-                <Copy size={12} aria-hidden="true" />
-                <span aria-hidden="true">Kopya tespit edildi</span>
-              </span>
-            )}
+              {dogrulandi && (
+                <span
+                  data-tanitim="rozet"
+                  className="inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded border border-success/40 text-success"
+                  role="img"
+                  aria-label={`${
+                    gonderi.dogrulamaDurumu === 'gecti'
+                      ? 'Doğrulama geçti'
+                      : 'Doğrulama kısmen geçti'
+                  }, MİHENK skoru ${gonderi.dogrulamaSkoru ?? 'bilinmiyor'}`}
+                  title={`MİHENK skoru: ${gonderi.dogrulamaSkoru ?? '-'}`}
+                >
+                  <CheckCircle2 size={12} aria-hidden="true" />
+                  <span aria-hidden="true">
+                    {gonderi.dogrulamaDurumu === 'gecti' ? 'Doğrulandı' : 'Kısmen doğrulandı'}
+                  </span>
+                </span>
+              )}
 
-            {gecemedi && (
-              <span
-                className="inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded border border-line-strong text-secondary"
-                role="img"
-                aria-label="Bu gönderi jeton kazanmadı"
-              >
-                <CircleSlash size={12} aria-hidden="true" />
-                <span aria-hidden="true">Jeton kazanmadı</span>
-              </span>
-            )}
+              {kopya && (
+                <span
+                  className="inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded border border-error/50 text-error"
+                  role="img"
+                  aria-label={`Kopya tespit edildi${
+                    gonderi.kopyaTuru === 'gorsel' ? ', görsel eşleşmesi' : ', metin örtüşmesi'
+                  }`}
+                >
+                  <Copy size={12} aria-hidden="true" />
+                  <span aria-hidden="true">Kopya tespit edildi</span>
+                </span>
+              )}
 
-            {gonderi.dogrulamaDurumu === 'bekliyor' && (
-              <span
-                className="inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded border border-brand/40 text-brand"
-                aria-live="polite"
-              >
-                <span className="w-2 h-2 rounded-full bg-brand animate-pulse" aria-hidden="true" />
-                <span>Doğrulanıyor…</span>
-              </span>
-            )}
+              {gecemedi && (
+                <span
+                  className="inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded border border-secondary/50 text-secondary"
+                  role="img"
+                  aria-label="Bu gönderi jeton kazanmadı"
+                >
+                  <CircleSlash size={12} aria-hidden="true" />
+                  <span aria-hidden="true">Jeton kazanmadı</span>
+                </span>
+              )}
 
-            {benimMi && gonderi.itirazDurumu === 'incelemede' && (
-              <span className="inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded border border-interaction/40 text-interaction">
-                <Scale size={12} aria-hidden="true" /> İtiraz incelemede
-              </span>
-            )}
+              {gonderi.dogrulamaDurumu === 'bekliyor' && (
+                <span
+                  className="inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded border border-brand/40 text-brand"
+                  aria-live="polite"
+                >
+                  <span className="w-2 h-2 rounded-full bg-brand animate-pulse" aria-hidden="true" />
+                  <span>Doğrulanıyor…</span>
+                </span>
+              )}
 
-            {benimMi && gonderi.kazanilanJeton > 0 && (
-              <span className="inline-flex items-center gap-1 text-[11px] font-mono font-medium px-1.5 py-0.5 rounded border border-brand/40 text-brand">
-                +{gonderi.kazanilanJeton} jeton
-              </span>
-            )}
-          </div>
+              {benimMi && gonderi.itirazDurumu === 'incelemede' && (
+                <span className="inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded border border-interaction/40 text-interaction">
+                  <Scale size={12} aria-hidden="true" /> İtiraz incelemede
+                </span>
+              )}
 
-          <p className="text-primary text-[15px] whitespace-pre-wrap break-words mb-3">
+              {benimMi && gonderi.kazanilanJeton > 0 && (
+                <span className="inline-flex items-center gap-1 text-[11px] font-mono font-medium px-1.5 py-0.5 rounded border border-brand/40 text-brand">
+                  +{gonderi.kazanilanJeton} jeton
+                </span>
+              )}
+            </Yuzey>
+          )}
+
+          <p className="text-primary text-[17px] leading-relaxed whitespace-pre-wrap break-words mt-2">
             {gonderi.metin}
           </p>
 
           {/*
             Kopya ve jeton kazanmayan gönderilerde gerekçe akışta görünür.
             Rozetin yokluğu tespit anlamına gelmediği için, durumun nedeni
-            kullanıcıyı suçlamayan bir dille burada yazılır.
+            kullanıcıyı suçlamayan bir dille burada yazılır. Gerekçe MİHENK'in
+            kararıdır, ev sahibinin değil — bu yüzden MİHENK yüzeyinde durur.
           */}
           {(kopya || gecemedi) && anaGerekce && (
-            <p className="text-secondary text-[13px] mb-3 pl-3 border-l-2 border-line-strong">
-              {anaGerekce}
-              {kopya && kaynakGonderi && (
-                <>
-                  {' '}
-                  <a
-                    href={`#gonderi-${kaynakGonderi.id}`}
-                    className="text-interaction underline underline-offset-2 hover:text-primary"
-                  >
-                    Kaynak gönderiyi gör
-                    {kaynakYazar ? ` (@${kaynakYazar})` : ''}
-                  </a>
-                </>
-              )}
-            </p>
+            <Yuzey tur="mihenk" className="mt-3">
+              <p className="text-secondary text-[13px] pl-3 border-l-2 border-brand/60">
+                {anaGerekce}
+                {kopya && kaynakGonderi && (
+                  <>
+                    {' '}
+                    <a
+                      href={`#gonderi-${kaynakGonderi.id}`}
+                      className="text-interaction underline underline-offset-2 hover:text-primary"
+                    >
+                      Kaynak gönderiyi gör
+                      {kaynakYazar ? ` (@${kaynakYazar})` : ''}
+                    </a>
+                  </>
+                )}
+              </p>
+            </Yuzey>
           )}
 
           {gonderi.gorselUrl && (
-            <div className="mt-2 mb-3 rounded-xl overflow-hidden border border-line max-h-80">
+            <div className="mt-3 rounded-2xl overflow-hidden border border-line max-h-80">
               {/*
                 next/image kullanılmıyor: bu görseller kullanıcının seçtiği yerel
                 dosyadan üretilen data: URL'leri olabiliyor ve boyutları önceden
@@ -250,12 +257,12 @@ export function GonderiKarti({ gonderi }: { gonderi: Gonderi }) {
           )}
 
           {gonderi.anketSecenekleri && gonderi.anketSecenekleri.length > 0 && (
-            <div className="mt-2 mb-3 flex flex-col gap-2">
+            <div className="mt-3 flex flex-col gap-2">
               {gonderi.anketSecenekleri.map((secenek, idx) => (
                 <button
                   key={`${gonderi.id}-secenek-${idx}`}
                   type="button"
-                  className="w-full text-left px-4 py-2 rounded-lg border border-line hover:border-brand/50 hover:bg-card transition-colors text-sm font-medium text-primary"
+                  className="w-full text-left px-4 py-2.5 rounded-full border border-line-strong hover:border-brand hover:bg-page transition-colors text-base font-medium text-primary"
                 >
                   {secenek}
                 </button>
@@ -263,31 +270,7 @@ export function GonderiKarti({ gonderi }: { gonderi: Gonderi }) {
             </div>
           )}
 
-          <div className="flex items-center justify-between text-secondary mt-1 max-w-md">
-            {(
-              [
-                { anahtar: 'yorum', fiil: 'Yorum yap', sayi: gonderi.yorumSayisi, Simge: MessageCircle, renk: 'hover:text-interaction', zemin: 'group-hover:bg-interaction/10' },
-                { anahtar: 'paylas', fiil: 'Yeniden paylaş', sayi: gonderi.yenidenPaylasimSayisi, Simge: Repeat2, renk: 'hover:text-success', zemin: 'group-hover:bg-success/10' },
-                { anahtar: 'roket', fiil: 'Roketle', sayi: gonderi.roketSayisi, Simge: Rocket, renk: 'hover:text-brand', zemin: 'group-hover:bg-brand/10' },
-                { anahtar: 'izlenim', fiil: 'Görüntülenme', sayi: gonderi.izlenimSayisi, Simge: BarChart2, renk: 'hover:text-interaction', zemin: 'group-hover:bg-interaction/10' },
-              ] as const
-            ).map(({ anahtar, fiil, sayi, Simge, renk, zemin }) => {
-              const { gorunen, etiket } = etkilesimEtiketi(fiil, sayi)
-              return (
-                <button
-                  key={anahtar}
-                  type="button"
-                  className={`flex items-center gap-1.5 ${renk} transition-colors group`}
-                  aria-label={etiket}
-                >
-                  <span className={`p-1.5 rounded-full ${zemin}`}>
-                    <Simge size={18} aria-hidden="true" />
-                  </span>
-                  <span className="text-xs font-mono">{gorunen}</span>
-                </button>
-              )
-            })}
-          </div>
+          <EtkilesimSeridi gonderi={gonderi} />
         </div>
       </div>
     </article>

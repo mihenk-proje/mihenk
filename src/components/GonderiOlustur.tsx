@@ -115,7 +115,7 @@ export function GonderiOlustur({
   }
 
   return (
-    <div className="border-b border-line p-4 bg-page">
+    <div className="border-b border-line px-4 py-3 bg-card">
       <div className="flex gap-3">
         <Avatar
           id={state.kullanici.id}
@@ -133,7 +133,7 @@ export function GonderiOlustur({
             value={metin}
             onChange={(e) => setMetin(e.target.value.slice(0, maxKarakter))}
             placeholder="Neler oluyor?"
-            className="w-full bg-transparent text-primary text-lg resize-none outline-none min-h-[80px] placeholder:text-secondary mt-1"
+            className="w-full bg-transparent text-primary text-lg resize-none outline-none min-h-[52px] placeholder:text-secondary mt-1"
           />
 
           {gorsel && (
@@ -176,7 +176,7 @@ export function GonderiOlustur({
                       setAnket(anket.map((s, i) => (i === idx ? e.target.value.slice(0, 60) : s)))
                     }
                     placeholder={`${idx + 1}. seçenek`}
-                    className="flex-1 bg-page border border-line rounded-lg px-3 py-2 text-sm text-primary placeholder:text-secondary/60 outline-none focus:border-brand/60"
+                    className="flex-1 bg-page border border-line rounded-lg px-3 py-2 text-base text-primary placeholder:text-secondary/60 outline-none focus:border-brand/60"
                   />
                   {anket.length > 2 && (
                     <button

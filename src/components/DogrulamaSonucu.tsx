@@ -71,7 +71,7 @@ export function DogrulamaSonucu({ sonuc, onClose }: { sonuc: Sonuc; onClose: () 
           : 'Bu gönderi jeton kazanmadı'
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 p-4 sm:p-6 pointer-events-none flex justify-center">
+    <div data-yuzey="mihenk" className="yuzey-mihenk fixed bottom-0 left-0 right-0 z-50 p-4 sm:p-6 pointer-events-none flex justify-center">
       <div
         className="bg-card w-full max-w-lg rounded-2xl border border-line-strong shadow-2xl pointer-events-auto overflow-hidden mihenk-alttan"
         role="status"

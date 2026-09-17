@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Manrope, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
@@ -61,6 +61,26 @@ export const metadata: Metadata = {
     description: ACIKLAMA,
   },
 };
+
+/*
+  Mobil görüntü alanı.
+
+  viewportFit: 'cover' çentikli ekranlarda sayfayı kenarlara kadar açar; alt
+  gezinti ve oluştur düğmesi env(safe-area-inset-bottom) ile kendi dolgusunu
+  ekler.
+
+  maximumScale / userScalable ASLA konmayacak: yakınlaştırmayı kısıtlamak
+  WCAG 1.4.4 ihlali ve Lighthouse'ta anında erişilebilirlik hatası.
+*/
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+  themeColor: [
+    { media: '(prefers-color-scheme: dark)', color: '#0f1419' },
+    { media: '(prefers-color-scheme: light)', color: '#f1f3f5' },
+  ],
+}
 
 export default function RootLayout({
   children,

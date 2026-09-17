@@ -1,17 +1,23 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useSyncExternalStore } from "react"
 import { Sparkles } from "lucide-react"
-import { useStore } from "@/lib/store/kanca"
+import { DepoYukleniyor, useStore } from "@/lib/store/kanca"
 import type { DogrulamaSonucu as Sonuc } from "@/lib/store/types"
+import { AkisSekmeleri } from "@/components/AkisSekmeleri"
+import { AltGezinti } from "@/components/AltGezinti"
 import { Cuzdan } from "@/components/Cuzdan"
 import { DogrulamaSonucu } from "@/components/DogrulamaSonucu"
 import { Giris } from "@/components/Giris"
 import { GonderiKarti } from "@/components/GonderiKarti"
 import { GonderiOlustur } from "@/components/GonderiOlustur"
+import { HikayeSeridi } from "@/components/HikayeSeridi"
+import { KapsamNotu } from "@/components/KapsamNotu"
 import { Magaza } from "@/components/Magaza"
+import { OlusturDugmesi } from "@/components/OlusturDugmesi"
 import { Tanitim, tanitimGoruldu } from "@/components/Tanitim"
 import { TopBar } from "@/components/TopBar"
+import { YanCekmece } from "@/components/YanCekmece"
 
 const GIRIS_ANAHTARI = 'mihenk_entered'
 
@@ -23,24 +29,46 @@ function girisYapilmisMi() {
   }
 }
 
+/*
+  "İstemcide miyim?" — sunucuda ve istemcinin İLK render'ında false, hidrasyon
+  bittikten hemen sonra true. Efekt içinde setState çağırmadan aynı işi görür
+  (react-hooks/set-state-in-effect).
+
+  Tarayıcıya özgü her okuma bunun arkasında durur: aksi halde sunucu giriş
+  ekranını, istemci akışı basar ve React uyuşmazlık uyarısı verir.
+*/
+const ABONE_YOK = () => () => {}
+const ISTEMCIDE = () => true
+const SUNUCUDA = () => false
+
 export default function Home() {
-  const { state } = useStore()
+  const { state, hidre } = useStore()
 
   /*
     StoreProvider yüklenene kadar çocuklarını render etmediği için bu bileşen
     yalnızca istemcide kurulur; sessionStorage'ı doğrudan başlangıç değerinde
     okumak güvenlidir ve sunucu/istemci uyuşmazlığı doğurmaz.
   */
-  const [girisYapildi, setGirisYapildi] = useState(girisYapilmisMi)
+  const monte = useSyncExternalStore(ABONE_YOK, ISTEMCIDE, SUNUCUDA)
+  const [elleGirildi, setElleGirildi] = useState(false)
+  const girisYapildi = elleGirildi || (monte && girisYapilmisMi())
+
   const [sonuc, setSonuc] = useState<Sonuc | null>(null)
   const [gorunum, setGorunum] = useState<'akis' | 'cuzdan' | 'magaza'>('akis')
+  const [cekmeceAcik, setCekmeceAcik] = useState(false)
+  const [sekme, setSekme] = useState('Ana akış')
+  const [kapsamNotu, setKapsamNotu] = useState<string | null>(null)
 
   /*
     Tur yalnızca ilk girişte açılır. Durumu uygulama durumundan ayrı bir
     anahtarda tutulur; seed sürümü değişip durum sıfırlansa bile tur
     yeniden gösterilmez.
+
+    Durum türetilir, efektle atanmaz: null "henüz elle karar verilmedi"
+    demektir ve akışa girilmişse tur kendiliğinden açılır.
   */
-  const [tanitimAcik, setTanitimAcik] = useState(() => girisYapilmisMi() && !tanitimGoruldu())
+  const [turIstegi, setTurIstegi] = useState<boolean | null>(null)
+  const tanitimAcik = turIstegi ?? (monte && girisYapildi && !tanitimGoruldu())
 
   const handleEnter = () => {
     try {
@@ -48,62 +76,117 @@ export default function Home() {
     } catch {
       // Özel sekmede yazılamayabilir; oturum içinde çalışmaya devam eder
     }
-    setGirisYapildi(true)
-    if (!tanitimGoruldu()) setTanitimAcik(true)
+    setElleGirildi(true)
   }
 
+  /*
+    Giriş ekranı depodan hiçbir şey okumaz; hidrasyonu beklemesi için bir
+    sebep yok. Akış ise tohum gönderilerine bağlı, orada bekleniyor.
+  */
   if (!girisYapildi) {
     return <Giris onEnter={handleEnter} />
   }
 
-  const katmanAcik = gorunum !== 'akis'
+  if (!hidre) {
+    return <DepoYukleniyor />
+  }
+
+  const katmanAcik = gorunum !== 'akis' || cekmeceAcik
+
+  /*
+    "Takip ettiklerin" gerçek bir süzgeç: kendi gönderilerin çıkar, çünkü
+    kendini takip etmiyorsun. Sekme değiştirince hiçbir şeyin değişmemesi,
+    çalışmayan bir düğmeden farksız olurdu.
+  */
+  const gorunenGonderiler =
+    sekme === 'Ana akış'
+      ? state.gonderiler
+      : state.gonderiler.filter((g) => g.yazarId !== state.kullanici.id)
 
   return (
-    <div className="min-h-screen bg-page flex flex-col">
+    <div className="min-h-dvh bg-page flex flex-col">
       {/*
         Tam ekran bir katman açıkken arkadaki akış sekme sırasından ve
         erişilebilirlik ağacından çıkarılır; aksi halde klavye odağı
         görünmeyen içeriğe kayar.
       */}
       <div inert={katmanAcik} className="contents">
-      <TopBar
-        onCuzdanClick={() => setGorunum('cuzdan')}
-        onMagazaClick={() => setGorunum('magaza')}
-        onTanitimClick={() => setTanitimAcik(true)}
-      />
+        {/*
+          Gezinti çubuğu görsel sırayla aynı yerde — yani belgenin sonunda —
+          durduğu için klavyeyle Cüzdan'a ulaşmak akışın tamamını gezmeyi
+          gerektiriyordu. Atlama bağlantısı bunu tek Tab'a indirir (WCAG 2.4.1).
+        */}
+        <a
+          href="#alt-gezinti"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:rounded-full focus:bg-card focus:border focus:border-line-strong focus:text-primary"
+        >
+          Gezinti çubuğuna atla
+        </a>
 
-      <main className="flex-1 w-full max-w-2xl mx-auto border-x border-line">
-        <div className="p-4 border-b border-line sticky top-16 bg-page/95 backdrop-blur z-20">
-          <h1 className="font-bold text-xl text-primary">Ana akış</h1>
-        </div>
+        <TopBar onMenu={() => setCekmeceAcik(true)} onKapsamDisi={setKapsamNotu} />
 
-        <GonderiOlustur onDogrulamaSonucu={setSonuc} />
+        <div className="w-full max-w-lg mx-auto flex-1 flex flex-col">
+          <HikayeSeridi />
 
-        <div className="flex flex-col pb-32">
-          {state.gonderiler.map((gonderi) => (
-            <GonderiKarti key={gonderi.id} gonderi={gonderi} />
-          ))}
+          <div className="sticky top-14 z-20">
+            <AkisSekmeleri aktif={sekme} onDegis={setSekme} />
+          </div>
 
-          {state.gonderiler.length === 0 && (
-            <div className="p-12 flex flex-col items-center text-center">
-              <div
-                className="w-16 h-16 rounded-full bg-card flex items-center justify-center mb-4 border border-line"
-                aria-hidden="true"
-              >
-                <Sparkles size={24} className="text-secondary" />
-              </div>
-              <p className="text-primary font-medium text-lg">Henüz gönderi yok</p>
-              <p className="text-secondary mt-1">İlk gönderini paylaş, ilk jetonunu kazan.</p>
+          <main className="flex-1">
+            <GonderiOlustur onDogrulamaSonucu={setSonuc} />
+
+            <div className="flex flex-col gap-2 pt-2 pb-36">
+              {gorunenGonderiler.map((gonderi) => (
+                <GonderiKarti key={gonderi.id} gonderi={gonderi} />
+              ))}
+
+              {gorunenGonderiler.length === 0 && (
+                <div className="p-12 flex flex-col items-center text-center bg-card">
+                  <div
+                    className="w-16 h-16 rounded-full bg-page flex items-center justify-center mb-4 border border-line"
+                    aria-hidden="true"
+                  >
+                    <Sparkles size={24} className="text-secondary" />
+                  </div>
+                  <p className="text-primary font-medium text-lg">Henüz gönderi yok</p>
+                  <p className="text-secondary mt-1">İlk gönderini paylaş, ilk jetonunu kazan.</p>
+                </div>
+              )}
             </div>
-          )}
+          </main>
         </div>
-      </main>
+
+        <OlusturDugmesi />
+
+        <AltGezinti
+          gorunum={gorunum}
+          onAkis={() => setGorunum('akis')}
+          onCuzdan={() => setGorunum('cuzdan')}
+          onMagaza={() => setGorunum('magaza')}
+          onKapsamDisi={setKapsamNotu}
+        />
       </div>
+
+      {cekmeceAcik && (
+        <YanCekmece
+          onKapat={() => setCekmeceAcik(false)}
+          onTanitim={() => setTurIstegi(true)}
+          onKapsamDisi={setKapsamNotu}
+        />
+      )}
 
       {gorunum === 'cuzdan' && <Cuzdan onBack={() => setGorunum('akis')} />}
       {gorunum === 'magaza' && <Magaza onBack={() => setGorunum('akis')} />}
 
-      {tanitimAcik && <Tanitim onKapat={() => setTanitimAcik(false)} />}
+      {tanitimAcik && <Tanitim onKapat={() => setTurIstegi(false)} />}
+
+      {kapsamNotu && (
+        <KapsamNotu
+          key={kapsamNotu}
+          ad={kapsamNotu}
+          onKapat={() => setKapsamNotu(null)}
+        />
+      )}
 
       {sonuc && (
         <DogrulamaSonucu
