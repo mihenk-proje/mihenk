@@ -5,8 +5,8 @@ import { MihenkSimgesi } from "./MihenkSimgesi"
 
 export function Giris({ onEnter }: { onEnter: () => void }) {
   return (
-    <main className="min-h-screen flex items-center justify-center bg-page p-4">
-      <div className="max-w-md w-full bg-card rounded-2xl border border-line p-8 text-center mihenk-belir">
+    <main data-yuzey="mihenk" className="yuzey-mihenk min-h-dvh flex items-center justify-center bg-page p-4">
+      <div className="max-w-md w-full bg-card rounded-2xl border border-line p-8 text-center mihenk-acilis">
         <div
           className="mx-auto w-16 h-16 bg-brand/10 rounded-full flex items-center justify-center mb-6 border border-brand/25"
           aria-hidden="true"

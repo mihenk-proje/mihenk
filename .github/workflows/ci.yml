@@ -2,11 +2,15 @@ name: CI
 
 # Her push ve PR'da kalite kapıları çalışır. Test paketi başarısızlıkta
 # sıfırdan farklı kod döndürdüğü için ek yapılandırma gerekmez.
+#
+# push tetikleyicisi BÜTÜN dallarda çalışır, yalnızca main'de değil.
+# İlk sürümde ikisi de [main] ile sınırlıydı ve sonuç şuydu: CONTRIBUTING'in
+# tarif ettiği kısa ömürlü özellik dalları hiç denetlenmiyordu. pull_request
+# tetikleyicisi HEDEF dala bakar; tabanı main olmayan bir PR (dal üstüne dal)
+# hiçbir kapıdan geçmiyordu. Denetlenmeyen bir dal modeli, dal modeli değildir.
 on:
   push:
-    branches: [main]
   pull_request:
-    branches: [main]
 
 jobs:
   kalite:

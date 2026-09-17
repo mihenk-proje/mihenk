@@ -1,25 +1,70 @@
 @import "tailwindcss";
 
 /*
-  Kaynak değişkenler --mihenk-* ön ekiyle tanımlanır.
-  @theme içindeki --color-* adlarıyla çakışmamaları önemli:
-  aynı ad kullanılırsa (--color-brand: var(--color-brand)) dairesel
-  referans oluşur ve renk hesaplanamaz.
+  İKİ YÜZEY.
+
+  Rapor MİHENK'i "mevcut mikroblog platformu NSosyal üzerine oturan özellik
+  katmanı" olarak tanımlıyor ve iki ayrı yüzey iddia ediyor: nötr ev sahibi
+  yüzeyi ve kendi kimliğini taşıyan MİHENK ödül yüzeyi. Prototipte her iki
+  yüzey de pirinç rengindeydi; iddia ekranda görünmüyordu.
+
+  Mekanizma: aşağıdaki @theme inline bloğu ham değişkeni üretilen yardımcı
+  sınıfa gömüyor (.text-brand { color: var(--mihenk-brand) }). Bu yüzden bir
+  sarmalayıcıda --mihenk-* ezmek tüm alt ağacı yeniden renklendirir; hiçbir
+  bileşenin sınıfına dokunmak gerekmez.
+
+  :root / .light        → EV SAHİBİ (NSosyal): nötr gri zemin, mavi vurgu
+  .yuzey-mihenk         → MİHENK ödül yüzeyi: bugüne kadar ölçülmüş pirinç
+                          değerlerin BİREBİR aynısı. Yayımlanmış kontrast ve
+                          ΔE ölçümleri bu yüzeylerde geçerliliğini korur.
+
+  Kaynak değişkenler --mihenk-* ön ekiyle tanımlanır. @theme içindeki
+  --color-* adlarıyla çakışmamaları önemli: aynı ad kullanılırsa
+  (--color-brand: var(--color-brand)) dairesel referans oluşur.
 */
 
-/* Koyu tema varsayılan */
+/* EV SAHİBİ — koyu tema varsayılan */
 :root {
-  --mihenk-page: #12181a;
-  --mihenk-card: #1d2629;
-  --mihenk-line: #2c383c;
-  --mihenk-line-strong: #3d4c51;
-  --mihenk-text: #e8e4da;
-  --mihenk-text-soft: #9aa5a3;
-  --mihenk-brand: #c89544;
-  --mihenk-brand-ink: #12181a;
-  --mihenk-success: #68ad99;
-  --mihenk-error: #d4705a;
-  --mihenk-interaction: #8fa6bd;
+  --mihenk-page: #0f1419;
+  --mihenk-card: #17202a;
+  --mihenk-line: #243642;
+  /* Hap kenarlıkları bir arayüz bileşeni sınırıdır; WCAG 1.4.11 gereği
+     kendi zemininde 3:1 geçmeli. Ölçüldü: kart 3,25 · sayfa 3,65. */
+  --mihenk-line-strong: #5d7181;
+  --mihenk-text: #e7e9ea;
+  --mihenk-text-soft: #9fb0bd;
+  --mihenk-brand: #5cb3f5;
+  --mihenk-brand-ink: #0f1419;
+  --mihenk-success: #3fbf90;
+  --mihenk-error: #ef7d6e;
+  --mihenk-interaction: #9fb0bd;
+
+  /*
+    NSosyal kimlik gradyanı — logo ve seçili sekme çizgisi. İkisi de dekoratif
+    (aria-hidden) olduğu için kontrast eşiğine tabi değil; seçim ayrıca metin
+    rengi ve aria-selected ile de taşınıyor.
+  */
+  --nsosyal-gradyan-bas: #22d3ee;
+  --nsosyal-gradyan-son: #2563eb;
+
+  /*
+    Eylem gradyanı — oluştur düğmesi. Üzerindeki simge anlamı taşıdığı için
+    WCAG 1.4.11 gereği 3:1 geçmeli. Ölçüldü: beyaz simge 5,36 (cyan ucu) ve
+    6,70 (mavi ucu); iki uçta da metin eşiğini bile geçiyor. Kimlik gradyanının
+    koyu temadaki parlak cyan ucu burada kullanılamazdı: beyaz üzerinde 1,81.
+    Tema başına değişmez — düğme her iki temada da aynı koyulukta kalır.
+  */
+  --nsosyal-aksiyon-bas: #0e7490;
+  --nsosyal-aksiyon-son: #1d4ed8;
+
+  /*
+    Yan çekmecenin lavanta→nane gradyanı. Koyu temada aynı iki rengin derin
+    karşılığı kullanılır; ev sahibi koyu temada parlak pastel bir panel açmak
+    ekranın geri kalanıyla çelişirdi. Gradyanın İKİ ucunda da ölçüldü —
+    ana metin 11,48 / 10,39 · ikincil 6,27 / 5,67.
+  */
+  --nsosyal-cekmece-bas: #232a4a;
+  --nsosyal-cekmece-son: #1b3833;
 
   /*
     Kozmetik ürün renkleri, tema başına ayrı.
@@ -48,21 +93,23 @@
 }
 
 .light {
-  --mihenk-page: #f2efe7;
+  --mihenk-page: #f1f3f5;
   --mihenk-card: #ffffff;
-  --mihenk-line: #d9d4c7;
-  --mihenk-line-strong: #b9b2a1;
-  --mihenk-text: #12181a;
-  /*
-     Ikincil metin, ust cubuk gibi harmanlanmis zeminlerde (#dcd9d2) 4,31'e
-     dusuyordu. Olculerek koyulastirildi: 4,88 / 5,98 / 6,87.
-  */
-  --mihenk-text-soft: #525c5f;
-  --mihenk-brand: #8a6120;
+  --mihenk-line: #e3e7ea;
+  --mihenk-line-strong: #7b8894;
+  --mihenk-text: #0f1419;
+  --mihenk-text-soft: #5a6672;
+  --mihenk-brand: #1268b3;
   --mihenk-brand-ink: #ffffff;
-  --mihenk-success: #2f6455;
-  --mihenk-error: #93412d;
-  --mihenk-interaction: #3c5d7a;
+  --mihenk-success: #1c7357;
+  --mihenk-error: #b3261e;
+  --mihenk-interaction: #5a6672;
+
+  --nsosyal-gradyan-bas: #0891b2;
+  --nsosyal-gradyan-son: #1d4ed8;
+  /* Ölçüldü — ana metin 14,97 / 16,33 · ikincil 4,74 / 5,18. */
+  --nsosyal-cekmece-bas: #e3e6fb;
+  --nsosyal-cekmece-son: #e9f3ee;
 
   /* Açık temada ölçülerek ayrıştırıldı; en düşük ayrım ΔE 20,0. */
   --kozmetik-pirinc: #8a6120;
@@ -74,6 +121,50 @@
   --kozmetik-kulce: #8a6120;
   --kozmetik-ayar: #5f620c;
   --kozmetik-mika: #7d6a45;
+}
+
+/*
+  MİHENK ÖDÜL YÜZEYİ.
+
+  Değerler bugüne kadar ölçülmüş pirinç paletinin birebir aynısıdır; yalnızca
+  kapsamı daralmıştır. Böylece yayımlanmış kontrast ölçümleri (ikincil metin
+  harmanlanmış zeminlerde 4,88 / 5,98 / 6,87) ve kozmetik ΔE ayrımları bu
+  yüzeylerde aynen geçerli kalır — yeniden ölçüm gerektirmez.
+
+  Bir alt ağaca uygulandığında :root'tan gelen ev sahibi değerleri ezer;
+  doğrudan eşleşen bildirim, miras alınan değeri her zaman yener. Açık temada
+  .light miras yoluyla geldiği için ayrıca .light .yuzey-mihenk gerekir.
+*/
+.yuzey-mihenk {
+  --mihenk-page: #12181a;
+  --mihenk-card: #1d2629;
+  --mihenk-line: #2c383c;
+  --mihenk-line-strong: #3d4c51;
+  --mihenk-text: #e8e4da;
+  --mihenk-text-soft: #9aa5a3;
+  --mihenk-brand: #c89544;
+  --mihenk-brand-ink: #12181a;
+  --mihenk-success: #68ad99;
+  --mihenk-error: #d4705a;
+  --mihenk-interaction: #8fa6bd;
+}
+
+.light .yuzey-mihenk {
+  --mihenk-page: #f2efe7;
+  --mihenk-card: #ffffff;
+  --mihenk-line: #d9d4c7;
+  --mihenk-line-strong: #b9b2a1;
+  --mihenk-text: #12181a;
+  /*
+     İkincil metin, üst çubuk gibi harmanlanmış zeminlerde (#dcd9d2) 4,31'e
+     düşüyordu. Ölçülerek koyulaştırıldı: 4,88 / 5,98 / 6,87.
+  */
+  --mihenk-text-soft: #525c5f;
+  --mihenk-brand: #8a6120;
+  --mihenk-brand-ink: #ffffff;
+  --mihenk-success: #2f6455;
+  --mihenk-error: #93412d;
+  --mihenk-interaction: #3c5d7a;
 }
 
 @theme inline {
@@ -145,6 +236,56 @@ body {
 .mihenk-solgunlas { animation: mihenk-solgunlas 200ms ease-out both; }
 .mihenk-sagdan { animation: mihenk-sagdan 300ms cubic-bezier(0.32, 0.72, 0, 1) both; }
 .mihenk-alttan { animation: mihenk-alttan 300ms cubic-bezier(0.32, 0.72, 0, 1) both; }
+
+
+/*
+  NSosyal kimlik gradyanı. Logo, oluştur düğmesi ve seçili sekme bu gradyanı
+  taşır; MİHENK yüzeyi hiçbir yerde gradyan kullanmaz. İki yüzey gri
+  tonlamada değerlendirilse bile doku farkıyla ayrışır.
+*/
+.nsosyal-gradyan {
+  background-image: linear-gradient(135deg, var(--nsosyal-gradyan-bas), var(--nsosyal-gradyan-son));
+}
+.nsosyal-gradyan-metin {
+  background-image: linear-gradient(135deg, var(--nsosyal-gradyan-bas), var(--nsosyal-gradyan-son));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.nsosyal-aksiyon {
+  background-image: linear-gradient(135deg, var(--nsosyal-aksiyon-bas), var(--nsosyal-aksiyon-son));
+}
+.nsosyal-cekmece {
+  background-image: linear-gradient(160deg, var(--nsosyal-cekmece-bas), var(--nsosyal-cekmece-son));
+}
+
+@keyframes mihenk-soldan {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}
+.mihenk-soldan { animation: mihenk-soldan 260ms cubic-bezier(0.32, 0.72, 0, 1) both; }
+
+/*
+  Giriş ekranı açılışı — SAYDAMLIKTAN BAŞLAMAZ, bilerek.
+
+  Chrome, ilk boyandığı anda opacity: 0 olan bir öğeyi LCP adayı saymaz ve
+  sonradan görünür hale gelse bile bir daha değerlendirmeye almaz. Giriş kartı
+  mihenk-belir ile (from { opacity: 0 }) açılırken sayfada LCP adayı olabilecek
+  başka bir şey kalmıyordu: Lighthouse NO_LCP veriyor ve 25 puanlık metrik
+  null döndüğü için performans kategorisi 0'a düşüyordu.
+
+  Yavaş bağlantıda sorun görünmüyordu — yükleme iskeleti boyanacak kadar uzun
+  ekranda kalıyor ve LCP'yi o karşılıyordu. Yerelde ve hızlı bağlantıda
+  iskelet atlanıyor ve ölçüm çöküyor.
+
+  Ölçüm: animasyon kapatıldığında LCP 64 ms'de geliyor, açıkken hiç gelmiyor.
+  Çözüm saydamlığı hiç oynatmamak; ölçek hareketi görsel olarak aynı işi görür.
+*/
+@keyframes mihenk-acilis {
+  from { transform: scale(0.96); }
+  to   { transform: scale(1); }
+}
+.mihenk-acilis { animation: mihenk-acilis 400ms cubic-bezier(0.32, 0.72, 0, 1) both; }
 
 /* Tanıtım turu vurgu halkası; konum değişimi yumuşak geçer. */
 .mihenk-vurgu { transition: top 200ms ease, left 200ms ease, width 200ms ease, height 200ms ease; }

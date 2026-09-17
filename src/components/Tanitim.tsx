@@ -125,15 +125,27 @@ export function Tanitim({ onKapat }: { onKapat: () => void }) {
     kartRef.current?.querySelector<HTMLElement>(ODAKLANABILIR)?.focus()
   }, [adim])
 
+  /*
+    Kart hedefin altına açılır; sığmıyorsa üstüne geçer.
+
+    Cüzdan ve Mağaza çapaları üst çubuktan alt gezintiye taşındığından hedef
+    artık ekranın en altında. Eski kod kartı yalnızca aşağı doğru kırpıyordu
+    (innerHeight - 210) ve kart vurgu halkasının üstüne biniyordu: tur, tam da
+    göstermesi gereken düğmeyi örtüyordu.
+  */
+  const KART_YUKSEKLIGI = 210
   const kartKonumu = kutu
     ? {
-        top: Math.min(kutu.bottom + 12, window.innerHeight - 210),
+        top:
+          kutu.bottom + 12 + KART_YUKSEKLIGI <= window.innerHeight
+            ? kutu.bottom + 12
+            : Math.max(12, kutu.top - KART_YUKSEKLIGI - 12),
         left: Math.max(12, Math.min(kutu.left + kutu.width / 2 - 160, window.innerWidth - 332)),
       }
     : undefined
 
   return (
-    <div className="fixed inset-0 z-[60]">
+    <div data-yuzey="mihenk" className="yuzey-mihenk fixed inset-0 z-[60]">
       {/* Zemin: tıklanınca tur atlanır */}
       <button
         type="button"

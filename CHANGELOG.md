@@ -1,5 +1,205 @@
 # Değişiklik Kaydı
 
+## 2026-09-16 (altıncı tur) — NSosyal ev sahibi kroması ve iki ayrı yüzey
+
+Teknik rapor 96/100 ile geçti. Kaybedilen dört puanın üçü **3.3 Kullanıcı
+Deneyimi** başlığından (7 üzerinden 4), biri **3.1 Yöntem, Altyapı ve Sürüm
+Kontrolü** başlığından (7 üzerinden 6) geldi.
+
+### Teşhis
+
+Rapor MİHENK'i "mevcut mikroblog platformu NSosyal üzerine oturan özellik
+katmanı" diye tanıtıyor ve iki ayrı yüzey iddia ediyor: nötr ev sahibi yüzeyi
+ve kendi kimliğini taşıyan MİHENK ödül yüzeyi. Prototip ise masaüstü tek
+sütundu ve her iki yüzey de pirinç rengindeydi. NSosyal'ı bilen bir hakem
+siteye girdiğinde ne NSosyal'ı görüyor ne de iki yüzey ayrımını.
+
+### İki yüzey — mekanizma
+
+Derlenmiş CSS doğrulandı: `@theme inline` ham değişkeni üretilen yardımcı
+sınıfa gömüyor (`.text-brand { color: var(--mihenk-brand) }`). Bir
+sarmalayıcıda `--mihenk-*` ezmek tüm alt ağacı yeniden renklendiriyor.
+
+| Kapsam | Yüzey |
+|---|---|
+| `:root` / `.light` | **Ev sahibi (NSosyal)** — nötr gri zemin, mavi vurgu |
+| `.yuzey-mihenk` | **MİHENK ödül yüzeyi** — bugüne kadar ölçülmüş pirinç değerlerin birebir aynısı |
+
+Pirinç değerler değişmedi, yalnızca kapsamı daraldı. Bu yüzden yayımlanmış
+kontrast ölçümleri (ikincil metin harmanlanmış zeminlerde 4,88 / 5,98 / 6,87)
+ve kozmetik ΔE ayrımları (koyu 22,5 · açık 20,0) bu yüzeylerde yeniden ölçüm
+gerektirmeden geçerli kaldı. Yüzey sınırları depoda aranabilir:
+`grep -r 'data-yuzey' src/`.
+
+İddianın ekrandaki kanıtı gönderi kartı: nötr gri/mavi bir NSosyal kartı,
+içinde yalnızca doğrulama rozetleri ve gerekçe pirinç renginde. Cüzdan ve
+Mağaza ise tamamen pirinç.
+
+### Ölçülen kontrast
+
+| Küme | Çift | Sonuç |
+|---|---|---|
+| Ev sahibi paleti (iki tema) | 34 | Tümü AA; `line-strong` hap kenarlıklarını taşıdığı için 1.4.11'e göre 3:1 hedeflendi — 3,25 / 3,65 / 3,63 / 3,26 |
+| MİHENK rozetleri ev sahibi zeminde | 14 | 4,91 – 17,93 |
+| Çekmece gradyanının iki ucu | 8 | Ana metin 10,39 – 16,33 · ikincil 4,74 – 6,27 |
+
+Oluştur düğmesi için ayrı bir gradyan tanımlandı. Kimlik gradyanının koyu
+temadaki parlak cyan ucunda beyaz simge **1,81** kalıyordu; eylem gradyanı
+iki ucunda da 5,36 ve 6,70 veriyor.
+
+### Eklenen bileşenler
+
+`AltGezinti` (Cüzdan/Mağaza pirinç MİHENK sekmesi olarak, monogramlı) ·
+`YanCekmece` (lavanta→nane gradyan; tema anahtarı ve tanıtım turu üst
+çubuktan buraya taşındı) · `HikayeSeridi` (yazarlardan türetilir, yeni tohum
+verisi yok — gönderi sayısı 12'de sabit kaldı) · `AkisSekmeleri` ·
+`EtkilesimSeridi` (dış çizgili hap satırı) · `OlusturDugmesi` · `NSimgesi` ·
+`KapsamNotu` · `Yuzey`
+
+Kapsam dışı bölümler (Keşfet, Profil, Bildirimler, Topluluklar…) çizildi ama
+sessiz bırakılmadı: düğme gerçek, yanıtı da gerçek — "bu bölüm bu prototipin
+kapsamında değil". Tıklanınca hiçbir şey yapmayan bir sekme arızalı bir
+arayüz izlenimi verirdi.
+
+### Odak bütçesi
+
+Görüntülenme hapı `<button>` değil `<span>` oldu: istatistiktir, eylem değil.
+12 gönderide 12 sekme durağı geri kazanıldı ve yeni kromanın (gezinti,
+sekmeler, hikâye şeridi, oluştur düğmesi) maliyeti bununla karşılandı.
+Belgenin sonundaki gezintiye ulaşmak için atlama bağlantısı eklendi
+(WCAG 2.4.1).
+
+### Tarayıcı denetimleri iki sessiz kırıkla duruyordu
+
+Denetimler, tanıtım turu ve çift satın alma koruması eklendikten sonra
+çalıştırılmamıştı. İkisi de denetimi kırıyordu:
+
+| Kırık | Neden | Düzeltme |
+|---|---|---|
+| `klavye.mjs` turun içinde sonsuza kadar Tab'lıyordu | Tur ilk girişte açılıp odağı tuzaklıyor; denetim bu akışı modellemiyordu | Tur artık modelleniyor ve **klavyeyle kapanışı doğrulanıyor** |
+| Sekme seçimi sorgusu yanlış listeyi buluyordu | Akışa ikinci bir `role="tablist"` eklendi; kapsamsız seçici belgedeki ilk seçili sekmeyi alıyor | Sorgu mağazanın listesine kapsamlandı |
+| `"Al"` araması odak tuzağında dönüyordu | Önizleme penceresi sahip olunan ürün için açılıyor ve "Al" yerine devre dışı "Sahipsin" gösteriyor | Çift alım koruması artık **açıkça doğrulanıyor**, satın alma sahip olunmayan üründen yapılıyor |
+| `hareket.mjs` cüzdanı hiç açamıyordu | Eşleme büyük/küçük harfe duyarlıydı; erişilebilir ad "…cüzdanı aç" diyor | `klavye.mjs`'deki eşlemeyle hizalandı |
+
+Klavye **30/30** (26'dan), hareket **8/8**, birim **76/76**.
+
+### Sayfanın hiç LCP'si yoktu
+
+Giriş kartı `mihenk-belir` ile açılıyordu (`from { opacity: 0 }`). Chrome ilk
+boyandığı anda saydam olan bir öğeyi LCP adayı saymıyor ve sonradan görünür
+hale gelse bile bir daha değerlendirmeye almıyor. Sonuç: hızlı bağlantıda
+sayfanın hiç LCP'si olmuyor, Lighthouse `NO_LCP` veriyor ve 25 puan ağırlıklı
+metrik `null` döndüğü için **performans kategorisi 0'a düşüyordu.**
+
+Yavaş bağlantıda sorun görünmüyordu: yükleme iskeleti boyanacak kadar uzun
+ekranda kalıyor ve LCP'yi o karşılıyordu. Yayımlanmış ölçümlerin 99–100
+göstermesinin sebebi buydu — gerçek bir hız değil, ölçüm kazası.
+
+Saydamlık oynatmayan `mihenk-acilis` ile değiştirildi. Ayrıca `StoreProvider`
+artık hidrasyonu beklemiyor: giriş ekranı depodan hiçbir şey okumadığı halde
+12 tohum gönderisinin doğrulamadan geçmesini bekliyordu. Ekran artık ilk
+HTML'de geliyor. Rapor Şekil 3 Akış A'nın "doğrulama arayüzü bloklamaz"
+iddiası da ancak böyle sağlanıyor.
+
+| Ölçüm (yerel, aynı kurulum) | Önce | Sonra |
+|---|---|---|
+| Performans — masaüstü | **0** (NO_LCP) | **99** |
+| Performans — mobil | **0** (NO_LCP) | **88** (uygulanan kısıtlamayla 95) |
+| Erişilebilirlik · En İyi Uygulamalar · SEO | 100 | 100 |
+
+Mobil değeri Lantern simülasyonundan geliyor; kısıtlama uygulanarak ölçüldüğünde
+LCP = FCP.
+
+### Mobil doğruluk
+
+`viewport` dışa aktarımı eklendi: `viewportFit: 'cover'` + `themeColor`.
+`maximumScale` / `userScalable` **konmadı** — yakınlaştırmayı kısıtlamak WCAG
+1.4.4 ihlali. `min-h-screen` → `min-h-dvh`, güvenli alan dolguları, 44px
+dokunma hedefleri, anket girdileri 16px (iOS odak yakınlaştırmasını tetikliyordu).
+
+### Üçüncü tarayıcı denetimi: axe-core
+
+Lighthouse yalnızca girilen adresi ölçüyor; MİHENK'in ekranlarının çoğu giriş
+kapısının arkasında ve tam ekran katman olarak açılıyor. `test/tarayici/`
+altına üçüncü bir denetim eklendi: Chrome sürülerek her ekrana gidiliyor ve
+axe-core o anki DOM üzerinde çalıştırılıyor.
+
+**Yedi ekran × iki tema × iki genişlik = 28 ekran, sıfır ihlal**
+(`wcag2a` + `wcag2aa` + `wcag21a` + `wcag21aa`).
+
+Tema başına ayrı tarayıcı açılıyor: ilk sürümde tek Chrome örneği uzun koşuda
+düşüyor ve denetim hiçbir çıktı vermeden asılı kalıyordu.
+
+### Ölçüm boru hattı çalıştırıldı — README'nin andığı üç betik artık var
+
+README `threshold_sweep.py`, `evaluate.py` ve `build_report.py` betiklerini
+tarif ediyordu; **üçü de depoda yoktu.** README'yi takip eden hakem üç kez
+dosya bulamıyordu.
+
+Betikler Node ile yazıldı, Python'a portlanmadı. Metin ve hash tarafının
+çalışma zamanı karşılığı TypeScript'te; portlamak ikinci bir uygulama yaratır
+ve ölçüm ile üretim sessizce sapabilir. Betikler `test/cozumleyici.mjs`
+çözümleyicisiyle kaynağı doğrudan içe aktarıyor.
+
+`hesaplaDHash` canvas istediği için Node'da çalışmıyor. Algoritma **kendi
+kaynağından, tür soyulmuş haliyle** başsız Chrome'a enjekte ediliyor
+(`scripts/hash_gorseller.mjs`); sayfaya ayrıca verilen tek şey görsel yükleme
+tesisatı. Ölçülen algoritmanın tek bir kaynağı kalıyor.
+
+**Üretilen küme:** 500 özgün metin → 2.000 varyant (dört tür) · 500 özgün
+görsel → 2.500 dönüşüm (beş tür) · 3.500 dHash.
+
+İki ayrı negatif küme kullanıldı. Dengeli küme (her varyant için ebeveyni
+olmayan rastgele bir özgün) F1'in sınıf dengesizliğinden şişmesini engelliyor;
+yanlış pozitif oranı ise bütün özgün–özgün çiftlerinden (124.750 çift)
+hesaplanıyor — akışta karşılaşılan dağılım bu.
+
+#### Ölçülen değerler
+
+| Kademe | Eşik | Kesinlik | Duyarlılık | F1 | Yanlış pozitif |
+|---|---|---|---|---|---|
+| Metin (Jaccard) | 0,35 | %100,0 | %83,6 | 0,9107 | 4 / 124.750 (%0,0032) |
+| Görsel (Hamming) | 10 bit | %99,7 | %62,6 | 0,7689 | 267 / 124.750 (%0,214) |
+
+Dönüşüm türü bazında görsel duyarlılığı: yeniden boyutlandırma %100 ·
+sıkıştırma %99,2 · filtre %98,6 · **kırpma %7,8** · kırpma+filtre %7,2.
+Kırpılmış görsellerin ortalama Hamming mesafesi 21,6; ilişkisiz görsellerinkiyle
+örtüşüyor. Daha önce nitel olarak belgelenen kırpma sınırı artık sayıyla duruyor.
+
+#### Eşik kararı
+
+F1 optimumu metinde 0,08, görselde 22 çıktı — ikisi de uygulanmadı ve gerekçe
+ölçümün kendisinden geliyor.
+
+F1, yanlış pozitif ile yanlış negatifi eşit maliyetli sayar. MİHENK'te
+değiller: yanlış negatif bir kopyanın jeton kazanmasıdır, yanlış pozitif özgün
+içerik üreten bir kullanıcının ödülünün kesilmesidir. Ölçüt olarak **yanlış
+pozitif oranı bugünkünden kötü olmamak kaydıyla en yüksek duyarlılık**
+alındı.
+
+| Kademe | Yürürlükteki | Kısıtlı optimum | F1 optimumu |
+|---|---|---|---|
+| Metin | 0,35 | 0,34 | 0,08 → yanlış pozitif **159 katı** (%0,0032 → %0,511) |
+| Görsel | 10 | **10** | 22 → ilişkisiz çiftlerin **%10,3'ü** kopya sayılıyor |
+
+Her iki kademede de kısıtlı optimum yürürlükteki değere denk çıktı. Metindeki
+0,01'lik fark taramanın adım çözünürlüğü kadar; raporda belgelenen değeri bu
+büyüklükte bir kazanç için oynatmak izlenebilirliği kazançtan pahalıya mal
+ederdi. **Yayımlanan iki eşik de ölçümden geçti.**
+
+#### Ölçülmeyen kademe gizlenmedi
+
+Düşük çaba kademesinin negatif tarafı (500 normal görselin düşük çaba skoru)
+üretilmedi. `results/metrics.json` bu kademeyi `"durum": "ölçülmedi"` olarak
+işaretliyor ve nedenini yazıyor; tek yanlı bir duyarlılık sayısı üretilmedi.
+
+### Depo tutarlılığı
+
+README'de kod ile çelişen yedi değer düzeltildi: kopya eşiği 0,70 → **0,35**
+(kod bu), test sayısı 50 → **76** (22/28 → 34/42), klavye denetimi 26 → **30**
+kontrol. `scripts/fix_dev_split.py` docstring'i "beş metin" diyordu;
+`splits/gelistirme.jsonl` altı metin ve beş görsel taşıyor.
+
 ## 2026-08-25 (dördüncü tur) — Geri bildirim düzeltmeleri
 
 ### Cüzdan başkalarının gönderilerinden jeton alıyordu

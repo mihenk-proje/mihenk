@@ -39,10 +39,17 @@ async function olc(azalt) {
   await sayfa.goto(ADRES, { waitUntil: 'networkidle2' })
   await bekle(600)
 
+  /*
+    Eşleme büyük/küçük harfe duyarsız — klavye denetimindeki tabla() ile aynı.
+    Cüzdan düğmesinin erişilebilir adı "Cüzdan 195 jeton, cüzdanı aç": eylem
+    cümlenin ortasında ve doğal olarak küçük harfle başlıyor. Duyarlı eşleme
+    bu düğmeyi hiç bulamıyordu ve denetim, cüzdan hiç açılmadığı için
+    ölçemediği dört şeyi "başarısız" diye raporluyordu.
+  */
   const tikla = async (etiketParcasi) => {
     await sayfa.evaluate((t) => {
       const d = [...document.querySelectorAll('button')].find((b) =>
-        ((b.getAttribute('aria-label') || b.textContent) ?? '').includes(t)
+        ((b.getAttribute('aria-label') || b.textContent) ?? '').toLowerCase().includes(t.toLowerCase())
       )
       d?.click()
     }, etiketParcasi)
@@ -50,6 +57,9 @@ async function olc(azalt) {
   }
 
   await tikla('Demo olarak gir')
+  /* İlk girişte tanıtım turu açılır; ölçümden önce kapatılır. */
+  await sayfa.keyboard.press('Escape')
+  await bekle(300)
   await tikla('Cüzdanı aç')
 
   const cuzdan = await sayfa.evaluate(() => {

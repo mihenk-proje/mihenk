@@ -18,7 +18,7 @@ import puppeteer from 'puppeteer-core'
 const CHROME =
   process.env.CHROME_PATH || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
 const ADRES = process.env.ADRES || 'http://localhost:3100'
-const SINIR = 60 // sonsuz Tab döngüsüne karşı
+const SINIR = 120 // sonsuz Tab döngüsüne karşı; NSosyal kroması odak bütçesini büyüttü
 
 let gecti = 0
 let kaldi = 0
@@ -95,6 +95,29 @@ kontrol(
   await sayfa.evaluate(() => document.body.innerText.includes('Ana akış'))
 )
 
+/*
+  İlk girişte tanıtım turu kendiliğinden açılır ve odağı tuzaklar — doğrusu da
+  budur. Denetim bunu modellemiyordu ve turun içinde sonsuza kadar Tab'lıyordu.
+  Tur klavyeyle kapatılabilmeli; kapanmazsa demoyu izleyen hakem klavyeyle
+  hiçbir yere gidemez.
+*/
+console.log('\n— Tanıtım turu —')
+kontrol(
+  'tur ilk girişte kendiliğinden açıldı',
+  await sayfa.evaluate(() =>
+    Boolean(document.querySelector('[role="dialog"][aria-labelledby="tanitim-baslik"]'))
+  )
+)
+kontrol('tur açılınca odak turun içine taşındı', (await odak()).modalIcinde === true)
+await sayfa.keyboard.press('Escape')
+await bekle(400)
+kontrol(
+  'Escape ile tur kapandı',
+  await sayfa.evaluate(() =>
+    !document.querySelector('[role="dialog"][aria-labelledby="tanitim-baslik"]')
+  )
+)
+
 // 2 — Gönderi paylaşma
 console.log('\n— Gönderi paylaşma —')
 const alan = await tabla('Gönderi metni')
@@ -145,8 +168,16 @@ const sonrakiSekme = await odak()
 kontrol('sağ ok bir sonraki sekmeye geçiyor', sonrakiSekme.metin.includes('Sezonluk'), `→ ${sonrakiSekme.metin}`)
 kontrol(
   'ok tuşu seçimi de taşıyor (otomatik etkinleştirme)',
+  /*
+    Sorgu mağazanın sekme listesine kapsamlanmalı. Akışın kendi sekme şeridi
+    ("Ana akış" / "Takip ettiklerin") eklendiğinden beri kapsamsız seçici
+    belgedeki İLK seçili sekmeyi buluyor ve o akışınki. Arka plan inert ama
+    inert öğeler DOM'da duruyor; querySelector onları atlamaz.
+  */
   await sayfa.evaluate(() =>
-    document.querySelector('[role="tab"][aria-selected="true"]')?.textContent?.includes('Sezonluk')
+    document
+      .querySelector('[aria-label="Ürün kategorileri"] [role="tab"][aria-selected="true"]')
+      ?.textContent?.includes('Sezonluk')
   )
 )
 
@@ -197,8 +228,28 @@ kontrol('kapanınca odak Dene düğmesine geri döndü', (await odak()).metin.in
 
 // 6 — Satın alma
 console.log('\n— Satın alma —')
+
+/*
+  Odak hâlâ ilk ürünün "Dene" düğmesinde ve o ürün (Pirinç Çerçeve) demo
+  kullanıcısının envanterinde. Penceresi yeniden açıldığında "Al" değil,
+  devre dışı bir "Sahipsin" göstermeli: çift satın alma hatasının nöbetçisi.
+  Denetim eskiden burada körlemesine "Al" arıyor ve odak tuzağının içinde
+  dönüp duruyordu.
+*/
 await sayfa.keyboard.press('Enter')
 await bekle(600)
+kontrol(
+  'sahip olunan üründe satın alma kapalı (çift alım koruması)',
+  await sayfa.evaluate(() => {
+    const d = document.querySelector('[role="dialog"]')
+    const dugme = d && [...d.querySelectorAll('button')].find((x) => x.textContent?.trim() === 'Sahipsin')
+    return Boolean(dugme && dugme.disabled)
+  })
+)
+await sayfa.keyboard.press('Escape')
+await bekle(500)
+
+// Sahip olunmayan bir ürün kart ızgarasından satın alınır
 const alDugmesi = await tabla('Al')
 kontrol('Al düğmesine Tab ile ulaşılıyor', alDugmesi !== null)
 kontrol('Al düğmesinde görünür odak halkası var', alDugmesi?.halka === true)

@@ -5,6 +5,7 @@ import { avatarRengi } from "@/lib/store/efektler"
 const BOYUTLAR = {
   sm: 'w-8 h-8 text-[11px]',
   md: 'w-10 h-10 text-sm',
+  xl: 'w-14 h-14 text-base',
   lg: 'w-24 h-24 text-3xl',
 } as const
 
