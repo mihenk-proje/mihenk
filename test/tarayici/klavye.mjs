@@ -66,11 +66,21 @@ const odak = () =>
     }
   })
 
-/** Belirli bir metin/etiket odağa gelene kadar Tab'a basar */
-async function tabla(arananParca) {
+/**
+ * Belirli bir metin/etiket odağa gelene kadar Tab'a basar.
+ *
+ * `tam` seçeneği birebir eşleşme ister. Gerekçesi somut: "Paylaş" düğmesi
+ * referans arayüze uyması için "Gönder" oldu, ama metin alanının etiketi
+ * "Gönderi metni" ve o da "gönder" içeriyor. Parça eşleşmesiyle arama, metin
+ * alanındayken hemen doğru sayıp geri dönüyor; denetim düğmeye hiç
+ * ulaşmadan geçmiş görünürdü.
+ */
+async function tabla(arananParca, tam = false) {
+  const hedef = arananParca.toLowerCase()
   for (let i = 0; i < SINIR; i++) {
     const o = await odak()
-    if ((o.metin || '').toLowerCase().includes(arananParca.toLowerCase())) return o
+    const ad = (o.metin || '').toLowerCase()
+    if (tam ? ad === hedef : ad.includes(hedef)) return o
     await sayfa.keyboard.press('Tab')
     await new Promise((r) => setTimeout(r, 60))
   }
@@ -126,9 +136,9 @@ await sayfa.keyboard.type(
   'Klavyeyle gezinme denetimi için yazılmış özgün bir deneme gönderisi metni.'
 )
 await bekle(200)
-const paylas = await tabla('Paylaş')
-kontrol('Paylaş düğmesine Tab ile ulaşılıyor', paylas !== null)
-kontrol('Paylaş düğmesinde görünür odak halkası var', paylas?.halka === true)
+const paylas = await tabla('Gönder', true)
+kontrol('Gönder düğmesine Tab ile ulaşılıyor', paylas !== null)
+kontrol('Gönder düğmesinde görünür odak halkası var', paylas?.halka === true)
 await sayfa.keyboard.press('Enter')
 await bekle(900)
 kontrol(
@@ -146,6 +156,29 @@ kontrol(
   'cüzdan açıldı',
   await sayfa.evaluate(() => document.body.innerText.includes('Hareket defteri'))
 )
+
+/*
+  Alt gezinti katmanların ÜSTÜNDE ve inert dışında. Önceden katman açıkken
+  hem görünmüyor hem devre dışıydı; Mağaza'ya geçmek için önce akışa dönmek
+  gerekiyordu. Odağı bozmamak için gezinme yapılmaz, yalnızca erişilebilir
+  ve görünür olduğu doğrulanır.
+*/
+kontrol(
+  'katman açıkken alt gezinti erişilebilir ve görünür kalıyor',
+  await sayfa.evaluate(() => {
+    const gezinti = document.getElementById('alt-gezinti')
+    if (!gezinti || gezinti.closest('[inert]')) return false
+    const magaza = [...gezinti.querySelectorAll('button')].find((b) =>
+      (b.getAttribute('aria-label') ?? '').toLowerCase().includes('mağazayı aç')
+    )
+    if (!magaza) return false
+    const kutu = magaza.getBoundingClientRect()
+    // Gezinti gerçekten en üstte mi, yoksa katman üzerine mi biniyor?
+    const ustteki = document.elementFromPoint(kutu.left + kutu.width / 2, kutu.top + kutu.height / 2)
+    return kutu.height > 0 && Boolean(ustteki?.closest('#alt-gezinti'))
+  })
+)
+
 const geri = await tabla('Akışa geri dön')
 kontrol('geri düğmesine Tab ile ulaşılıyor', geri !== null)
 await sayfa.keyboard.press('Enter')

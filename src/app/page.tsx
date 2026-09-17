@@ -3,9 +3,15 @@
 import { useState, useSyncExternalStore } from "react"
 import { Sparkles } from "lucide-react"
 import { DepoYukleniyor, useStore } from "@/lib/store/kanca"
-import type { DogrulamaSonucu as Sonuc } from "@/lib/store/types"
+import type { Gorunum, DogrulamaSonucu as Sonuc } from "@/lib/store/types"
 import { AkisSekmeleri } from "@/components/AkisSekmeleri"
 import { AltGezinti } from "@/components/AltGezinti"
+import {
+  Bildirimler,
+  okunmamisSayisi,
+  sonZiyaretZamani,
+  ziyaretiIsaretle,
+} from "@/components/Bildirimler"
 import { Cuzdan } from "@/components/Cuzdan"
 import { DogrulamaSonucu } from "@/components/DogrulamaSonucu"
 import { Giris } from "@/components/Giris"
@@ -14,6 +20,7 @@ import { GonderiOlustur } from "@/components/GonderiOlustur"
 import { HikayeSeridi } from "@/components/HikayeSeridi"
 import { KapsamNotu } from "@/components/KapsamNotu"
 import { Magaza } from "@/components/Magaza"
+import { Profil } from "@/components/Profil"
 import { OlusturDugmesi } from "@/components/OlusturDugmesi"
 import { Tanitim, tanitimGoruldu } from "@/components/Tanitim"
 import { TopBar } from "@/components/TopBar"
@@ -54,10 +61,22 @@ export default function Home() {
   const girisYapildi = elleGirildi || (monte && girisYapilmisMi())
 
   const [sonuc, setSonuc] = useState<Sonuc | null>(null)
-  const [gorunum, setGorunum] = useState<'akis' | 'cuzdan' | 'magaza'>('akis')
+  const [gorunum, setGorunum] = useState<Gorunum>('akis')
   const [cekmeceAcik, setCekmeceAcik] = useState(false)
   const [sekme, setSekme] = useState('Ana akış')
   const [kapsamNotu, setKapsamNotu] = useState<string | null>(null)
+
+  /*
+    Bildirimlerin son ziyaret damgası uygulama durumunun DIŞINDA, kendi
+    localStorage anahtarında duruyor (bkz. Bildirimler.tsx). Burada yalnızca
+    bir kopyası tutulur ki ekran açıldığında zil rozeti yeniden hesaplansın;
+    localStorage yazması bileşenlere kendiliğinden haber vermez.
+
+    Değer tembel başlatıcıyla bir kez okunur. Sunucuda depolama yok ve
+    yedeğe düşülür, ama zil hidrasyon tamamlanmadan hiç basılmıyor
+    (önce Giriş, sonra DepoYükleniyor) — uyuşmazlık doğmaz.
+  */
+  const [sonZiyaret, setSonZiyaret] = useState(sonZiyaretZamani)
 
   /*
     Tur yalnızca ilk girişte açılır. Durumu uygulama durumundan ayrı bir
@@ -93,6 +112,14 @@ export default function Home() {
 
   const katmanAcik = gorunum !== 'akis' || cekmeceAcik
 
+  /* Ekranı açmak her şeyi okunmuş sayar; rozet aynı karede sıfırlanır. */
+  const bildirimleriAc = () => {
+    setSonZiyaret(ziyaretiIsaretle())
+    setGorunum('bildirimler')
+  }
+
+  const okunmamis = okunmamisSayisi(state, sonZiyaret)
+
   /*
     "Takip ettiklerin" gerçek bir süzgeç: kendi gönderilerin çıkar, çünkü
     kendini takip etmiyorsun. Sekme değiştirince hiçbir şeyin değişmemesi,
@@ -123,7 +150,11 @@ export default function Home() {
           Gezinti çubuğuna atla
         </a>
 
-        <TopBar onMenu={() => setCekmeceAcik(true)} onKapsamDisi={setKapsamNotu} />
+        <TopBar
+          onMenu={() => setCekmeceAcik(true)}
+          onBildirimler={bildirimleriAc}
+          okunmamis={okunmamis}
+        />
 
         <div className="w-full max-w-lg mx-auto flex-1 flex flex-col">
           <HikayeSeridi />
@@ -157,26 +188,40 @@ export default function Home() {
         </div>
 
         <OlusturDugmesi />
-
-        <AltGezinti
-          gorunum={gorunum}
-          onAkis={() => setGorunum('akis')}
-          onCuzdan={() => setGorunum('cuzdan')}
-          onMagaza={() => setGorunum('magaza')}
-          onKapsamDisi={setKapsamNotu}
-        />
       </div>
+
+      {/*
+        Alt gezinti BİLEREK inert sarmalayıcının dışında ve katmanların üstünde
+        (z-[45] > katman z-40). Önceden sarmalayıcının içindeydi: Cüzdan
+        açıkken gezinti hem görünmüyor hem devre dışı kalıyordu ve Mağaza'ya
+        geçmek için önce akışa dönmek gerekiyordu. Artık gorunum gerçek bir
+        sekme durumu; yanal geçiş tek dokunuş.
+
+        Kalıcı pencereler (z-50) ve tanıtım turu (z-60) gezintinin üstünde
+        kalmaya devam eder — modal bir diyalog gezintiyi örtmeli.
+      */}
+      <AltGezinti
+        gorunum={gorunum}
+        onAkis={() => setGorunum('akis')}
+        onCuzdan={() => setGorunum('cuzdan')}
+        onMagaza={() => setGorunum('magaza')}
+        onProfil={() => setGorunum('profil')}
+        onKapsamDisi={setKapsamNotu}
+      />
 
       {cekmeceAcik && (
         <YanCekmece
           onKapat={() => setCekmeceAcik(false)}
           onTanitim={() => setTurIstegi(true)}
+          onBildirimler={bildirimleriAc}
           onKapsamDisi={setKapsamNotu}
         />
       )}
 
       {gorunum === 'cuzdan' && <Cuzdan onBack={() => setGorunum('akis')} />}
       {gorunum === 'magaza' && <Magaza onBack={() => setGorunum('akis')} />}
+      {gorunum === 'profil' && <Profil onBack={() => setGorunum('akis')} />}
+      {gorunum === 'bildirimler' && <Bildirimler onBack={() => setGorunum('akis')} />}
 
       {tanitimAcik && <Tanitim onKapat={() => setTurIstegi(false)} />}
 

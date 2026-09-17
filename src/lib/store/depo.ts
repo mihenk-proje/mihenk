@@ -16,9 +16,9 @@ import {
   dogrula,
   hesapYasiGun,
 } from '@/lib/verification'
-import { SEED_SURUMU, varsayilanDurum } from './demoData'
-import { suresiDoldu } from './efektler'
-import type { AppState, DogrulamaSonucu, Gonderi, HareketKaydi, Urun } from './types'
+import { KOLEKSIYONLAR, SEED_SURUMU, varsayilanDurum } from './demoData'
+import { suresiDoldu, tekSlotUygula } from './efektler'
+import type { AppState, DogrulamaSonucu, Gonderi, HareketKaydi, SahipOlunanUrun, Urun } from './types'
 
 /*
   Veri modeli veya ürün kataloğu değiştiğinde eski kayıtlar okunmasın diye
@@ -220,7 +220,82 @@ export function gonderiEkle(gonderi: Gonderi) {
   guncelle((onceki) => ({ ...onceki, gonderiler: [gonderi, ...onceki.gonderiler] }))
 }
 
+/**
+ * Tamamlanan koleksiyonların ödüllerini envantere ekler.
+ *
+ * Saf fonksiyon: depoya erişmez, envanteri alır ve yenisini döndürür.
+ *
+ * ÖLÇÜT SAHİPLİKTİR, KUŞANMIŞLIK DEĞİL. Envanterde bir satırın bulunması
+ * "bir kez sahip olundu" demektir: `urunSatinAl` satırı silmiyor (önce
+ * süzüp sonra ekliyor), `senkronizeEt` de süresi dolan satırın yalnızca
+ * `aktif` alanını kapatıyor. Tunç Seti'nin üç üyesi de 24 saatlik ürün;
+ * "üçü de o an açık" koşulu ilk üyenin süresi dolduğu için hiçbir zaman
+ * sağlanamazdı.
+ *
+ * Ödül `tekSlotUygula`dan geçirilir: rozet tek slotlu bir tür, ödül açık
+ * gelip aynı türden ikincisini açık bırakırsa cüzdan iki rozeti birden
+ * yeşil "Açık" gösterir ama ekranda yalnızca biri görünür.
+ */
+function koleksiyonOdulleri(
+  envanter: SahipOlunanUrun[],
+  magaza: Urun[],
+  zaman: string
+): { envanter: SahipOlunanUrun[]; kayitlar: HareketKaydi[] } {
+  let sonuc = envanter
+  const kayitlar: HareketKaydi[] = []
+
+  for (const koleksiyon of KOLEKSIYONLAR) {
+    // Zaten verilmiş: ikinci kez ne envantere ne deftere girer.
+    if (sonuc.some((s) => s.urunId === koleksiyon.odulUrunId)) continue
+    if (!koleksiyon.urunler.every((id) => sonuc.some((s) => s.urunId === id))) continue
+
+    const odul = magaza.find((u) => u.id === koleksiyon.odulUrunId)
+    if (!odul) continue
+
+    /*
+      Ödül YALNIZCA aynı türden takılı bir şey yoksa açık gelir.
+
+      Koşulsuz açmak sessiz bir düşürme olurdu: kullanıcı 1500 jetonluk Ayar
+      Rozeti takılıyken seti tamamlarsa, bedelsiz gelen Tunç Mührü tek slot
+      kuralı gereği onu kapatırdı. Bir ödül, kullanıcının kendi tercihini
+      haberi olmadan geri alamaz.
+
+      Takılı bir şey yoksa açık gelir — set tamamlandığında hiçbir şey
+      olmamış gibi görünmesin.
+    */
+    const ayniTurTakili = sonuc.some((s) => {
+      if (!s.aktif) return false
+      const u = magaza.find((m) => m.id === s.urunId)
+      return u?.efekt.tur === odul.efekt.tur && !suresiDoldu(u, s)
+    })
+
+    sonuc = ayniTurTakili
+      ? [...sonuc, { urunId: odul.id, satinAlmaZamani: zaman, aktif: false }]
+      : tekSlotUygula(
+          [...sonuc, { urunId: odul.id, satinAlmaZamani: zaman, aktif: true }],
+          magaza,
+          odul.id
+        )
+    /*
+      Ödül de deftere geçer — 0 jetonla. Defter yalnızca jeton akışının
+      değil, kazanımların kaydı: reddedilen doğrulamalar da 0 jetonla
+      buraya yazılıyor. Ödül bedelsiz diye görünmez kalırsa kullanıcı
+      envanterinde nereden geldiğini bilmediği bir rozet bulur.
+    */
+    kayitlar.push(yeniHareket(`${koleksiyon.ad} tamamlandı — ${odul.ad} açıldı`, 0, zaman))
+  }
+
+  return { envanter: sonuc, kayitlar }
+}
+
 export function urunSatinAl(urun: Urun): boolean {
+  /*
+    Kilitli ürün satılmaz. İLK SATIR olması zorunlu: koleksiyon ödülünün
+    fiyatı 0, yani aşağıdaki bakiye kontrolü onu herkese geçirirdi ve
+    "kazanılan" ürün tek tıkla satın alınabilirdi.
+  */
+  if (urun.kilit) return false
+
   if (mevcut.veri.kullanici.jetonBakiyesi < urun.fiyat) return false
 
   // Yürürlükteki bir ürün ikinci kez ücretlendirilmez. Arayüz bunu zaten
@@ -229,31 +304,69 @@ export function urunSatinAl(urun: Urun): boolean {
   const sahip = mevcut.veri.kullanici.envanter.find((e) => e.urunId === urun.id)
   if (sahip && !suresiDoldu(urun, sahip)) return false
 
-  guncelle((onceki) => ({
-    ...onceki,
-    kullanici: {
-      ...onceki.kullanici,
-      envanter: [
+  guncelle((onceki) => {
+    const zaman = new Date().toISOString()
+
+    /*
+      Yeni satın alınan ürün açık gelir ve aynı türdeki kardeşlerini
+      kapatır. Önceden iki çerçeve birden açık kalabiliyordu; cüzdan
+      ikisini de yeşil "Açık" gösteriyor ama ekranda yalnızca biri
+      görünüyordu.
+    */
+    const envanter = tekSlotUygula(
+      [
         ...onceki.kullanici.envanter.filter((s) => s.urunId !== urun.id),
-        { urunId: urun.id, satinAlmaZamani: new Date().toISOString(), aktif: true },
+        { urunId: urun.id, satinAlmaZamani: zaman, aktif: true },
       ],
-    },
-    hareketler: [yeniHareket(`${urun.ad} alındı`, -urun.fiyat), ...onceki.hareketler],
-  }))
+      onceki.magaza,
+      urun.id
+    )
+
+    // Bu alım bir koleksiyonu tamamlamış olabilir; ödül burada, envanter
+    // son hâlini aldıktan SONRA hesaplanır.
+    const odul = koleksiyonOdulleri(envanter, onceki.magaza, zaman)
+
+    return {
+      ...onceki,
+      kullanici: { ...onceki.kullanici, envanter: odul.envanter },
+      // Defter en yeniden eskiye. Ödül alımdan sonra geldiği için başta.
+      hareketler: [
+        ...odul.kayitlar,
+        yeniHareket(`${urun.ad} alındı`, -urun.fiyat, zaman),
+        ...onceki.hareketler,
+      ],
+    }
+  })
 
   return true
 }
 
+/**
+ * Ürünü kuşan / çıkar.
+ *
+ * Kapatmak düz bir çevirme. AÇMAK ise aynı türdeki diğerlerini kapatır:
+ * bir seferde bir çerçeve, bir rozet, bir tema takılabilir. `islev` ürünleri
+ * bu kuralın dışında (bkz. TEK_SLOT).
+ */
 export function urunAcKapa(urunId: string) {
-  guncelle((onceki) => ({
-    ...onceki,
-    kullanici: {
-      ...onceki.kullanici,
-      envanter: onceki.kullanici.envanter.map((s) =>
-        s.urunId === urunId ? { ...s, aktif: !s.aktif } : s
-      ),
-    },
-  }))
+  guncelle((onceki) => {
+    const suAn = onceki.kullanici.envanter.find((s) => s.urunId === urunId)
+    const acilacak = suAn ? !suAn.aktif : false
+
+    const cevrilmis = onceki.kullanici.envanter.map((s) =>
+      s.urunId === urunId ? { ...s, aktif: !s.aktif } : s
+    )
+
+    return {
+      ...onceki,
+      kullanici: {
+        ...onceki.kullanici,
+        envanter: acilacak
+          ? tekSlotUygula(cevrilmis, onceki.magaza, urunId)
+          : cevrilmis,
+      },
+    }
+  })
 }
 
 export function itirazEt(gonderiId: string) {

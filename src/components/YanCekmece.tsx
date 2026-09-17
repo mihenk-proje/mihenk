@@ -5,6 +5,7 @@ import {
   Bell,
   Bookmark,
   Compass,
+  Download,
   HelpCircle,
   LogOut,
   MessageSquarePlus,
@@ -15,6 +16,8 @@ import {
   Sun,
 } from "lucide-react"
 import { useKatman } from "@/lib/a11y/katman"
+import { useKurulum } from "@/lib/kurulum"
+import { CERCEVE_SINIFLARI, aktifEfekt } from "@/lib/store/efektler"
 import { useStore } from "@/lib/store/kanca"
 import { Avatar } from "./Avatar"
 
@@ -35,10 +38,12 @@ import { Avatar } from "./Avatar"
 export function YanCekmece({
   onKapat,
   onTanitim,
+  onBildirimler,
   onKapsamDisi,
 }: {
   onKapat: () => void
   onTanitim: () => void
+  onBildirimler: () => void
   onKapsamDisi: (ad: string) => void
 }) {
   const katmanRef = useKatman<HTMLElement>(onKapat)
@@ -47,12 +52,17 @@ export function YanCekmece({
   const koyu = resolvedTheme !== 'light'
 
   const k = state.kullanici
+  const cerceve = aktifEfekt(state, 'cerceve')
+  const { kurulabilir, kur } = useKurulum()
 
   const satir =
     'w-full flex items-center gap-4 h-12 px-5 text-[15px] font-medium text-primary hover:bg-primary/5 transition-colors'
 
+  /*
+    Kapsam dışı bölümler. "Bildirimler" bu listeden ÇIKTI: artık gerçek bir
+    ekranı var (Bildirimler.tsx) ve kapsam dışı notu basmıyor.
+  */
   const BOLUMLER = [
-    { ad: 'Bildirimler', Simge: Bell },
     { ad: 'Keşfet', Simge: Compass },
     { ad: 'Topluluklar', Simge: Star },
     { ad: 'Kaydedilenler', Simge: Bookmark },
@@ -76,12 +86,19 @@ export function YanCekmece({
         className="nsosyal-cekmece relative w-[85%] max-w-sm h-full flex flex-col overflow-y-auto mihenk-soldan shadow-2xl"
       >
         <div className="px-5 pt-6 pb-5">
+          {/*
+          Kuşanılmış çerçeve burada da görünür. Kozmetikler bugüne kadar TEK
+          bir yüzeyde görünüyordu: akıştaki kendi gönderi başlıkların. 800
+          jetonluk bir çerçeve alan kullanıcı, onu görmek için akışı kendi
+          gönderisine kadar kaydırmak zorundaydı.
+        */}
           <Avatar
             id={k.id}
             harfler={k.avatarHarfleri}
             ad={k.adSoyad}
             ton={k.avatarTonu}
             boyut="md"
+            cerceveSinifi={cerceve ? (CERCEVE_SINIFLARI[cerceve.efekt.deger] ?? '') : ''}
           />
           <p className="font-bold text-lg text-primary mt-3">{k.adSoyad}</p>
           <p className="text-secondary text-sm">@{k.kullaniciAdi}</p>
@@ -93,6 +110,12 @@ export function YanCekmece({
         </div>
 
         <div className="flex flex-col py-2">
+          {/* Çalışan bölüm, kapsam dışı olanların üstünde — sıra değişmedi. */}
+          <button type="button" className={satir} onClick={() => { onKapat(); onBildirimler() }}>
+            <Bell size={20} className="text-secondary shrink-0" aria-hidden="true" />
+            Bildirimler
+          </button>
+
           {BOLUMLER.map(({ ad, Simge }) => (
             <button key={ad} type="button" className={satir} onClick={() => { onKapat(); onKapsamDisi(ad) }}>
               <Simge size={20} className="text-secondary shrink-0" aria-hidden="true" />
@@ -104,6 +127,18 @@ export function YanCekmece({
         <div className="h-px bg-primary/10 mx-5" aria-hidden="true" />
 
         <div className="flex flex-col py-2">
+          {/*
+            Kurulum yalnızca tarayıcı ölçütleri sağladığında görünür. Safari
+            bu olayı hiç göndermiyor; orada öğe çıkmaz — çalışmayan bir düğme
+            göstermektense hiç göstermemek doğru.
+          */}
+          {kurulabilir && (
+            <button type="button" className={satir} onClick={() => { onKapat(); kur() }}>
+              <Download size={20} className="text-secondary shrink-0" aria-hidden="true" />
+              Uygulamayı yükle
+            </button>
+          )}
+
           <button type="button" className={satir} onClick={() => { onKapat(); onTanitim() }}>
             <HelpCircle size={20} className="text-secondary shrink-0" aria-hidden="true" />
             Tanıtım turu

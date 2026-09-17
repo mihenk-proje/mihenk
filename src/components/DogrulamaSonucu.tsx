@@ -71,7 +71,17 @@ export function DogrulamaSonucu({ sonuc, onClose }: { sonuc: Sonuc; onClose: () 
           : 'Bu gönderi jeton kazanmadı'
 
   return (
-    <div data-yuzey="mihenk" className="yuzey-mihenk fixed bottom-0 left-0 right-0 z-50 p-4 sm:p-6 pointer-events-none flex justify-center">
+    /*
+      Bildirim alt gezintinin ÜSTÜNDE durur, üzerinde değil. bottom-0 iken
+      gezintiyi örtüyordu: kullanıcı doğrulama sonucunu okurken sekme
+      değiştiremiyordu ve klavye denetimi bunu yakaladı. KapsamNotu aynı
+      hesabı zaten kullanıyor.
+    */
+    <div
+      data-yuzey="mihenk"
+      className="yuzey-mihenk fixed left-0 right-0 z-50 px-4 pointer-events-none flex justify-center"
+      style={{ bottom: 'calc(4.5rem + env(safe-area-inset-bottom))' }}
+    >
       <div
         className="bg-card w-full max-w-lg rounded-2xl border border-line-strong shadow-2xl pointer-events-auto overflow-hidden mihenk-alttan"
         role="status"

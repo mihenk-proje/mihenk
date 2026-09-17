@@ -14,16 +14,28 @@ import { NSimgesi } from "./NSimgesi"
  * zemin üzerinde ikincil metin 4,31'e düşüyordu (globals.css'te kayıtlı);
  * aynı hatanın yeni kromada tekrarlanmaması için saydamlık kullanılmıyor.
  *
- * Bildirim düğmesi sayaç rozeti taşımıyor: gerçek bir bildirim kuyruğu yok ve
- * uydurma bir sayı, ölçülebilirlik iddiası taşıyan bir prototipte ekranda
- * duran tek doğrulanamaz veri olurdu.
+ * Bildirim düğmesi artık sayaç rozeti taşıyor. Eskiden taşımıyordu çünkü
+ * gerçek bir bildirim kuyruğu yoktu ve uydurma bir sayı, ölçülebilirlik
+ * iddiası taşıyan bir prototipte ekrandaki tek doğrulanamaz veri olurdu.
+ * Sayı artık uydurma değil: durumdan türetiliyor (Bildirimler.tsx) ve
+ * ekranı açınca sıfırlanıyor.
+ *
+ * Rozet EV SAHİBİ kromasında (host mavisi). Sayaç MİHENK'in ürettiği bir
+ * değer değil, NSosyal'ın gezinti göstergesi; pirinç yalnızca jeton
+ * tutarlarında kullanılır.
+ *
+ * Görünen sayı aria-hidden: erişilebilir ad zaten "Bildirimler, N okunmamış"
+ * diyor ve görünen metin adın içinde birebir geçiyor (WCAG 2.5.3).
  */
 export function TopBar({
   onMenu,
-  onKapsamDisi,
+  onBildirimler,
+  okunmamis,
 }: {
   onMenu: () => void
-  onKapsamDisi: (ad: string) => void
+  onBildirimler: () => void
+  /** Son ziyaretten beri gerçekleşen bildirim sayısı; 0 ise rozet çizilmez. */
+  okunmamis: number
 }) {
   return (
     <header className="sticky top-0 z-30 bg-card border-b border-line">
@@ -41,11 +53,21 @@ export function TopBar({
 
         <button
           type="button"
-          onClick={() => onKapsamDisi('Bildirimler')}
-          className="w-11 h-11 flex items-center justify-center rounded-full hover:bg-page transition-colors text-primary"
-          aria-label="Bildirimler"
+          onClick={onBildirimler}
+          className="w-11 h-11 flex items-center justify-center rounded-full hover:bg-page transition-colors text-primary relative"
+          aria-label={
+            okunmamis > 0 ? `Bildirimler, ${okunmamis} okunmamış` : 'Bildirimler'
+          }
         >
           <Bell size={22} aria-hidden="true" />
+          {okunmamis > 0 && (
+            <span
+              className="absolute top-1.5 right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-brand text-brand-ink text-[11px] font-mono font-bold leading-[18px] text-center"
+              aria-hidden="true"
+            >
+              {okunmamis}
+            </span>
+          )}
         </button>
       </div>
     </header>

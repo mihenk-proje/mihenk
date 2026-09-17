@@ -3,6 +3,7 @@
 import { Compass, Home, ShoppingBag, User, Wallet } from "lucide-react"
 import { useStore } from "@/lib/store/kanca"
 import { MihenkSimgesi } from "./MihenkSimgesi"
+import type { Gorunum } from "@/lib/store/types"
 
 /**
  * NSosyal alt gezinti çubuğu.
@@ -29,12 +30,14 @@ export function AltGezinti({
   onAkis,
   onCuzdan,
   onMagaza,
+  onProfil,
   onKapsamDisi,
 }: {
-  gorunum: 'akis' | 'cuzdan' | 'magaza'
+  gorunum: Gorunum
   onAkis: () => void
   onCuzdan: () => void
   onMagaza: () => void
+  onProfil: () => void
   onKapsamDisi: (ad: string) => void
 }) {
   const { state } = useStore()
@@ -48,7 +51,7 @@ export function AltGezinti({
       id="alt-gezinti"
       tabIndex={-1}
       aria-label="Ana gezinti"
-      className="fixed bottom-0 left-0 right-0 z-30 bg-card border-t border-line pb-[env(safe-area-inset-bottom)]"
+      className="fixed bottom-0 left-0 right-0 z-[45] bg-card border-t border-line pb-[env(safe-area-inset-bottom)]"
     >
       <div className="mx-auto w-full max-w-lg h-14 flex items-stretch">
         <button
@@ -118,8 +121,9 @@ export function AltGezinti({
 
         <button
           type="button"
-          onClick={() => onKapsamDisi('Profil')}
-          className={`${temel} text-secondary`}
+          onClick={onProfil}
+          aria-current={gorunum === 'profil' ? 'page' : undefined}
+          className={`${temel} ${gorunum === 'profil' ? 'text-brand' : 'text-secondary'}`}
         >
           <User size={22} aria-hidden="true" />
           <span className="text-[10px] font-medium leading-none">Profil</span>

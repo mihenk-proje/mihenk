@@ -1,7 +1,12 @@
 /** Depo katmanının bütünleşim testleri: bakiye tutarlılığı, tavan, süre dolumu. */
 import * as depo from '@/lib/store/depo'
-import { varsayilanDurum } from '@/lib/store/demoData'
-import { suresiDoldu, yururluktekiUrunler } from '@/lib/store/efektler'
+import { KOLEKSIYONLAR, varsayilanDurum } from '@/lib/store/demoData'
+import {
+  aktifEfekt,
+  koleksiyonDurumu,
+  suresiDoldu,
+  yururluktekiUrunler,
+} from '@/lib/store/efektler'
 
 export async function calistir() {
   let gecti = 0
@@ -105,6 +110,32 @@ export async function calistir() {
   kontrol('yetersiz bakiyede alım reddedilir', depo.urunSatinAl(altin) === false)
   kontrol('reddedilen alım bakiyeyi bozmaz', d().kullanici.jetonBakiyesi === alimSonrasi)
 
+  console.log('\n— Aynı türden tek slot —')
+  /*
+    u1 (Pirinç Çerçeve, cerceve) demo açılışında takılı geliyor. u2c
+    (Tunç Kenar) de bir cerceve. İkincisi alınınca birincisi kapanmalı.
+
+    Önceden ikisi de açık kalıyor, cüzdan ikisini de yeşil "Açık" gösteriyor
+    ama ekranda yalnızca dizideki SONUNCU görünüyordu — yani satın alma
+    sırası kazanıyordu, fiyat değil.
+  */
+  const tuncKenar = d().magaza.find((u) => u.id === 'u2c')
+  kontrol('ikinci çerçeve alındı', depo.urunSatinAl(tuncKenar) === true)
+  kontrol('önceki çerçeve kendiliğinden kapandı',
+    d().kullanici.envanter.find((s) => s.urunId === 'u1').aktif === false)
+  kontrol('yeni çerçeve açık', d().kullanici.envanter.find((s) => s.urunId === 'u2c').aktif === true)
+  kontrol('yürürlükte tek çerçeve var',
+    yururluktekiUrunler(d()).filter((u) => u.efekt.tur === 'cerceve').length === 1)
+  kontrol('farklı tür etkilenmedi — ad rengi hâlâ açık',
+    d().kullanici.envanter.find((s) => s.urunId === 'u2').aktif === true)
+  kontrol('aktifEfekt yeni çerçeveyi veriyor', aktifEfekt(d(), 'cerceve')?.id === 'u2c')
+
+  // Eski çerçeveyi elle açmak yenisini kapatmalı — kural iki yönde de işler
+  depo.urunAcKapa('u1')
+  kontrol('elle açınca diğeri kapandı',
+    d().kullanici.envanter.find((s) => s.urunId === 'u2c').aktif === false)
+  depo.urunAcKapa('u2c')
+
   console.log('\n— Ürün aç/kapa —')
   depo.urunAcKapa('u2')
   kontrol('kapatıldı', d().kullanici.envanter.find((s) => s.urunId === 'u2').aktif === false)
@@ -120,6 +151,77 @@ export async function calistir() {
   }
   kontrol('iki gün önceki 24 saatlik ürün dolmuş', suresiDoldu(urun, eski) === true)
   kontrol('kalıcı ürün hiç dolmaz', suresiDoldu(altin, eski) === false)
+
+  /*
+    Koleksiyon bölümü süre dolumundan SONRA duruyor: u12 (Tunç Ad) ile u2
+    (Mika Ad) aynı türden, u12 alınınca tek slot kuralı u2'yi kapatır ve
+    yukarıdaki "yürürlükte" ölçümü anlamını yitirirdi.
+  */
+  console.log('\n— Koleksiyon ödülü —')
+  /*
+    Tunç Seti = u2c + u11 + u12, ödülü u15 (Tunç Mührü).
+
+    Ölçüt SAHİPLİK, kuşanmışlık değil: üç üye de 24 saatlik ürün, "üçü de o
+    an açık" koşulu ilk üyenin süresi dolduğu için hiçbir zaman sağlanamazdı.
+    u2c yukarıdaki tek slot bölümünde zaten alındı; burada kalan ikisi alınıp
+    ödülün üçüncü alımda düştüğü doğrulanır.
+  */
+  const tuncSeti = KOLEKSIYONLAR.find((k) => k.id === 'tunc-seti')
+  const odulUrunu = d().magaza.find((u) => u.id === tuncSeti.odulUrunId)
+
+  kontrol('ödül ürünü katalogda ve kilitli', odulUrunu?.kilit === 'koleksiyon')
+  kontrol('ödül doğrudan satın alınamaz', depo.urunSatinAl(odulUrunu) === false)
+  kontrol(
+    'reddedilen kilitli alım envantere de deftere de dokunmadı',
+    d().kullanici.envanter.some((s) => s.urunId === 'u15') === false &&
+      d().hareketler.some((h) => h.aciklama.includes('Tunç Mührü alındı')) === false
+  )
+
+  const tuncSerit = d().magaza.find((u) => u.id === 'u11')
+  kontrol('ikinci set üyesi alındı', depo.urunSatinAl(tuncSerit) === true)
+  kontrol(
+    'set eksikken ödül verilmez',
+    d().kullanici.envanter.some((s) => s.urunId === 'u15') === false
+  )
+  kontrol(
+    'eksik sette ilerleme 3 üzerinden 2',
+    koleksiyonDurumu(d(), tuncSeti).sahipSayisi === 2 &&
+      koleksiyonDurumu(d(), tuncSeti).tamam === false,
+    `→ ${koleksiyonDurumu(d(), tuncSeti).sahipSayisi}/3`
+  )
+
+  const tuncAd = d().magaza.find((u) => u.id === 'u12')
+  const setOncesiBakiye = d().kullanici.jetonBakiyesi
+  kontrol('üçüncü set üyesi alındı', depo.urunSatinAl(tuncAd) === true)
+  kontrol('set tamamlanınca ödül envantere düştü', d().kullanici.envanter.some((s) => s.urunId === 'u15'))
+  kontrol('koleksiyon tamam olarak okunuyor', koleksiyonDurumu(d(), tuncSeti).tamam === true)
+  kontrol(
+    'ödül 0 jetonluk defter kaydıyla duyuruldu',
+    d().hareketler.some((h) => h.miktar === 0 && h.aciklama.includes('Tunç Seti tamamlandı')),
+    `→ ${d().hareketler[0]?.aciklama}`
+  )
+  kontrol(
+    'ödül bedelsiz — bakiyeden yalnızca üçüncü üyenin fiyatı düştü',
+    d().kullanici.jetonBakiyesi === setOncesiBakiye - tuncAd.fiyat,
+    `→ ${setOncesiBakiye} - ${tuncAd.fiyat} = ${d().kullanici.jetonBakiyesi}`
+  )
+  kontrol('bakiye ödülden sonra da defterle tutarlı', d().kullanici.jetonBakiyesi === defterToplami())
+
+  // Ödül kazanıldıktan sonra da satın alınamaz: kilit sahipliğe bağlı değil
+  kontrol('kazanılmış ödül yine satın alınamaz', depo.urunSatinAl(odulUrunu) === false)
+
+  /*
+    İkinci kez verilmez. Sonraki her alım koleksiyonları yeniden tarıyor;
+    kontrol ödülün envanterde OLMASINA bakıyor, o alıma değil.
+  */
+  const odulSatirlari = () => d().kullanici.envanter.filter((s) => s.urunId === 'u15').length
+  const odulKayitlari = () =>
+    d().hareketler.filter((h) => h.aciklama.includes('Tunç Seti tamamlandı')).length
+  const oncekiSatir = odulSatirlari()
+  const oncekiKayit = odulKayitlari()
+  kontrol('set tamamken başka bir ürün alındı', depo.urunSatinAl(d().magaza.find((u) => u.id === 'u10')) === true)
+  kontrol('ödül ikinci kez envantere eklenmedi', odulSatirlari() === oncekiSatir, `→ ${odulSatirlari()}`)
+  kontrol('ödül ikinci kez deftere yazılmadı', odulKayitlari() === oncekiKayit, `→ ${odulKayitlari()}`)
 
   console.log('\n— Doğrulama ve günlük tavan —')
 

@@ -1,10 +1,24 @@
-export type EfektTuru = 'cerceve' | 'adRengi' | 'rozet' | 'tema' | 'islev'
+/**
+ * Uygulamanın hangi tam ekran görünümünde olduğu.
+ *
+ * page.tsx ile AltGezinti bu birleşimi elle iki kez yazıyordu; eşitlemeyi
+ * unutmak sessiz bir hata kaynağıydı. Tek kaynak burası.
+ */
+export type Gorunum = 'akis' | 'cuzdan' | 'magaza' | 'profil' | 'bildirimler'
+
+export type EfektTuru = 'cerceve' | 'adRengi' | 'rozet' | 'tema' | 'kenarlik' | 'islev'
 
 export type Urun = {
   id: string
   ad: string
   aciklama: string
   kategori: 'sureli' | 'sezonluk' | 'kalici' | 'islevsel'
+  /**
+   * Satın alınamayan ürün. Yalnızca bir koleksiyon tamamlanınca verilir.
+   * İsteğe bağlı olduğu için geriye uyumlu: kayıtlı durum şeması değişmiyor,
+   * DEPO_ANAHTARI v3 kalıyor.
+   */
+  kilit?: 'koleksiyon'
   fiyat: number
   /** null = kalıcı ürün */
   sureGun: number | null

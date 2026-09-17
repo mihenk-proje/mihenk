@@ -5,8 +5,10 @@ import { useStore } from "@/lib/store/kanca"
 import {
   AD_RENGI_SINIFLARI,
   CERCEVE_SINIFLARI,
+  KENARLIK_SINIFLARI,
   ROZET_SIMGELERI,
   aktifEfekt,
+  islevAcikMi,
   yazarEfekti,
 } from "@/lib/store/efektler"
 import type { Gonderi } from "@/lib/store/types"
@@ -41,6 +43,9 @@ export function GonderiKarti({ gonderi }: { gonderi: Gonderi }) {
   const rozet = benimMi
     ? aktifEfekt(state, 'rozet')
     : yazarEfekti(state.magaza, yazar?.kozmetikler, 'rozet')
+  const kenarlik = benimMi
+    ? aktifEfekt(state, 'kenarlik')
+    : yazarEfekti(state.magaza, yazar?.kozmetikler, 'kenarlik')
   const rozetGorunum = rozet ? ROZET_SIMGELERI[rozet.efekt.deger] : undefined
 
   const dogrulandi = gonderi.dogrulamaDurumu === 'gecti' || gonderi.dogrulamaDurumu === 'kismi'
@@ -60,6 +65,31 @@ export function GonderiKarti({ gonderi }: { gonderi: Gonderi }) {
   // Akışta gerekçenin ilk satırı gösterilir; tamamı doğrulama panelinde
   const anaGerekce = gonderi.gerekce[0]
 
+  /*
+    Mika Merceği (u17) — işlevsel ayrıcalık.
+
+    Normalde akışta gerekçenin yalnızca İLK satırı, o da yalnızca kopya ve
+    jeton kazanmayan gönderilerde görünüyor. Bu ürün, kendi gönderilerinde
+    gerekçenin TAMAMINI ve skor bandını açıyor.
+
+    Gösterdiği her alan `Gonderi` üzerinde zaten kayıtlı; src/lib/verification/
+    hiç çağrılmıyor, doğrulama mantığı el değmeden duruyor.
+
+    <details> KULLANILMIYOR: <summary> odaklanabilir, gönderi başına bir sekme
+    durağı eklerdi ve akışın sekme bütçesi zaten dar.
+  */
+  const ayrintiliRapor =
+    benimMi && islevAcikMi(state, 'ayrintili_rapor') && gonderi.dogrulamaDurumu !== 'bekliyor'
+
+  const skorBandi =
+    gonderi.dogrulamaSkoru === null || gonderi.dogrulamaSkoru === undefined
+      ? null
+      : gonderi.dogrulamaSkoru >= 60
+        ? 'Doğrulandı bandı (≥ 60)'
+        : gonderi.dogrulamaSkoru >= 40
+          ? 'Kısmi band (40–59)'
+          : 'Kazanmadı bandı (< 40)'
+
   const mihenkRozetiVar =
     dogrulandi || kopya || gecemedi || gonderi.dogrulamaDurumu === 'bekliyor' ||
     (benimMi && gonderi.itirazDurumu === 'incelemede') ||
@@ -74,7 +104,9 @@ export function GonderiKarti({ gonderi }: { gonderi: Gonderi }) {
         "Kaynak gönderiyi gör" çapası başlığın altına düşer ve kopya anlatısı
         demo ortasında kırılır.
       */
-      className="bg-card px-4 py-3 scroll-mt-28"
+      className={`bg-card px-4 py-3 scroll-mt-28 ${
+        kenarlik ? (KENARLIK_SINIFLARI[kenarlik.efekt.deger] ?? '') : ''
+      }`}
     >
       <div className="flex gap-3">
         {/*
@@ -104,7 +136,16 @@ export function GonderiKarti({ gonderi }: { gonderi: Gonderi }) {
                 {adSoyad}
               </span>
               {rozetGorunum && (
-                <span className={rozetGorunum.sinif} title={rozetGorunum.etiket} aria-label={rozetGorunum.etiket}>
+                <span
+                  /*
+                    Bazı rozetler hareket taşır (koleksiyon ödülleri). Hareketi
+                    azaltma tercihi globals.css'teki genel blokta zaten
+                    kesiliyor; burada ayrıca kontrol gerekmiyor.
+                  */
+                  className={`${rozetGorunum.sinif} ${rozetGorunum.hareket ?? ''}`}
+                  title={rozetGorunum.etiket}
+                  aria-label={rozetGorunum.etiket}
+                >
                   {rozetGorunum.simge}
                 </span>
               )}
@@ -219,24 +260,65 @@ export function GonderiKarti({ gonderi }: { gonderi: Gonderi }) {
             kullanıcıyı suçlamayan bir dille burada yazılır. Gerekçe MİHENK'in
             kararıdır, ev sahibinin değil — bu yüzden MİHENK yüzeyinde durur.
           */}
-          {(kopya || gecemedi) && anaGerekce && (
-            <Yuzey tur="mihenk" className="mt-3">
-              <p className="text-secondary text-[13px] pl-3 border-l-2 border-brand/60">
-                {anaGerekce}
-                {kopya && kaynakGonderi && (
-                  <>
-                    {' '}
-                    <a
-                      href={`#gonderi-${kaynakGonderi.id}`}
-                      className="text-interaction underline underline-offset-2 hover:text-primary"
-                    >
-                      Kaynak gönderiyi gör
-                      {kaynakYazar ? ` (@${kaynakYazar})` : ''}
-                    </a>
-                  </>
-                )}
+          {ayrintiliRapor ? (
+            <Yuzey
+              tur="mihenk"
+              className="mt-3 rounded-xl border border-brand/30 bg-brand/5 p-3"
+            >
+              <p className="text-[11px] font-mono text-brand mb-2">
+                Mika Merceği · ayrıntılı rapor
               </p>
+
+              <p className="text-[13px] text-primary mb-2">
+                MİHENK skoru{' '}
+                <span className="font-mono font-bold">{gonderi.dogrulamaSkoru ?? '—'}</span>
+                {skorBandi && <span className="text-secondary"> · {skorBandi}</span>}
+              </p>
+
+              {gonderi.gerekce.length > 0 ? (
+                <ul className="text-[13px] text-secondary flex flex-col gap-1">
+                  {gonderi.gerekce.map((satir, i) => (
+                    <li key={`${gonderi.id}-gerekce-${i}`} className="pl-3 border-l-2 border-brand/50">
+                      {satir}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-[13px] text-secondary pl-3 border-l-2 border-brand/50">
+                  Bu gönderi için kayda değer bir uyarı üretilmedi.
+                </p>
+              )}
+
+              {kopya && kaynakGonderi && (
+                <a
+                  href={`#gonderi-${kaynakGonderi.id}`}
+                  className="inline-block mt-2 text-[13px] text-interaction underline underline-offset-2 hover:text-primary"
+                >
+                  Kaynak gönderiyi gör
+                  {kaynakYazar ? ` (@${kaynakYazar})` : ''}
+                </a>
+              )}
             </Yuzey>
+          ) : (
+            (kopya || gecemedi) && anaGerekce && (
+              <Yuzey tur="mihenk" className="mt-3">
+                <p className="text-secondary text-[13px] pl-3 border-l-2 border-brand/60">
+                  {anaGerekce}
+                  {kopya && kaynakGonderi && (
+                    <>
+                      {' '}
+                      <a
+                        href={`#gonderi-${kaynakGonderi.id}`}
+                        className="text-interaction underline underline-offset-2 hover:text-primary"
+                      >
+                        Kaynak gönderiyi gör
+                        {kaynakYazar ? ` (@${kaynakYazar})` : ''}
+                      </a>
+                    </>
+                  )}
+                </p>
+              </Yuzey>
+            )
           )}
 
           {gonderi.gorselUrl && (

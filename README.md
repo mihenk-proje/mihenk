@@ -103,7 +103,7 @@ npm run dev     # http://localhost:3000
 | `npm run build` | Üretim derlemesi |
 | `npm start` | Üretim sunucusu |
 | `npm run lint` | ESLint denetimi |
-| `npm test` | Doğrulama ve depo testleri (76 test) |
+| `npm test` | Doğrulama ve depo testleri (99 test) |
 
 Ortam değişkeni gerekmez; uygulama tamamen istemci tarafında çalışır ve arka uç bağlantısı yoktur.
 
@@ -122,11 +122,13 @@ Ortam değişkeni gerekmez; uygulama tamamen istemci tarafında çalışır ve a
 src/
 ├── app/                     Next.js App Router girişi
 │   ├── layout.tsx           Kök düzen, yazı tipleri, üst veri
+│   ├── manifest.ts          Web uygulama bildirimi (telefona kurulum)
 │   ├── page.tsx             Tek sayfa: giriş kapısı, akış ve ekran geçişleri
 │   ├── providers.tsx        Tema ve depo sağlayıcıları
 │   └── globals.css          Yüzey jetonları (ev sahibi / MİHENK), tema, animasyonlar
 ├── components/              Arayüz bileşenleri
 │   ├── Yuzey.tsx            Yüzey sınırı: ev sahibi (NSosyal) ↔ MİHENK
+│   ├── KatmanEkran.tsx      Tam ekran katmanların ortak kabuğu
 │   ├── Giris.tsx            Demo giriş kapısı
 │   │
 │   │                        — Ev sahibi kroması (NSosyal) —
@@ -147,14 +149,20 @@ src/
 │   ├── DogrulamaSonucu.tsx  Doğrulama sonucu paneli ve mihenk çizgisi
 │   ├── Itiraz.tsx           Üç adımlı itiraz akışı
 │   ├── Cuzdan.tsx           Bakiye, günlük sınır, envanter, hareket defteri
+│   ├── Profil.tsx           Kapak, kuşanılmış kozmetikler, envanter, kendi gönderileri
+│   ├── Bildirimler.tsx      Kazanç, doğrulama ve süre bitimi bildirimleri
+│   ├── KimlikOnizleme.tsx   Avatar + ad + rozet bileşimi (profil ve mağaza önizlemesi)
+│   ├── KozmetikGorseli.tsx  Kozmetiğin ne olduğunu gösteren görsel
 │   ├── Magaza.tsx           Ürün listesi ve satın alma öncesi önizleme
 │   ├── Tanitim.tsx          İlk giriş tanıtım turu
 │   │
 │   ├── Modal.tsx            Erişilebilir kalıcı pencere (Escape, odak tuzağı)
 │   ├── MihenkSimgesi.tsx    MİHENK monogramı
+│   ├── ServisCalisani.tsx   Servis çalışanı kaydı (kurulabilirlik)
 │   └── Avatar.tsx           Baş harflerden avatar üretimi
 └── lib/
     ├── bicim.ts             Akıştaki sayı ve zaman biçimleri
+    ├── kurulum.ts           beforeinstallprompt yakalama kancası
     ├── store/               Durum katmanı
     │   ├── types.ts         Veri modeli tanımları
     │   ├── demoData.ts      Demo gönderiler, yazarlar ve mağaza kataloğu
@@ -325,17 +333,17 @@ beklediği `localStorage` ve `window` API'lerini taklit eder.
 
 | Dosya | Kapsam | Test |
 |---|---|---|
-| `test/dogrulama.test.mjs` | Türkçe normalleştirme, n-gram + Jaccard, metin niteliği, anket çeşitliliği, Hamming mesafesi, doğrulama zinciri, yeni hesap koruması | 34 |
-| `test/depo.test.mjs` | Hidrasyon, bakiye–hareket defteri tutarlılığı, satın alma, süre dolumu, günlük tavan, akış içinde kopya tespiti, itiraz, demo sıfırlama, kopya eşiği ve benzerlik uyarı bandı | 42 |
+| `test/dogrulama.test.mjs` | Türkçe normalleştirme, n-gram + Jaccard, metin niteliği, anket çeşitliliği, Hamming mesafesi, doğrulama zinciri, yeni hesap koruması | 42 |
+| `test/depo.test.mjs` | Hidrasyon, bakiye–hareket defteri tutarlılığı, satın alma, tür başına tek slot, süre dolumu, günlük tavan, akış içinde kopya tespiti, itiraz, koleksiyon ödülü, demo sıfırlama, kopya eşiği ve benzerlik uyarı bandı | 57 |
 
 Tarayıcı sürerek çalışan iki erişilebilirlik denetimi ayrıca bulunur. Bunlar `puppeteer-core`
 gerektirdiği için `npm test` dışında tutulmuştur; birim testleri bağımlılıksız kalsın diye.
 
 ```bash
 npm i --no-save puppeteer-core
-node test/tarayici/klavye.mjs          # klavyeyle uçtan uca gezinme (30 kontrol)
+node test/tarayici/klavye.mjs          # klavyeyle uçtan uca gezinme (31 kontrol)
 node test/tarayici/hareket.mjs         # hareketi azaltma tercihi (8 kontrol)
-node test/tarayici/erisilebilirlik.mjs # axe-core, 28 ekran (axe-core da gerekir)
+node test/tarayici/erisilebilirlik.mjs # axe-core, 36 ekran (axe-core da gerekir)
 ```
 
 Günlük tavan testi altı gönderiyi (6 × 10 = 60 jeton) tam 50'ye kırpar ve her adımda bakiyenin
@@ -347,7 +355,7 @@ Denetim iki ayrı araçla ve yeniden üretilebilir biçimde yapılır. Uygulaman
 giriş kapısının arkasında ve tam ekran katman olarak açıldığı için tek sayfa denetimi yeterli
 değildir; ekranlara Chrome sürülerek tek tek gidilir.
 
-**axe-core — 28 ekran, sıfır ihlal.** Yedi ekran × iki tema × iki genişlik (390px / 1280px),
+**axe-core — 36 ekran, sıfır ihlal.** Dokuz ekran × iki tema × iki genişlik (390px / 1280px),
 kapsam `wcag2a` + `wcag2aa` + `wcag21a` + `wcag21aa`:
 
 ```bash
@@ -365,21 +373,28 @@ node test/tarayici/erisilebilirlik.mjs
 | Cüzdan | temiz | temiz | temiz | temiz |
 | Mağaza | temiz | temiz | temiz | temiz |
 | Ürün önizleme | temiz | temiz | temiz | temiz |
+| Profil | temiz | temiz | temiz | temiz |
+| Bildirimler | temiz | temiz | temiz | temiz |
 
-**Lighthouse.** Yerelde üretim derlemesi üzerinde (`npm run build && npm start`), Lighthouse 11
-masaüstü ve mobil ön ayarlarıyla:
+**Lighthouse 11.** Hem yayındaki adreste hem de yerel üretim derlemesinde
+(`npm run build && npm start`):
 
-| Kategori | Masaüstü | Mobil |
-|---|---|---|
-| Erişilebilirlik | **100** | **100** |
-| En İyi Uygulamalar | **100** | **100** |
-| SEO | **100** | **100** |
-| Performans | **99** | 88 |
+| Kategori | Canlı — masaüstü | Canlı — mobil | Yerel — masaüstü | Yerel — mobil |
+|---|---|---|---|---|
+| Erişilebilirlik | **100** | **100** | **100** | **100** |
+| En İyi Uygulamalar | **100** | **100** | **100** | **100** |
+| SEO | **100** | **100** | **100** | **100** |
+| Performans | **100** | **99** | 99 | 86 |
 
-İlk içerikli boyama 0,2 s (masaüstü) / 0,8 s, düzen kayması sıfır, toplam engelleme süresi 0 ms.
-Mobil performans değeri Lighthouse'un Lantern simülasyonundan gelir; kısıtlama gerçekten
-uygulandığında (`--throttling-method=devtools`) **95** ve en büyük içerikli boyama ilk içerikli
-boyamayla aynı ana düşer.
+Düzen kayması her ölçümde sıfır, toplam engelleme süresi masaüstünde 0 ms.
+
+Yereldeki mobil değerinin düşük görünmesinin sebebi uygulamada değil ölçüm
+yöntemindedir: Lighthouse'un öntanımlı Lantern simülasyonu localhost'un sıfıra
+yakın ağ gecikmesini modeline oturtamıyor ve en büyük içerikli boyamayı
+olduğundan geç tahmin ediyor. Kısıtlama gerçekten uygulandığında
+(`--throttling-method=devtools`) yerel mobil değeri **95** oluyor ve en büyük
+içerikli boyama ilk içerikli boyamayla aynı ana düşüyor. Gerçek koşulu temsil
+eden sütun canlı ölçümdür.
 
 > **Bir ölçüm tuzağı, kayda geçirilmiştir.** Giriş kartı daha önce `opacity: 0`'dan başlayan bir
 > animasyonla açılıyordu. Chrome, ilk boyandığı anda saydam olan bir öğeyi en büyük içerikli
@@ -561,6 +576,35 @@ Eşik kararı F1'i değil, **yanlış pozitif oranı bugünkünden kötü olmama
 en yüksek duyarlılığı** ölçüt alır; yanlış pozitif, özgün içerik üreten kullanıcının
 ödülünü kesmek demektir. Bu ölçütle her iki kademede de optimum, kodda yürürlükte
 olan değere denk çıktı.
+
+## Telefona kurulum
+
+MİHENK bir aşamalı web uygulaması (PWA); Android'de ana ekrana kurulabiliyor ve
+kurulduktan sonra **internetsiz çalışıyor**.
+
+| Kurulum ölçütü | Karşılık |
+|---|---|
+| Web uygulama bildirimi | [`src/app/manifest.ts`](src/app/manifest.ts) |
+| 192 ve 512 piksellik simge + maskelenebilir | `public/simge-*.png` |
+| `display: standalone`, `start_url`, `scope` | bildirimde |
+| `fetch` olayını dinleyen servis çalışanı | [`public/sw.js`](public/sw.js) |
+
+Beşincisi olmadan Chrome "Ana ekrana ekle" teklifi çıkarmıyor.
+
+**Kurulum:** yayındaki adresi Chrome'da aç → menü → *Ana ekrana ekle*. Uygulama
+içinden de yapılabilir: yan çekmece → **Uygulamayı yükle** (yalnızca tarayıcı
+ölçütleri sağladığında görünür; Safari bu olayı hiç göndermiyor).
+
+Kurulum HTTPS ister — `localhost` dışında `http://` üzerinden çalışmaz.
+
+**Çevrimdışı çalışma** ek bir bedel ödemeden geldi: uygulamanın tüm durumu zaten
+`localStorage`'da. Servis çalışanı kabuğu önbelleğe aldığı için ağ olmadan da
+tam çalışıyor. Strateji iki başlı ve bilerek öyle:
+
+- **Belgeler** önce ağdan, olmazsa önbellekten. Tersi olsaydı yeni dağıtımdan
+  sonra eski sayfa servis edilirdi.
+- **`/_next/static/`** önce önbellekten. Next bu dosyaları içeriğe göre karma ile
+  adlandırıyor; adı aynıysa içeriği de aynıdır.
 
 ## Dağıtım
 
