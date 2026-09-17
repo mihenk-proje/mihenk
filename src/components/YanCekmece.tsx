@@ -15,6 +15,7 @@ import {
   Sun,
 } from "lucide-react"
 import { useKatman } from "@/lib/a11y/katman"
+import { CERCEVE_SINIFLARI, aktifEfekt } from "@/lib/store/efektler"
 import { useStore } from "@/lib/store/kanca"
 import { Avatar } from "./Avatar"
 
@@ -47,6 +48,7 @@ export function YanCekmece({
   const koyu = resolvedTheme !== 'light'
 
   const k = state.kullanici
+  const cerceve = aktifEfekt(state, 'cerceve')
 
   const satir =
     'w-full flex items-center gap-4 h-12 px-5 text-[15px] font-medium text-primary hover:bg-primary/5 transition-colors'
@@ -76,12 +78,19 @@ export function YanCekmece({
         className="nsosyal-cekmece relative w-[85%] max-w-sm h-full flex flex-col overflow-y-auto mihenk-soldan shadow-2xl"
       >
         <div className="px-5 pt-6 pb-5">
+          {/*
+          Kuşanılmış çerçeve burada da görünür. Kozmetikler bugüne kadar TEK
+          bir yüzeyde görünüyordu: akıştaki kendi gönderi başlıkların. 800
+          jetonluk bir çerçeve alan kullanıcı, onu görmek için akışı kendi
+          gönderisine kadar kaydırmak zorundaydı.
+        */}
           <Avatar
             id={k.id}
             harfler={k.avatarHarfleri}
             ad={k.adSoyad}
             ton={k.avatarTonu}
             boyut="md"
+            cerceveSinifi={cerceve ? (CERCEVE_SINIFLARI[cerceve.efekt.deger] ?? '') : ''}
           />
           <p className="font-bold text-lg text-primary mt-3">{k.adSoyad}</p>
           <p className="text-secondary text-sm">@{k.kullaniciAdi}</p>

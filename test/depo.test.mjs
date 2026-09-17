@@ -1,7 +1,7 @@
 /** Depo katmanının bütünleşim testleri: bakiye tutarlılığı, tavan, süre dolumu. */
 import * as depo from '@/lib/store/depo'
 import { varsayilanDurum } from '@/lib/store/demoData'
-import { suresiDoldu, yururluktekiUrunler } from '@/lib/store/efektler'
+import { aktifEfekt, suresiDoldu, yururluktekiUrunler } from '@/lib/store/efektler'
 
 export async function calistir() {
   let gecti = 0
@@ -104,6 +104,32 @@ export async function calistir() {
   const altin = d().magaza.find((u) => u.id === 'u5')
   kontrol('yetersiz bakiyede alım reddedilir', depo.urunSatinAl(altin) === false)
   kontrol('reddedilen alım bakiyeyi bozmaz', d().kullanici.jetonBakiyesi === alimSonrasi)
+
+  console.log('\n— Aynı türden tek slot —')
+  /*
+    u1 (Pirinç Çerçeve, cerceve) demo açılışında takılı geliyor. u2c
+    (Tunç Kenar) de bir cerceve. İkincisi alınınca birincisi kapanmalı.
+
+    Önceden ikisi de açık kalıyor, cüzdan ikisini de yeşil "Açık" gösteriyor
+    ama ekranda yalnızca dizideki SONUNCU görünüyordu — yani satın alma
+    sırası kazanıyordu, fiyat değil.
+  */
+  const tuncKenar = d().magaza.find((u) => u.id === 'u2c')
+  kontrol('ikinci çerçeve alındı', depo.urunSatinAl(tuncKenar) === true)
+  kontrol('önceki çerçeve kendiliğinden kapandı',
+    d().kullanici.envanter.find((s) => s.urunId === 'u1').aktif === false)
+  kontrol('yeni çerçeve açık', d().kullanici.envanter.find((s) => s.urunId === 'u2c').aktif === true)
+  kontrol('yürürlükte tek çerçeve var',
+    yururluktekiUrunler(d()).filter((u) => u.efekt.tur === 'cerceve').length === 1)
+  kontrol('farklı tür etkilenmedi — ad rengi hâlâ açık',
+    d().kullanici.envanter.find((s) => s.urunId === 'u2').aktif === true)
+  kontrol('aktifEfekt yeni çerçeveyi veriyor', aktifEfekt(d(), 'cerceve')?.id === 'u2c')
+
+  // Eski çerçeveyi elle açmak yenisini kapatmalı — kural iki yönde de işler
+  depo.urunAcKapa('u1')
+  kontrol('elle açınca diğeri kapandı',
+    d().kullanici.envanter.find((s) => s.urunId === 'u2c').aktif === false)
+  depo.urunAcKapa('u2c')
 
   console.log('\n— Ürün aç/kapa —')
   depo.urunAcKapa('u2')

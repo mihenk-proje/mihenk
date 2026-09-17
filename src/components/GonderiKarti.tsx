@@ -5,6 +5,7 @@ import { useStore } from "@/lib/store/kanca"
 import {
   AD_RENGI_SINIFLARI,
   CERCEVE_SINIFLARI,
+  KENARLIK_SINIFLARI,
   ROZET_SIMGELERI,
   aktifEfekt,
   yazarEfekti,
@@ -41,6 +42,9 @@ export function GonderiKarti({ gonderi }: { gonderi: Gonderi }) {
   const rozet = benimMi
     ? aktifEfekt(state, 'rozet')
     : yazarEfekti(state.magaza, yazar?.kozmetikler, 'rozet')
+  const kenarlik = benimMi
+    ? aktifEfekt(state, 'kenarlik')
+    : yazarEfekti(state.magaza, yazar?.kozmetikler, 'kenarlik')
   const rozetGorunum = rozet ? ROZET_SIMGELERI[rozet.efekt.deger] : undefined
 
   const dogrulandi = gonderi.dogrulamaDurumu === 'gecti' || gonderi.dogrulamaDurumu === 'kismi'
@@ -74,7 +78,9 @@ export function GonderiKarti({ gonderi }: { gonderi: Gonderi }) {
         "Kaynak gönderiyi gör" çapası başlığın altına düşer ve kopya anlatısı
         demo ortasında kırılır.
       */
-      className="bg-card px-4 py-3 scroll-mt-28"
+      className={`bg-card px-4 py-3 scroll-mt-28 ${
+        kenarlik ? (KENARLIK_SINIFLARI[kenarlik.efekt.deger] ?? '') : ''
+      }`}
     >
       <div className="flex gap-3">
         {/*

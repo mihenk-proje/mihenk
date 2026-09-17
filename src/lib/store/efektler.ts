@@ -19,18 +19,81 @@ export function kalanSure(urun: Urun | undefined, sahip: SahipOlunanUrun): strin
   return `${Math.floor(saat / 24)} gün kaldı`
 }
 
-/** Kullanıcının o an yürürlükte olan ürünleri (satın alınmış + açık + süresi dolmamış) */
-export function yururluktekiUrunler(state: AppState): Urun[] {
+/** Yürürlükteki kayıtlar — ürünüyle birlikte, satın alma zamanı korunarak */
+export function yururluktekiKayitlar(
+  state: AppState
+): Array<{ urun: Urun; sahip: SahipOlunanUrun }> {
   return state.kullanici.envanter
     .map((sahip) => ({ sahip, urun: state.magaza.find((u) => u.id === sahip.urunId) }))
     .filter(({ sahip, urun }) => Boolean(urun) && sahip.aktif && !suresiDoldu(urun, sahip))
-    .map(({ urun }) => urun as Urun)
+    .map(({ sahip, urun }) => ({ sahip, urun: urun as Urun }))
 }
 
-/** Her efekt türünden yürürlükteki son ürünü döndürür */
+/** Kullanıcının o an yürürlükte olan ürünleri (satın alınmış + açık + süresi dolmamış) */
+export function yururluktekiUrunler(state: AppState): Urun[] {
+  return yururluktekiKayitlar(state).map((k) => k.urun)
+}
+
+/**
+ * Aynı anda yalnızca bir ürün takılabilen efekt türleri.
+ *
+ * `islev` bilerek DIŞARIDA: Geniş Karakter ile Geniş Anket aynı anda açık
+ * olabilmeli. Onlar süs değil, yetenek.
+ */
+export const TEK_SLOT: readonly EfektTuru[] = ['cerceve', 'adRengi', 'rozet', 'tema', 'kenarlik']
+
+/**
+ * Bir türün yürürlükteki ürünü.
+ *
+ * Eskiden diziden SONUNCUYU alıyordu — yani satın alma sırasını. Sonuç:
+ * süresi dolmuş 15 jetonluk çerçeveyi yeniden almak, onu dizinin sonuna
+ * taşıyıp 800 jetonluk çerçeveyi görünmez kılıyordu. Üstelik cüzdan ikisini
+ * de yeşil "Açık" gösteriyordu.
+ *
+ * Artık FİYATA göre seçiyor: kullanıcı daha çok ödediği şeyi görmeyi bekler.
+ * Eşitlikte en yeni satın alma, sonra id — sıralama her koşulda belirli.
+ *
+ * Bu ikinci savunma hattı: `tekSlotUygula` zaten yazma anında aynı türden
+ * ikinci bir ürünün açık kalmasını engelliyor. Ama kayıtlı eski durumlarda
+ * iki ürün birden açık olabilir ve orada da belirli bir sonuç gerekiyor.
+ */
 export function aktifEfekt(state: AppState, tur: EfektTuru): Urun | undefined {
-  const eslesenler = yururluktekiUrunler(state).filter((u) => u.efekt.tur === tur)
-  return eslesenler[eslesenler.length - 1]
+  const eslesenler = yururluktekiKayitlar(state).filter((k) => k.urun.efekt.tur === tur)
+  if (eslesenler.length === 0) return undefined
+
+  return [...eslesenler].sort((a, b) => {
+    if (b.urun.fiyat !== a.urun.fiyat) return b.urun.fiyat - a.urun.fiyat
+    const fark =
+      new Date(b.sahip.satinAlmaZamani).getTime() - new Date(a.sahip.satinAlmaZamani).getTime()
+    if (fark !== 0) return fark
+    return a.urun.id.localeCompare(b.urun.id)
+  })[0].urun
+}
+
+/**
+ * Bir ürün açılırken aynı türdeki diğerlerini kapatır.
+ *
+ * Saf fonksiyon: depoya erişmez, envanter dizisini alır ve yenisini döndürür.
+ *
+ * "Birden fazla açık kalsın, kazananı kural seçsin" yetmezdi: cüzdanda iki
+ * çerçeveyi birden yeşil "Açık" gösteren arayüz kullanıcıya yalan söylüyor ve
+ * hangi yalan olduğunu seçmek düzeltme değil. Tek slot, kullanıcının zihnindeki
+ * modelle örtüşüyor — bir seferde bir çerçeve takarsın.
+ */
+export function tekSlotUygula(
+  envanter: SahipOlunanUrun[],
+  magaza: Urun[],
+  acilanUrunId: string
+): SahipOlunanUrun[] {
+  const acilan = magaza.find((u) => u.id === acilanUrunId)
+  if (!acilan || !TEK_SLOT.includes(acilan.efekt.tur)) return envanter
+
+  return envanter.map((sahip) => {
+    if (sahip.urunId === acilanUrunId) return { ...sahip, aktif: true }
+    const urun = magaza.find((u) => u.id === sahip.urunId)
+    if (urun?.efekt.tur === acilan.efekt.tur) return { ...sahip, aktif: false }
+    return sahip
+  })
 }
 
 /**
@@ -72,6 +135,28 @@ export const CERCEVE_SINIFLARI: Record<string, string> = {
 
 export const AD_RENGI_SINIFLARI: Record<string, string> = {
   mika: 'text-[var(--kozmetik-mika)]',
+  /*
+    Tunç bugüne kadar yalnızca halka rengiydi; METİN yeni bir bağlam ve
+    ölçüldü: ev sahibi kartı 5,31 · MİHENK kartı 4,98 · ev sahibi sayfası
+    5,98 (koyu) — açıkta 6,81 / 6,81 / 6,12. Altısı da AA.
+  */
+  tunc: 'text-[var(--kozmetik-tunc)]',
+}
+
+/*
+  Gönderi kartının sol kenarındaki renkli şerit.
+
+  Tamamen dekoratif: tek başına hiçbir durum taşımıyor, bu yüzden WCAG 1.4.11'in
+  3:1 eşiği bağlamıyor (bağlasaydı ölçülmesi gerekirdi). Rengi taşıdığı bilgi
+  yok — doğrulama durumu rozetlerle, gerekçesi metinle anlatılıyor.
+
+  Odaklanabilir öğe eklemiyor: akışın sekme bütçesi zaten dar.
+*/
+export const KENARLIK_SINIFLARI: Record<string, string> = {
+  pirinc: 'border-l-2 border-[var(--kozmetik-pirinc)]',
+  tunc: 'border-l-2 border-[var(--kozmetik-tunc)]',
+  kuvars: 'border-l-2 border-[var(--kozmetik-kuvars)]',
+  altin: 'border-l-2 border-[var(--kozmetik-altin)]',
 }
 
 export const ROZET_SIMGELERI: Record<string, { simge: string; sinif: string; etiket: string }> = {

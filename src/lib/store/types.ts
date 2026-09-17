@@ -6,7 +6,7 @@
  */
 export type Gorunum = 'akis' | 'cuzdan' | 'magaza' | 'profil'
 
-export type EfektTuru = 'cerceve' | 'adRengi' | 'rozet' | 'tema' | 'islev'
+export type EfektTuru = 'cerceve' | 'adRengi' | 'rozet' | 'tema' | 'kenarlik' | 'islev'
 
 export type Urun = {
   id: string

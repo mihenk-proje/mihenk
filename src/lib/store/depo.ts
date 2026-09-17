@@ -17,7 +17,7 @@ import {
   hesapYasiGun,
 } from '@/lib/verification'
 import { SEED_SURUMU, varsayilanDurum } from './demoData'
-import { suresiDoldu } from './efektler'
+import { suresiDoldu, tekSlotUygula } from './efektler'
 import type { AppState, DogrulamaSonucu, Gonderi, HareketKaydi, Urun } from './types'
 
 /*
@@ -233,10 +233,20 @@ export function urunSatinAl(urun: Urun): boolean {
     ...onceki,
     kullanici: {
       ...onceki.kullanici,
-      envanter: [
-        ...onceki.kullanici.envanter.filter((s) => s.urunId !== urun.id),
-        { urunId: urun.id, satinAlmaZamani: new Date().toISOString(), aktif: true },
-      ],
+      /*
+        Yeni satın alınan ürün açık gelir ve aynı türdeki kardeşlerini
+        kapatır. Önceden iki çerçeve birden açık kalabiliyordu; cüzdan
+        ikisini de yeşil "Açık" gösteriyor ama ekranda yalnızca biri
+        görünüyordu.
+      */
+      envanter: tekSlotUygula(
+        [
+          ...onceki.kullanici.envanter.filter((s) => s.urunId !== urun.id),
+          { urunId: urun.id, satinAlmaZamani: new Date().toISOString(), aktif: true },
+        ],
+        onceki.magaza,
+        urun.id
+      ),
     },
     hareketler: [yeniHareket(`${urun.ad} alındı`, -urun.fiyat), ...onceki.hareketler],
   }))
@@ -244,16 +254,32 @@ export function urunSatinAl(urun: Urun): boolean {
   return true
 }
 
+/**
+ * Ürünü kuşan / çıkar.
+ *
+ * Kapatmak düz bir çevirme. AÇMAK ise aynı türdeki diğerlerini kapatır:
+ * bir seferde bir çerçeve, bir rozet, bir tema takılabilir. `islev` ürünleri
+ * bu kuralın dışında (bkz. TEK_SLOT).
+ */
 export function urunAcKapa(urunId: string) {
-  guncelle((onceki) => ({
-    ...onceki,
-    kullanici: {
-      ...onceki.kullanici,
-      envanter: onceki.kullanici.envanter.map((s) =>
-        s.urunId === urunId ? { ...s, aktif: !s.aktif } : s
-      ),
-    },
-  }))
+  guncelle((onceki) => {
+    const suAn = onceki.kullanici.envanter.find((s) => s.urunId === urunId)
+    const acilacak = suAn ? !suAn.aktif : false
+
+    const cevrilmis = onceki.kullanici.envanter.map((s) =>
+      s.urunId === urunId ? { ...s, aktif: !s.aktif } : s
+    )
+
+    return {
+      ...onceki,
+      kullanici: {
+        ...onceki.kullanici,
+        envanter: acilacak
+          ? tekSlotUygula(cevrilmis, onceki.magaza, urunId)
+          : cevrilmis,
+      },
+    }
+  })
 }
 
 export function itirazEt(gonderiId: string) {

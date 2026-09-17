@@ -3,7 +3,7 @@
 import { useRef, useState } from "react"
 import { BarChart2, Bot, Image as ImageIcon, Plus, X } from "lucide-react"
 import { useStore } from "@/lib/store/kanca"
-import { islevAcikMi } from "@/lib/store/efektler"
+import { CERCEVE_SINIFLARI, aktifEfekt, islevAcikMi } from "@/lib/store/efektler"
 import type { DogrulamaSonucu, Gonderi } from "@/lib/store/types"
 import { Avatar } from "./Avatar"
 
@@ -29,6 +29,7 @@ export function GonderiOlustur({
 
   const maxKarakter = islevAcikMi(state, 'uzun_gonderi') ? GENIS_KARAKTER : VARSAYILAN_KARAKTER
   const maxSecenek = islevAcikMi(state, 'gelismis_anket') ? GENIS_SECENEK : VARSAYILAN_SECENEK
+  const cerceve = aktifEfekt(state, 'cerceve')
 
   /*
     Karakter sayaci her tus vurusunda duyurulursa ekran okuyucu bogulur.
@@ -117,11 +118,18 @@ export function GonderiOlustur({
   return (
     <div className="border-b border-line px-4 py-3 bg-card">
       <div className="flex gap-3">
+        {/*
+          Kuşanılmış çerçeve burada da görünür. Kozmetikler bugüne kadar TEK
+          bir yüzeyde görünüyordu: akıştaki kendi gönderi başlıkların. 800
+          jetonluk bir çerçeve alan kullanıcı, onu görmek için akışı kendi
+          gönderisine kadar kaydırmak zorundaydı.
+        */}
         <Avatar
           id={state.kullanici.id}
           harfler={state.kullanici.avatarHarfleri}
           ad={state.kullanici.adSoyad}
           ton={state.kullanici.avatarTonu}
+          cerceveSinifi={cerceve ? (CERCEVE_SINIFLARI[cerceve.efekt.deger] ?? '') : ''}
         />
 
         <div className="flex-1 min-w-0">

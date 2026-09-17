@@ -6,6 +6,7 @@ import { useStore } from "@/lib/store/kanca"
 import {
   AD_RENGI_SINIFLARI,
   CERCEVE_SINIFLARI,
+  KENARLIK_SINIFLARI,
   ROZET_SIMGELERI,
   TEMA_SINIFLARI,
   kalanSure,
@@ -82,9 +83,17 @@ export function Magaza({ onBack }: { onBack: () => void }) {
           ? '24 saat boyunca'
           : `${urun.sureGun} gün boyunca`
 
-    return urun.efekt.tur === 'islev'
-      ? `${urun.ad} alındı, ${sure} kullanabilirsin.`
-      : `${urun.ad} alındı, ${sure} profilinde görünecek.`
+    /*
+      Her dal "alındı" alt dizgisini taşımalı — klavye denetimi satın almanın
+      duyurulduğunu bununla doğruluyor.
+
+      Kenarlık gönderi kartlarında görünür, profilde değil; "profilinde
+      görünecek" demek yanlış bilgi olurdu.
+    */
+    if (urun.efekt.tur === 'islev') return `${urun.ad} alındı, ${sure} kullanabilirsin.`
+    if (urun.efekt.tur === 'kenarlik')
+      return `${urun.ad} alındı, ${sure} gönderi kartlarında görünecek.`
+    return `${urun.ad} alındı, ${sure} profilinde görünecek.`
   }
 
   const handleSatinAl = (urun: Urun) => {
@@ -357,7 +366,9 @@ function UrunOnizleme({
           */}
           {efekt.tur === 'islev'
             ? 'Bu bir önizlemedir; satın alındığında hangi işlevi kazanacağını gösterir.'
-            : 'Bu bir önizlemedir; satın alma yapılmadan profilinizde nasıl görüneceğini gösterir.'}
+            : efekt.tur === 'kenarlik'
+              ? 'Bu bir önizlemedir; kenarlık gönderi kartlarınızın sol kenarında görünür.'
+              : 'Bu bir önizlemedir; satın alma yapılmadan profilinizde nasıl görüneceğini gösterir.'}
         </p>
       </div>
 
@@ -376,8 +387,20 @@ function UrunOnizleme({
 
         {efekt.tur === 'tema' && (
           <p className="mt-6 text-secondary text-sm text-center">
-            Profil zeminine {urun.ad.toLowerCase()} dokusu uygulanır.
+            Profil kapağına {urun.ad.toLowerCase()} dokusu uygulanır.
           </p>
+        )}
+
+        {efekt.tur === 'kenarlik' && (
+          <div
+            className={`mt-6 w-full rounded-xl bg-card border border-line p-4 ${
+              KENARLIK_SINIFLARI[efekt.deger] ?? ''
+            }`}
+          >
+            <p className="text-secondary text-sm">
+              Gönderi kartlarının sol kenarında böyle görünür.
+            </p>
+          </div>
         )}
       </div>
 
