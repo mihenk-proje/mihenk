@@ -3,7 +3,7 @@
 import { useState, useSyncExternalStore } from "react"
 import { Sparkles } from "lucide-react"
 import { DepoYukleniyor, useStore } from "@/lib/store/kanca"
-import type { DogrulamaSonucu as Sonuc } from "@/lib/store/types"
+import type { Gorunum, DogrulamaSonucu as Sonuc } from "@/lib/store/types"
 import { AkisSekmeleri } from "@/components/AkisSekmeleri"
 import { AltGezinti } from "@/components/AltGezinti"
 import { Cuzdan } from "@/components/Cuzdan"
@@ -14,6 +14,7 @@ import { GonderiOlustur } from "@/components/GonderiOlustur"
 import { HikayeSeridi } from "@/components/HikayeSeridi"
 import { KapsamNotu } from "@/components/KapsamNotu"
 import { Magaza } from "@/components/Magaza"
+import { Profil } from "@/components/Profil"
 import { OlusturDugmesi } from "@/components/OlusturDugmesi"
 import { Tanitim, tanitimGoruldu } from "@/components/Tanitim"
 import { TopBar } from "@/components/TopBar"
@@ -54,7 +55,7 @@ export default function Home() {
   const girisYapildi = elleGirildi || (monte && girisYapilmisMi())
 
   const [sonuc, setSonuc] = useState<Sonuc | null>(null)
-  const [gorunum, setGorunum] = useState<'akis' | 'cuzdan' | 'magaza'>('akis')
+  const [gorunum, setGorunum] = useState<Gorunum>('akis')
   const [cekmeceAcik, setCekmeceAcik] = useState(false)
   const [sekme, setSekme] = useState('Ana akış')
   const [kapsamNotu, setKapsamNotu] = useState<string | null>(null)
@@ -174,6 +175,7 @@ export default function Home() {
         onAkis={() => setGorunum('akis')}
         onCuzdan={() => setGorunum('cuzdan')}
         onMagaza={() => setGorunum('magaza')}
+        onProfil={() => setGorunum('profil')}
         onKapsamDisi={setKapsamNotu}
       />
 
@@ -187,6 +189,7 @@ export default function Home() {
 
       {gorunum === 'cuzdan' && <Cuzdan onBack={() => setGorunum('akis')} />}
       {gorunum === 'magaza' && <Magaza onBack={() => setGorunum('akis')} />}
+      {gorunum === 'profil' && <Profil onBack={() => setGorunum('akis')} />}
 
       {tanitimAcik && <Tanitim onKapat={() => setTurIstegi(false)} />}
 

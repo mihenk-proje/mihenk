@@ -1,3 +1,11 @@
+/**
+ * Uygulamanın hangi tam ekran görünümünde olduğu.
+ *
+ * page.tsx ile AltGezinti bu birleşimi elle iki kez yazıyordu; eşitlemeyi
+ * unutmak sessiz bir hata kaynağıydı. Tek kaynak burası.
+ */
+export type Gorunum = 'akis' | 'cuzdan' | 'magaza' | 'profil'
+
 export type EfektTuru = 'cerceve' | 'adRengi' | 'rozet' | 'tema' | 'islev'
 
 export type Urun = {

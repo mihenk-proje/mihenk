@@ -12,8 +12,8 @@ import {
   suresiDoldu,
 } from "@/lib/store/efektler"
 import type { Urun } from "@/lib/store/types"
-import { Avatar } from "./Avatar"
 import { KatmanEkran } from "./KatmanEkran"
+import { KimlikOnizleme } from "./KimlikOnizleme"
 import { Modal } from "./Modal"
 import { Yuzey } from "./Yuzey"
 
@@ -362,28 +362,11 @@ function UrunOnizleme({
       </div>
 
       <div className={`p-8 flex flex-col items-center justify-center bg-page ${temaSinifi}`}>
-        <div className="mb-4">
-          <Avatar
-            id={state.kullanici.id}
-            harfler={state.kullanici.avatarHarfleri}
-            ad={state.kullanici.adSoyad}
-            ton={state.kullanici.avatarTonu}
-            boyut="lg"
-            cerceveSinifi={cerceveSinifi}
-          />
-        </div>
-
-        <div className="flex items-center gap-1.5 flex-wrap justify-center text-lg">
-          <span className={`font-bold ${adSinifi || 'text-primary'}`}>
-            {state.kullanici.adSoyad}
-          </span>
-          {rozetGorunum && (
-            <span className={rozetGorunum.sinif} aria-label={rozetGorunum.etiket}>
-              {rozetGorunum.simge}
-            </span>
-          )}
-        </div>
-        <span className="text-secondary text-sm">@{state.kullanici.kullaniciAdi}</span>
+        <KimlikOnizleme
+          cerceveSinifi={cerceveSinifi}
+          adSinifi={adSinifi}
+          rozetGorunum={rozetGorunum}
+        />
 
         {efekt.tur === 'islev' && (
           <p className="mt-6 p-4 border border-brand/25 bg-brand/5 rounded-xl text-center text-primary text-sm font-medium">

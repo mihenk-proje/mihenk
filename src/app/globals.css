@@ -90,6 +90,24 @@
   --kozmetik-kulce: #c89544;
   --kozmetik-ayar: #e0c14a;
   --kozmetik-mika: #cbb68a;
+
+  /*
+    Tema ürünlerinin profil kapak bandı renkleri.
+
+    Eskiden efektler.ts içinde ham hex ve alfa yıkamasıydı
+    (`bg-[#d9d4c7]/10`), tema ayrımı yoktu — yani dosyanın kendi kuralını
+    çiğniyordu. Koyu sayfada mermer görünmüyordu: 1000 jetonluk kalıcı bir
+    ürün hiçbir şey yapmıyordu.
+
+    Ölçüt kontrast değil GÖRÜNÜRLÜK: bandın üzerinde metin yok, yani metin
+    eşiği bağlamıyor. Bant sayfadan ayırt edilebilmeli.
+    Ölçüldü (ΔE76, bant/sayfa): koyu 14,7–75,9 · açık 10,9–19,1.
+  */
+  --kozmetik-tema-somaki: #3d2532;
+  --kozmetik-tema-bazalt: #26333a;
+  --kozmetik-tema-mermer: #cfc9bb;
+  --kozmetik-tema-pirinc: #4a3720;
+  --kozmetik-tema-ametist: #3a2f52;
 }
 
 .light {
@@ -121,6 +139,13 @@
   --kozmetik-kulce: #8a6120;
   --kozmetik-ayar: #5f620c;
   --kozmetik-mika: #7d6a45;
+
+  /* Açık temada ölçüldü — ΔE 10,9–19,1. */
+  --kozmetik-tema-somaki: #d9c2cd;
+  --kozmetik-tema-bazalt: #c3d0d6;
+  --kozmetik-tema-mermer: #e6e0d2;
+  --kozmetik-tema-pirinc: #e8d9bd;
+  --kozmetik-tema-ametist: #d8cdea;
 }
 
 /*

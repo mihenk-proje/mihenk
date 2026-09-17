@@ -40,6 +40,7 @@ const EKRANLAR = [
   ['Cüzdan', ['gir', 'esc', 'cüzdanı aç']],
   ['Mağaza', ['gir', 'esc', 'mağazayı aç']],
   ['Ürün önizleme', ['gir', 'esc', 'mağazayı aç', 'dene']],
+  ['Profil', ['gir', 'esc', 'profil']],
 ]
 
 const DURUMLAR = [

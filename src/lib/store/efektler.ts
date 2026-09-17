@@ -81,10 +81,23 @@ export const ROZET_SIMGELERI: Record<string, { simge: string; sinif: string; eti
   ayar: { simge: '✦', sinif: 'text-[var(--kozmetik-ayar)]', etiket: 'Ayar rozeti' },
 }
 
+/*
+  Tema ürünleri profil kapak bandını boyar.
+
+  Eskiden ham hex ve alfa yıkamasıydı (`bg-[#d9d4c7]/10`) ve tema ayrımı
+  yoktu — yukarıdaki kuralın tam olarak yasakladığı şey. Koyu sayfada mermer
+  görünmüyordu; 1000 jetonluk kalıcı bir ürün hiçbir şey yapmıyordu.
+
+  Bandın üzerinde metin YOK. Bu bilinçli: metin olsaydı her tema × her tema
+  için kontrast ölçümü gerekirdi. Bant yalnızca sayfadan ayırt edilebilmeli
+  ve bu ölçüldü (ΔE76: koyu 14,7–75,9 · açık 10,9–19,1).
+*/
 export const TEMA_SINIFLARI: Record<string, string> = {
-  somaki: 'bg-[#3a2430]/25',
-  bazalt: 'bg-[#242c2e]/50',
-  mermer: 'bg-[#d9d4c7]/10',
+  somaki: 'bg-[var(--kozmetik-tema-somaki)]',
+  bazalt: 'bg-[var(--kozmetik-tema-bazalt)]',
+  mermer: 'bg-[var(--kozmetik-tema-mermer)]',
+  pirinc: 'bg-[var(--kozmetik-tema-pirinc)]',
+  ametist: 'bg-[var(--kozmetik-tema-ametist)]',
 }
 
 /*
