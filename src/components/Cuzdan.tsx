@@ -6,6 +6,7 @@ import { useStore } from "@/lib/store/kanca"
 import { kalanSure, suresiDoldu } from "@/lib/store/efektler"
 import { GUNLUK_UST_SINIR } from "@/lib/verification"
 import { KatmanEkran } from "./KatmanEkran"
+import { ETKI_METNI, KozmetikGorseli } from "./KozmetikGorseli"
 import { Modal } from "./Modal"
 import { Yuzey } from "./Yuzey"
 
@@ -104,11 +105,18 @@ export function Cuzdan({ onBack }: { onBack: () => void }) {
                     key={sahip.urunId}
                     className="flex items-center justify-between gap-3 p-4 rounded-xl border border-line bg-card"
                   >
-                    <div className="min-w-0">
-                      <p className="text-primary font-medium text-sm truncate">{urun!.ad}</p>
-                      <p className="text-secondary text-xs mt-1 font-mono">
-                        {doldu ? 'Süresi doldu' : (kalanSure(urun, sahip) ?? 'Kalıcı')}
-                      </p>
+                    <div className="flex items-center gap-3 min-w-0">
+                      <KozmetikGorseli tur={urun!.efekt.tur} deger={urun!.efekt.deger} />
+                      <div className="min-w-0">
+                        <p className="text-primary font-medium text-sm truncate">{urun!.ad}</p>
+                        <p className="text-secondary text-xs mt-0.5 truncate">
+                          {ETKI_METNI[urun!.efekt.tur]}
+                          <span aria-hidden="true"> · </span>
+                          <span className="font-mono">
+                            {doldu ? 'Süresi doldu' : (kalanSure(urun, sahip) ?? 'Kalıcı')}
+                          </span>
+                        </p>
+                      </div>
                     </div>
                     <button
                       type="button"

@@ -14,6 +14,7 @@ import {
 import { GonderiKarti } from "./GonderiKarti"
 import { KatmanEkran } from "./KatmanEkran"
 import { KimlikOnizleme } from "./KimlikOnizleme"
+import { ETKI_METNI, KozmetikGorseli } from "./KozmetikGorseli"
 
 const SEKMELER = ['Gönderiler', 'Doğrulananlar'] as const
 
@@ -140,10 +141,12 @@ export function Profil({ onBack }: { onBack: () => void }) {
                 key={sahip.urunId}
                 className="inline-flex items-center gap-2 rounded-full border border-line bg-card pl-2 pr-3 py-1.5"
               >
-                <KozmetikOrnegi urun={urun!} />
-                <span className="text-sm text-primary font-medium">{urun!.ad}</span>
-                <span className="text-[11px] font-mono text-secondary">
-                  {kalanSure(urun, sahip) ?? 'Kalıcı'}
+                <KozmetikGorseli tur={urun!.efekt.tur} deger={urun!.efekt.deger} />
+                <span className="flex flex-col min-w-0">
+                  <span className="text-sm text-primary font-medium truncate">{urun!.ad}</span>
+                  <span className="text-[11px] text-secondary truncate">
+                    {ETKI_METNI[urun!.efekt.tur]} · {kalanSure(urun, sahip) ?? 'Kalıcı'}
+                  </span>
                 </span>
               </li>
             ))}
@@ -170,11 +173,15 @@ export function Profil({ onBack }: { onBack: () => void }) {
                   className="flex items-center justify-between gap-3 p-3 rounded-xl border border-line bg-card"
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <KozmetikOrnegi urun={urun!} />
+                    <KozmetikGorseli tur={urun!.efekt.tur} deger={urun!.efekt.deger} />
                     <div className="min-w-0">
                       <p className="text-primary font-medium text-sm truncate">{urun!.ad}</p>
-                      <p className="text-secondary text-xs mt-0.5 font-mono">
-                        {doldu ? 'Süresi doldu' : (kalanSure(urun, sahip) ?? 'Kalıcı')}
+                      <p className="text-secondary text-xs mt-0.5 truncate">
+                        {ETKI_METNI[urun!.efekt.tur]}
+                        <span aria-hidden="true"> · </span>
+                        <span className="font-mono">
+                          {doldu ? 'Süresi doldu' : (kalanSure(urun, sahip) ?? 'Kalıcı')}
+                        </span>
                       </p>
                     </div>
                   </div>
@@ -229,63 +236,5 @@ export function Profil({ onBack }: { onBack: () => void }) {
         )}
       </div>
     </KatmanEkran>
-  )
-}
-
-/**
- * Kozmetiğin küçük görsel örneği — cüzdanda ve profilde ad yanında.
- *
- * Envanter satırı bugüne kadar yalnızca ürün ADI ve kalan süreyi
- * gösteriyordu: kullanıcı ne satın aldığını göremiyordu.
- */
-function KozmetikOrnegi({ urun }: { urun: { efekt: { tur: string; deger: string } } }) {
-  const { tur, deger } = urun.efekt
-
-  if (tur === 'rozet') {
-    const g = ROZET_SIMGELERI[deger]
-    return g ? (
-      <span className={`shrink-0 w-8 h-8 rounded-full bg-page border border-line flex items-center justify-center ${g.sinif}`} aria-hidden="true">
-        {g.simge}
-      </span>
-    ) : null
-  }
-
-  if (tur === 'cerceve') {
-    return (
-      <span
-        className={`shrink-0 w-8 h-8 rounded-full bg-page ${CERCEVE_SINIFLARI[deger] ?? ''}`}
-        aria-hidden="true"
-      />
-    )
-  }
-
-  if (tur === 'adRengi') {
-    return (
-      <span
-        className={`shrink-0 w-8 h-8 rounded-full bg-page border border-line flex items-center justify-center font-bold text-sm ${AD_RENGI_SINIFLARI[deger] ?? ''}`}
-        aria-hidden="true"
-      >
-        Aa
-      </span>
-    )
-  }
-
-  if (tur === 'tema') {
-    return (
-      <span
-        className={`shrink-0 w-8 h-8 rounded-lg border border-line ${TEMA_SINIFLARI[deger] ?? ''}`}
-        aria-hidden="true"
-      />
-    )
-  }
-
-  // islev — görsel karşılığı yok, ürün adı zaten yanında
-  return (
-    <span
-      className="shrink-0 w-8 h-8 rounded-lg bg-page border border-line flex items-center justify-center text-secondary text-xs font-mono"
-      aria-hidden="true"
-    >
-      fn
-    </span>
   )
 }

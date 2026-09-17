@@ -15,6 +15,7 @@ import {
 import type { Urun } from "@/lib/store/types"
 import { KatmanEkran } from "./KatmanEkran"
 import { KimlikOnizleme } from "./KimlikOnizleme"
+import { ETKI_METNI, KozmetikGorseli } from "./KozmetikGorseli"
 import { Modal } from "./Modal"
 import { Yuzey } from "./Yuzey"
 
@@ -216,11 +217,23 @@ export function Magaza({ onBack }: { onBack: () => void }) {
                   key={urun.id}
                   className="border border-line bg-card rounded-2xl p-5 flex flex-col hover:border-brand/40 transition-colors"
                 >
-                  <div className="flex justify-between items-start gap-3 mb-2">
-                    <h3 className="font-bold text-lg text-primary">{urun.ad}</h3>
-                    <Yuzey tur="mihenk" className="shrink-0">
-                      <Jeton deger={urun.fiyat} className="font-bold text-brand text-lg" />
-                    </Yuzey>
+                  {/*
+                    Ürünün ne olduğu kartın üstünde görünür. Önceden yalnızca
+                    ad ve açıklama vardı: "Tunç Şerit" ile "Tunç Kenar"
+                    arasındaki farkı ad okuyarak anlamak mümkün değil. Etkiyi
+                    görmek için "Dene" penceresini açmak gerekiyordu.
+                  */}
+                  <div className="flex items-start gap-3 mb-3">
+                    <KozmetikGorseli tur={urun.efekt.tur} deger={urun.efekt.deger} buyuk />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-start gap-3">
+                        <h3 className="font-bold text-lg text-primary min-w-0">{urun.ad}</h3>
+                        <Yuzey tur="mihenk" className="shrink-0">
+                          <Jeton deger={urun.fiyat} className="font-bold text-brand text-lg" />
+                        </Yuzey>
+                      </div>
+                      <p className="text-xs text-secondary mt-0.5">{ETKI_METNI[urun.efekt.tur]}</p>
+                    </div>
                   </div>
 
                   <p className="text-secondary text-sm mb-4 flex-1">{urun.aciklama}</p>
