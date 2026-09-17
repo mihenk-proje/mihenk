@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Manrope, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
+import { ServisCalisani } from "@/components/ServisCalisani";
 
 const bricolage = Bricolage_Grotesque({
   subsets: ["latin", "latin-ext"],
@@ -95,6 +96,7 @@ export default function RootLayout({
         <Providers>
           {children}
         </Providers>
+        <ServisCalisani />
       </body>
     </html>
   );

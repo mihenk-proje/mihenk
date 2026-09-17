@@ -5,6 +5,7 @@ import {
   Bell,
   Bookmark,
   Compass,
+  Download,
   HelpCircle,
   LogOut,
   MessageSquarePlus,
@@ -15,6 +16,7 @@ import {
   Sun,
 } from "lucide-react"
 import { useKatman } from "@/lib/a11y/katman"
+import { useKurulum } from "@/lib/kurulum"
 import { CERCEVE_SINIFLARI, aktifEfekt } from "@/lib/store/efektler"
 import { useStore } from "@/lib/store/kanca"
 import { Avatar } from "./Avatar"
@@ -49,6 +51,7 @@ export function YanCekmece({
 
   const k = state.kullanici
   const cerceve = aktifEfekt(state, 'cerceve')
+  const { kurulabilir, kur } = useKurulum()
 
   const satir =
     'w-full flex items-center gap-4 h-12 px-5 text-[15px] font-medium text-primary hover:bg-primary/5 transition-colors'
@@ -113,6 +116,18 @@ export function YanCekmece({
         <div className="h-px bg-primary/10 mx-5" aria-hidden="true" />
 
         <div className="flex flex-col py-2">
+          {/*
+            Kurulum yalnızca tarayıcı ölçütleri sağladığında görünür. Safari
+            bu olayı hiç göndermiyor; orada öğe çıkmaz — çalışmayan bir düğme
+            göstermektense hiç göstermemek doğru.
+          */}
+          {kurulabilir && (
+            <button type="button" className={satir} onClick={() => { onKapat(); kur() }}>
+              <Download size={20} className="text-secondary shrink-0" aria-hidden="true" />
+              Uygulamayı yükle
+            </button>
+          )}
+
           <button type="button" className={satir} onClick={() => { onKapat(); onTanitim() }}>
             <HelpCircle size={20} className="text-secondary shrink-0" aria-hidden="true" />
             Tanıtım turu

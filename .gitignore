@@ -58,6 +58,10 @@ data/images/variants/
 # ona takiliyor ve uretimde og:image kayboluyordu.
 /*.png
 
+# PWA simgeleri public/ altında ve yayımlanmalı; yukarıdaki /*.png kuralı
+# yalnızca kök dizini kapsıyor, yine de niyeti açık yazalım.
+!public/simge-*.png
+
 
 # Ara tarama çıktısı: her eşik için ham skor dizileri, ~3 MB.
 # Yayımlanan çıktılar results/metrics.json ve results/olcum-raporu.md;
