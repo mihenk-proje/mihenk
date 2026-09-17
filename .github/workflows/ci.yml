@@ -1,0 +1,39 @@
+name: CI
+
+# Her push ve PR'da kalite kapıları çalışır. Test paketi başarısızlıkta
+# sıfırdan farklı kod döndürdüğü için ek yapılandırma gerekmez.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  kalite:
+    name: Tip · Lint · Test · Derleme
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Node 22+ zorunlu: test paketi TypeScript kaynağını yerel tip soyma
+      # ile doğrudan çalıştırıyor, ayrı bir derleme adımı yok.
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Bağımlılıklar
+        run: npm ci
+
+      - name: Tip kontrolü
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Testler
+        run: npm test
+
+      - name: Üretim derlemesi
+        run: npm run build

@@ -462,6 +462,24 @@ python3 scripts/build_report.py       # sunuma hazır tablolar
 Eşik taraması test bölünmesini hiçbir koşulda okumaz. Ayrıntı için
 [`splits/README.md`](splits/README.md).
 
+## Dağıtım
+
+`main` dalına yapılan her push Vercel tarafından otomatik olarak üretime alınır;
+ayrı bir dağıtım komutu yoktur.
+
+| | |
+|---|---|
+| Üretim | https://mihenk-proje.vercel.app |
+| Tetikleyici | `main`'e push (GitHub entegrasyonu) |
+| Derleme | `npm run build` (Next.js, Turbopack) |
+| Ortam değişkeni | yok — uygulama tamamen istemci tarafında çalışır |
+
+Dağıtımdan önce CI'nın yeşil olması beklenir: tip kontrolü, lint, 76 test ve
+üretim derlemesi. Geri alma, Vercel panelinden önceki dağıtımın yeniden
+yayımlanmasıyla yapılır.
+
+Katkı süreci, dal modeli ve kimlik kuralı için [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
 ## Değişiklik kaydı
 
 Arayüz düzeltme turunun madde madde durumu, ölçülen kontrast oranları ve denetim sonuçları
