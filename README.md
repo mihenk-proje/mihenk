@@ -384,9 +384,15 @@ node test/tarayici/erisilebilirlik.mjs
 | Erişilebilirlik | **100** | **100** | **100** | **100** |
 | En İyi Uygulamalar | **100** | **100** | **100** | **100** |
 | SEO | **100** | **100** | **100** | **100** |
-| Performans | **100** | **99** | 99 | 86 |
+| Performans | **100** | **93** | 99 | 86 |
 
 Düzen kayması her ölçümde sıfır, toplam engelleme süresi masaüstünde 0 ms.
+Canlı ölçümde ilk içerikli boyama 0,4 s (masaüstü) / 1,7 s (mobil), en büyük
+içerikli boyama 0,5 s / 2,9 s.
+
+Canlı mobil performansı bir önceki turda 99'du; profil, bildirimler ve
+kozmetik görselleri eklendikçe paket büyüdü ve 93'e indi. Erişilebilirlik,
+en iyi uygulamalar ve SEO dört ölçümün hepsinde 100 kaldı.
 
 Yereldeki mobil değerinin düşük görünmesinin sebebi uygulamada değil ölçüm
 yöntemindedir: Lighthouse'un öntanımlı Lantern simülasyonu localhost'un sıfıra
