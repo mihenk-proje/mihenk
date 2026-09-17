@@ -66,11 +66,21 @@ const odak = () =>
     }
   })
 
-/** Belirli bir metin/etiket odağa gelene kadar Tab'a basar */
-async function tabla(arananParca) {
+/**
+ * Belirli bir metin/etiket odağa gelene kadar Tab'a basar.
+ *
+ * `tam` seçeneği birebir eşleşme ister. Gerekçesi somut: "Paylaş" düğmesi
+ * referans arayüze uyması için "Gönder" oldu, ama metin alanının etiketi
+ * "Gönderi metni" ve o da "gönder" içeriyor. Parça eşleşmesiyle arama, metin
+ * alanındayken hemen doğru sayıp geri dönüyor; denetim düğmeye hiç
+ * ulaşmadan geçmiş görünürdü.
+ */
+async function tabla(arananParca, tam = false) {
+  const hedef = arananParca.toLowerCase()
   for (let i = 0; i < SINIR; i++) {
     const o = await odak()
-    if ((o.metin || '').toLowerCase().includes(arananParca.toLowerCase())) return o
+    const ad = (o.metin || '').toLowerCase()
+    if (tam ? ad === hedef : ad.includes(hedef)) return o
     await sayfa.keyboard.press('Tab')
     await new Promise((r) => setTimeout(r, 60))
   }
@@ -126,9 +136,9 @@ await sayfa.keyboard.type(
   'Klavyeyle gezinme denetimi için yazılmış özgün bir deneme gönderisi metni.'
 )
 await bekle(200)
-const paylas = await tabla('Paylaş')
-kontrol('Paylaş düğmesine Tab ile ulaşılıyor', paylas !== null)
-kontrol('Paylaş düğmesinde görünür odak halkası var', paylas?.halka === true)
+const paylas = await tabla('Gönder', true)
+kontrol('Gönder düğmesine Tab ile ulaşılıyor', paylas !== null)
+kontrol('Gönder düğmesinde görünür odak halkası var', paylas?.halka === true)
 await sayfa.keyboard.press('Enter')
 await bekle(900)
 kontrol(

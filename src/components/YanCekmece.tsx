@@ -38,10 +38,12 @@ import { Avatar } from "./Avatar"
 export function YanCekmece({
   onKapat,
   onTanitim,
+  onBildirimler,
   onKapsamDisi,
 }: {
   onKapat: () => void
   onTanitim: () => void
+  onBildirimler: () => void
   onKapsamDisi: (ad: string) => void
 }) {
   const katmanRef = useKatman<HTMLElement>(onKapat)
@@ -56,8 +58,11 @@ export function YanCekmece({
   const satir =
     'w-full flex items-center gap-4 h-12 px-5 text-[15px] font-medium text-primary hover:bg-primary/5 transition-colors'
 
+  /*
+    Kapsam dışı bölümler. "Bildirimler" bu listeden ÇIKTI: artık gerçek bir
+    ekranı var (Bildirimler.tsx) ve kapsam dışı notu basmıyor.
+  */
   const BOLUMLER = [
-    { ad: 'Bildirimler', Simge: Bell },
     { ad: 'Keşfet', Simge: Compass },
     { ad: 'Topluluklar', Simge: Star },
     { ad: 'Kaydedilenler', Simge: Bookmark },
@@ -105,6 +110,12 @@ export function YanCekmece({
         </div>
 
         <div className="flex flex-col py-2">
+          {/* Çalışan bölüm, kapsam dışı olanların üstünde — sıra değişmedi. */}
+          <button type="button" className={satir} onClick={() => { onKapat(); onBildirimler() }}>
+            <Bell size={20} className="text-secondary shrink-0" aria-hidden="true" />
+            Bildirimler
+          </button>
+
           {BOLUMLER.map(({ ad, Simge }) => (
             <button key={ad} type="button" className={satir} onClick={() => { onKapat(); onKapsamDisi(ad) }}>
               <Simge size={20} className="text-secondary shrink-0" aria-hidden="true" />

@@ -73,7 +73,9 @@ export function KozmetikGorseli({
     const g = ROZET_SIMGELERI[deger]
     return (
       <span
-        className={`${ortak} ${buyuk ? 'text-2xl' : 'text-lg'} rounded-full bg-page border border-line flex items-center justify-center`}
+        className={`${ortak} ${buyuk ? 'text-2xl' : 'text-lg'} rounded-full bg-page border border-line flex items-center justify-center ${
+          g?.hareket ?? ''
+        }`}
         style={{ color: KOZMETIK_DEGISKENI(deger) }}
         aria-hidden="true"
       >

@@ -1,3 +1,4 @@
+import type { Koleksiyon } from './demoData'
 import type { AppState, EfektTuru, SahipOlunanUrun, Urun } from './types'
 
 /**
@@ -159,11 +160,58 @@ export const KENARLIK_SINIFLARI: Record<string, string> = {
   altin: 'border-l-2 border-[var(--kozmetik-altin)]',
 }
 
-export const ROZET_SIMGELERI: Record<string, { simge: string; sinif: string; etiket: string }> = {
+/**
+ * Rozet görünümleri.
+ *
+ * `simge`, `sinif` ve `etiket` ZORUNLU kalır: gönderi kartı, profil ve
+ * mağaza önizlemesi üçünü de koşulsuz okuyor. `hareket` isteğe bağlı bir
+ * animasyon sınıfı — yalnızca koleksiyon ödülü gibi ayrıcalıklı rozetlerin
+ * taşıdığı ek bir işaret, okuyan taraf yoksa da her şey çalışır.
+ */
+export const ROZET_SIMGELERI: Record<
+  string,
+  { simge: string; sinif: string; etiket: string; hareket?: string }
+> = {
   kuvars: { simge: '◆', sinif: 'text-[var(--kozmetik-kuvars)]', etiket: 'Kuvars rozeti' },
   gumus: { simge: '❖', sinif: 'text-[var(--kozmetik-gumus)]', etiket: 'Gümüş nişan' },
   kulce: { simge: '▰', sinif: 'text-[var(--kozmetik-kulce)]', etiket: 'Külçe nişanı' },
   ayar: { simge: '✦', sinif: 'text-[var(--kozmetik-ayar)]', etiket: 'Ayar rozeti' },
+  /*
+    Koleksiyon ödülü. Altıgen mühür, katalogdaki dört simgenin (◆ ❖ ▰ ✦)
+    hiçbirine benzemiyor: satın alınabilen rozetlerle karıştırılmamalı.
+    Rengi tunç ailesinin ölçülmüş değeri — yeni bir ton eklenmedi.
+  */
+  tuncMuhur: {
+    simge: '⬢',
+    sinif: 'text-[var(--kozmetik-tunc)]',
+    etiket: 'Tunç Mührü',
+    hareket: 'mihenk-parilti',
+  },
+}
+
+/**
+ * Bir koleksiyonun ilerlemesi.
+ *
+ * Saf: depoya değil, verilen duruma bakar.
+ *
+ * Ölçüt SAHİPLİK, kuşanmışlık değil. Envanter satırı "bir kez sahip
+ * olundu" kaydıdır — `urunSatinAl` satır silmez, `senkronizeEt` süresi
+ * dolan kaydın yalnızca `aktif` alanını kapatır. Süreli üyelerden kurulu
+ * bir set, "şu an açık" ölçütüyle hiçbir zaman tamamlanamazdı.
+ */
+export function koleksiyonDurumu(
+  state: AppState,
+  koleksiyon: Koleksiyon
+): { sahipSayisi: number; toplam: number; tamam: boolean } {
+  const sahipSayisi = koleksiyon.urunler.filter((urunId) =>
+    state.kullanici.envanter.some((sahip) => sahip.urunId === urunId)
+  ).length
+
+  return {
+    sahipSayisi,
+    toplam: koleksiyon.urunler.length,
+    tamam: sahipSayisi === koleksiyon.urunler.length,
+  }
 }
 
 /*

@@ -7,7 +7,7 @@ import { Info } from "lucide-react"
  * Kapsam dışı bölüm bildirimi.
  *
  * Ev sahibi kromasında prototipin kapsamına girmeyen bölümler var (Keşfet,
- * Profil, Bildirimler, Topluluklar…). Bunları çizip tıklanınca sessiz
+ * Topluluklar, Kaydedilenler…). Bunları çizip tıklanınca sessiz
  * bırakmak, kullanıcıya arızalı bir arayüz izlenimi verir; tamamen çıkarmak
  * ise NSosyal'ın kalıbını tanınmaz hale getirir. Üçüncü yol: düğme gerçek,
  * yanıtı da gerçek — "bu bölüm bu prototipin kapsamında değil".

@@ -1,5 +1,144 @@
 # Değişiklik Kaydı
 
+## 2026-09-17 (yedinci tur) — Jeton ekonomisi, profil, bildirimler ve telefona kurulum
+
+Kullanıcı uygulamayı gerçekten kullanarak beş sorun buldu. Hepsi kapandı.
+
+### Cüzdan ve Mağaza başka bir uygulama gibi duruyordu
+
+İkisi de `fixed inset-0 z-40` tam ekran devralmaydı: NSosyal başlığı yok, alt
+gezinti yok, gövde `max-w-2xl`/`max-w-4xl` (akış `max-w-lg`) ve on bir renk
+jetonunun tamamı pirinç.
+
+**Kural tek cümle:** *sayfa kroması ev sahibinin; MİHENK'in ÜRETTİĞİ DEĞER
+pirinç.* `yuzey-mihenk` artık ekranı değil **kartları** sarıyor — bakiye kartı,
+fiyat çipleri, kazanç tutarları, "Al" düğmesi.
+
+`KatmanEkran.tsx` tam ekran katmanların ortak kabuğu oldu. Alt gezinti `inert`
+sarmalayıcının dışına çıktı ve `z-30` → `z-[45]` oldu: **Cüzdan'dan Mağaza'ya
+artık tek dokunuş**, önceden akışa dönmek gerekiyordu.
+
+Eklenen denetim ilk çalıştırmada bir hata yakaladı: `DogrulamaSonucu`
+`bottom-0`'daydı ve gezintiyi örtüyordu.
+
+### Satın alınan şey görünmüyordu
+
+Üç kusur üst üste binmişti.
+
+**`aktifEfekt(state,'tema')` hiçbir yerden çağrılmıyordu.** Somaki Tema (150),
+Bazalt Arkaplan (250), Mermer Zemin (1000) — **1400 jetonluk üç ürün hiçbir şey
+satın almıyordu**, üstelik açıklamaları açıkça bir şey vaat ediyordu. Artık
+profil kapak bandını boyuyorlar.
+
+Akış kartına uygulanmadı: rozet bloğu kartın içinde ve arkasına yıkama koymak
+onu harmanlanmış zemin yapardı — bu hata bu depoda iki kez yaşandı ve kayıtlı
+(`globals.css` ikincil metin 4,31'e düştü · `TopBar` saydamlığı bu yüzden
+kaldırıldı).
+
+`TEMA_SINIFLARI` ham hex ve alfa yıkamasıydı, tema ayrımı yoktu; koyu sayfada
+mermer görünmüyordu. On tema-duyarlı değişkene taşındı ve ölçüldü:
+bant/sayfa ΔE76 **koyu 14,7–75,9 · açık 10,9–19,1**.
+
+**Profil ekranı yoktu**, ama satın alma bildirimi birebir "… profilinde
+görünecek." diyordu. `Profil.tsx`: kapak, kuşanılmış kozmetiklerle kimlik,
+istatistikler, envanter, kendi gönderileri.
+
+**Kozmetikler tek yüzeyde görünüyordu.** Yazma alanı ve çekmece avatarları da
+taşıyor artık.
+
+### Aynı türden iki kozmetik birbirini sessizce eziyordu
+
+`aktifEfekt` diziden **sonuncuyu** alıyordu — satın alma sırasını, fiyatı değil.
+Cüzdan ikisini de yeşil "Açık" gösteriyor ama ekranda yalnızca biri görünüyordu.
+Süresi dolmuş 15 jetonluk çerçeveyi yeniden almak 800 jetonluğu görünmez
+kılıyordu.
+
+Tür başına **tek slot**, yazma anında zorlanıyor (`tekSlotUygula`). `islev`
+bilerek dışarıda: Geniş Karakter ile Geniş Anket aynı anda açık olmalı.
+`aktifEfekt` artık fiyata göre seçiyor — kayıtlı eski durumlarda iki ürün
+birden açıksa da sonuç belirli.
+
+### Kozmetiğin ne olduğu görünmüyordu
+
+Kullanıcı ekran görüntüsüyle bildirdi: kenarlık ürünleri `fn` gösteriyordu
+(dal yazılmamıştı) ve *"renkleri birebir aynı"* — çünkü 2px'lik halka 32px'lik
+dairede pirinç ile tuncu ayırt ettirmiyordu.
+
+`KozmetikGorseli`: her tür kendi biçimini alıyor (4px halkalı daire · sol kenarı
+renkli kart · o renkte "Aa" · büyük simge · dolu kare) ve yanında ne
+değiştirdiği yazıyor. Mağaza kartlarında da satır içi önizleme var — etkiyi
+görmek için artık "Dene" penceresini açmak gerekmiyor.
+
+### Katalog 14 → 24, iki işlevsel ayrıcalık gerçekten çalışıyor
+
+Yeni `kenarlik` efekt türü (gönderi kartının sol şeridi). Yeni ürünler
+Süreli 8 · Sezonluk 7 · Kalıcı 5 · İşlevsel 4. **Hiçbir yeni renk yok** — hepsi
+ölçülmüş `--kozmetik-*` değerleri. Tek yeni bağlam tuncun METİN olarak
+kullanılması; ölçüldü, altı zeminde de AA (en düşük 4,98).
+
+| Ürün | Ne yapar |
+|---|---|
+| **Mika Merceği** (40) | Kendi gönderilerinde doğrulama gerekçesinin **tamamı** + skor bandı. Normalde yalnızca ilk satır, o da yalnızca kopya/kazanmayan gönderilerde görünüyor |
+| **Ayar Taşı** (60) | Paylaşmadan önce metnin nitelik tahmini. `olcMetinNiteligi` (saf skorlayıcı) çağrılıyor, `dogrula` **değil** — yayınlama/doğrulama ayrıklığı korunuyor. Etiket "tahmin": görselli gönderide gerçek skor 0,55/0,45 ağırlıklı |
+
+### Tunç Seti — koleksiyon
+
+Üç tunç ürününe sahip olunca **Tunç Mührü** açılıyor: satın alınamayan, parıltılı
+bir rozet. Yeni durum alanı gerektirmiyor — tamamlanma envanterden türetiliyor,
+çünkü envanter satırı "şu an takılı" değil "bir kez sahip olundu" kaydı.
+
+Ödül hareket defterine 0 jetonla geçiyor; defter bedavaya koleksiyon günlüğü
+oluyor. `urunSatinAl`ın ilk satırı kilitli ürünü reddediyor — `fiyat: 0` olduğu
+için aksi halde herkes "satın alabilirdi".
+
+Ödül, aynı türden takılı bir şey varsa **kapalı** geliyor: 1500 jetonluk Ayar
+Rozeti takılıyken bedelsiz gelen bir mühür onu sessizce kapatamaz.
+
+### Bildirimler
+
+Kazanç, doğrulama sonucu, kopya tespiti, itiraz ve süre bitimi. **Yeni veri
+gerektirmiyor** — hareket defterinden ve kendi gönderilerinden türetiliyor.
+Okunmamış sayacı, tanıtım turunun yaptığı gibi ayrı bir `localStorage`
+anahtarında; durum şeması değişmedi.
+
+Uyarı penceresi ürünün **ömrüne orantılı** (son çeyrek). Sabit 24 saat, 24
+saatlik ürünler için anlamsızdı: üç süreli kozmetik alınır alınmaz üç "süresi
+doluyor" bildirimi düşüyor ve gerçek doğrulama sonuçlarını aşağı itiyordu.
+
+### Yazma ekranı
+
+Referans arayüze göre: "Aklında ne var?", halka biçiminde karakter sayacı,
+**Gönder**. Halka `aria-hidden` ve dekoratif — bilgiyi içindeki sayı ve
+mevcut `aria-live` duyurusu taşıyor, yani WCAG 1.4.11 yükümlülüğü doğmuyor.
+
+`klavye.mjs`'e birebir eşleşmeli arama eklendi: "Gönder" araması parça
+eşleşmesiyle metin alanının etiketi olan "Gönderi metni"ne takılıyor ve denetim
+düğmeye hiç ulaşmadan geçmiş görünüyordu.
+
+### Telefona kurulum (PWA)
+
+Chrome'un beş kurulum ölçütü de sağlandı: bildirim, 192/512 + maskelenebilir
+simge, `standalone`, `start_url`, ve **fetch dinleyen servis çalışanı**
+(beşincisi olmadan teklif hiç çıkmıyor). Yan çekmeceye "Uygulamayı yükle"
+eklendi.
+
+Servis çalışanı iki başlı: **belgeler önce ağdan** (tersi olsaydı yeni
+dağıtımdan sonra eski sayfa servis edilirdi), **`/_next/static/` önce
+önbellekten** (içeriğe göre karma adlandırma, bayatlama riski yok).
+
+**Çevrimdışı çalışma bedava geldi** — durum zaten `localStorage`'da. Ağ
+kesildikten sonra yeniden yükleme doğrulandı: sunum salonunda internet koparsa
+demo devam eder.
+
+### Denetimler
+
+| | Önce | Sonra |
+|---|---|---|
+| Birim testleri | 76 | **99** |
+| Klavye | 30 | **31** |
+| Hareket | 8 | 8 |
+| axe-core | 28 ekran | **36 ekran**, 0 ihlal |
+
 ## 2026-09-16 (altıncı tur) — NSosyal ev sahibi kroması ve iki ayrı yüzey
 
 Teknik rapor 96/100 ile geçti. Kaybedilen dört puanın üçü **3.3 Kullanıcı

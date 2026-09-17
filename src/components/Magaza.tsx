@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react"
 import { Clock, Coins, ShoppingBag } from "lucide-react"
+import { KOLEKSIYONLAR } from "@/lib/store/demoData"
 import { useStore } from "@/lib/store/kanca"
 import {
   AD_RENGI_SINIFLARI,
@@ -10,9 +11,10 @@ import {
   ROZET_SIMGELERI,
   TEMA_SINIFLARI,
   kalanSure,
+  koleksiyonDurumu,
   suresiDoldu,
 } from "@/lib/store/efektler"
-import type { Urun } from "@/lib/store/types"
+import type { AppState, Urun } from "@/lib/store/types"
 import { KatmanEkran } from "./KatmanEkran"
 import { KimlikOnizleme } from "./KimlikOnizleme"
 import { ETKI_METNI, KozmetikGorseli } from "./KozmetikGorseli"
@@ -57,6 +59,27 @@ function SureCipi({ urun }: { urun: Urun }) {
       {etiket}
     </span>
   )
+}
+
+/*
+  "3 üründen 2'si alındı" — iyelik eki rakamın OKUNUŞUNA bağlı (biri, ikisi,
+  üçü, dördü…), yazılışına değil; tek bir ses uyumu kuralı yetmiyor. Katalogdaki
+  koleksiyonlar tek haneli olduğu için okunuşlar elle eşlendi.
+*/
+const IYELIK_EKI = ["'ı", "'i", "'si", "'ü", "'ü", "'i", "'sı", "'si", "'i", "'u"]
+const sayiIyelik = (n: number) => `${n}${IYELIK_EKI[n] ?? "'i"}`
+
+/**
+ * Kilitli bir ürünün bağlı olduğu koleksiyon ve ilerlemesi.
+ *
+ * Ürün → koleksiyon bağı ödül kimliği üzerinden kurulur; ürünün kendisi
+ * hangi sete ait olduğunu bilmez, böylece `Urun` şeması büyümez.
+ */
+function odulIlerlemesi(state: AppState, urun: Urun) {
+  if (urun.kilit !== 'koleksiyon') return null
+  const koleksiyon = KOLEKSIYONLAR.find((k) => k.odulUrunId === urun.id)
+  if (!koleksiyon) return null
+  return { koleksiyon, ...koleksiyonDurumu(state, koleksiyon) }
 }
 
 export function Magaza({ onBack }: { onBack: () => void }) {
@@ -211,6 +234,15 @@ export function Magaza({ onBack }: { onBack: () => void }) {
             {filtrelenmis.map((urun) => {
               const { sahipMi, aktif, kalan } = sahiplikDurumu(urun)
               const bakiyeYetersiz = jetonBakiyesi < urun.fiyat
+              const ilerleme = odulIlerlemesi(state, urun)
+              /*
+                Ödül "açıldı mı" sorusu envanter satırının VARLIĞINA bakar,
+                süresine değil: kazanılmış bir set, ödülün 30 günü dolduğu
+                için yeniden "Kilitli" görünmemeli.
+              */
+              const odulAcildi = Boolean(
+                ilerleme && state.kullanici.envanter.some((s) => s.urunId === urun.id)
+              )
 
               return (
                 <div
@@ -229,7 +261,18 @@ export function Magaza({ onBack }: { onBack: () => void }) {
                       <div className="flex justify-between items-start gap-3">
                         <h3 className="font-bold text-lg text-primary min-w-0">{urun.ad}</h3>
                         <Yuzey tur="mihenk" className="shrink-0">
-                          <Jeton deger={urun.fiyat} className="font-bold text-brand text-lg" />
+                          {ilerleme ? (
+                            /*
+                              Fiyat yerine "Set ödülü". Prestij ürününün
+                              üstünde "0 jeton" yazması bir hata gibi okunur;
+                              üstelik ürün satılık da değil.
+                            */
+                            <span className="inline-block text-xs font-bold text-brand bg-brand/10 px-2 py-1 rounded border border-brand/30 whitespace-nowrap">
+                              Set ödülü
+                            </span>
+                          ) : (
+                            <Jeton deger={urun.fiyat} className="font-bold text-brand text-lg" />
+                          )}
                         </Yuzey>
                       </div>
                       <p className="text-xs text-secondary mt-0.5">{ETKI_METNI[urun.efekt.tur]}</p>
@@ -250,6 +293,19 @@ export function Magaza({ onBack }: { onBack: () => void }) {
                     )}
                   </div>
 
+                  {/*
+                    İlerleme satırı. ODAKLANABİLİR DEĞİL — düz metin, sekme
+                    durağı açmıyor: mağaza ızgarasının sekme bütçesi kart
+                    başına iki düğmeyle zaten dolu. Ekran okuyucu satırı
+                    kartın akışı içinde okur.
+                  */}
+                  {ilerleme && (
+                    <p className="text-xs text-secondary mb-4 font-mono">
+                      {ilerleme.koleksiyon.ad} · {ilerleme.toplam} üründen{' '}
+                      {sayiIyelik(ilerleme.sahipSayisi)} alındı
+                    </p>
+                  )}
+
                   <div className="mt-auto pt-4 border-t border-line">
                     <div className="flex gap-2">
                       <button
@@ -260,7 +316,23 @@ export function Magaza({ onBack }: { onBack: () => void }) {
                         Dene
                       </button>
 
-                      {sahipMi ? (
+                      {ilerleme ? (
+                        /*
+                          Kilitli ürünün düğmesi DEVRE DIŞI, aria-disabled
+                          değil: devre dışı düğmeler Tab sırasından düşer.
+                          Basılacak bir şey olmayan iki durakla (her kilitli
+                          kartta bir tane) odak bütçesini harcamanın anlamı
+                          yok. Ürünün nasıl açılacağını üstteki ilerleme
+                          satırı zaten söylüyor.
+                        */
+                        <button
+                          type="button"
+                          disabled
+                          className="flex-1 py-2 text-sm font-bold rounded-lg border border-line bg-page text-secondary cursor-not-allowed"
+                        >
+                          {odulAcildi ? 'Açıldı' : 'Kilitli'}
+                        </button>
+                      ) : sahipMi ? (
                         <button
                           type="button"
                           onClick={() => urunAcKapa(urun.id)}
@@ -350,6 +422,15 @@ function UrunOnizleme({
   const sahip = state.kullanici.envanter.find((e) => e.urunId === urun.id)
   const sahipMi = Boolean(sahip) && !suresiDoldu(urun, sahip!)
 
+  /*
+    Kilitli ürün pencereden de satın alınamaz. Kart düğmesi zaten devre
+    dışı ama "Dene" penceresi açık kalıyor; oradaki Al düğmesi yalnızca
+    bakiyeye baktığı için 0 jetonluk ödülü hep "alınabilir" gösterirdi ve
+    basınca `urunSatinAl` false dönüp "0 jeton daha gerekiyor" diyen yanlış
+    bir uyarı çıkardı.
+  */
+  const ilerleme = odulIlerlemesi(state, urun)
+
   const cerceveSinifi = efekt.tur === 'cerceve' ? (CERCEVE_SINIFLARI[efekt.deger] ?? '') : ''
   const adSinifi = efekt.tur === 'adRengi' ? (AD_RENGI_SINIFLARI[efekt.deger] ?? '') : ''
   const rozetGorunum = efekt.tur === 'rozet' ? ROZET_SIMGELERI[efekt.deger] : undefined
@@ -426,6 +507,12 @@ function UrunOnizleme({
           <p id="onizleme-sahip" className="mb-3 text-sm text-success text-center">
             Bu ürün envanterinde. Açıp kapatmayı cüzdan ekranından yapabilirsin.
           </p>
+        ) : ilerleme ? (
+          <p id="onizleme-kilitli" className="mb-3 text-sm text-secondary text-center">
+            Bu ürün satın alınamaz. {ilerleme.koleksiyon.ad} · {ilerleme.toplam} üründen{' '}
+            {sayiIyelik(ilerleme.sahipSayisi)} alındı; seti tamamlayınca kendiliğinden
+            envanterine eklenir.
+          </p>
         ) : bakiyeYetersiz ? (
           <p id="onizleme-eksik" className="mb-3 text-sm text-secondary text-center">
             {urun.fiyat - state.kullanici.jetonBakiyesi} jeton daha gerekiyor.
@@ -453,19 +540,27 @@ function UrunOnizleme({
           <button
             type="button"
             onClick={onSatinAl}
-            disabled={bakiyeYetersiz || sahipMi}
-            aria-disabled={bakiyeYetersiz || sahipMi || undefined}
+            disabled={bakiyeYetersiz || sahipMi || Boolean(ilerleme)}
+            aria-disabled={bakiyeYetersiz || sahipMi || Boolean(ilerleme) || undefined}
             aria-describedby={
-              sahipMi ? 'onizleme-sahip' : bakiyeYetersiz ? 'onizleme-eksik' : undefined
+              sahipMi
+                ? 'onizleme-sahip'
+                : ilerleme
+                  ? 'onizleme-kilitli'
+                  : bakiyeYetersiz
+                    ? 'onizleme-eksik'
+                    : undefined
             }
             className={`flex-1 py-3 font-bold rounded-xl transition-colors ${
-              bakiyeYetersiz || sahipMi
+              bakiyeYetersiz || sahipMi || ilerleme
                 ? 'bg-page border border-line text-secondary cursor-not-allowed'
                 : 'bg-brand hover:bg-brand/90 text-brand-ink'
             }`}
           >
             {sahipMi ? (
               'Sahipsin'
+            ) : ilerleme ? (
+              'Kilitli'
             ) : bakiyeYetersiz ? (
               'Yetersiz bakiye'
             ) : (

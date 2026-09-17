@@ -1,9 +1,10 @@
 "use client"
 
-import { useRef, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import { BarChart2, Bot, Image as ImageIcon, Plus, X } from "lucide-react"
 import { useStore } from "@/lib/store/kanca"
 import { CERCEVE_SINIFLARI, aktifEfekt, islevAcikMi } from "@/lib/store/efektler"
+import { olcMetinNiteligi } from "@/lib/verification"
 import type { DogrulamaSonucu, Gonderi } from "@/lib/store/types"
 import { Avatar } from "./Avatar"
 
@@ -30,6 +31,33 @@ export function GonderiOlustur({
   const maxKarakter = islevAcikMi(state, 'uzun_gonderi') ? GENIS_KARAKTER : VARSAYILAN_KARAKTER
   const maxSecenek = islevAcikMi(state, 'gelismis_anket') ? GENIS_SECENEK : VARSAYILAN_SECENEK
   const cerceve = aktifEfekt(state, 'cerceve')
+
+  /*
+    Ayar Taşı (u18) — işlevsel ayrıcalık: paylaşmadan önce metnin nitelik
+    tahminini gösterir.
+
+    `olcMetinNiteligi` SAF bir skorlayıcı — `dogrula` DEĞİL. Yani özgünlük ya
+    da kopya hakkında hiçbir iddiada bulunmuyor ve paylaşım sonrası çalışan
+    asenkron doğrulamayı öne almıyor. Yayınlama ile doğrulamanın ayrıklığı
+    (rapor Şekil 3) korunuyor.
+
+    "TAHMİN" demesi şart: görselli gönderide gerçek skor metin ve görsel
+    kademelerinin 0,55/0,45 ağırlıklı ortalaması. Sonuçla çelişen kesin bir
+    sayı, hiç sayı olmamasından kötü olurdu.
+  */
+  const onOlcumAcik = islevAcikMi(state, 'on_olcum')
+  const tahmin = useMemo(
+    () => (onOlcumAcik && metin.trim().length > 0 ? olcMetinNiteligi(metin) : null),
+    [onOlcumAcik, metin]
+  )
+  const tahminBandi =
+    tahmin === null
+      ? null
+      : tahmin.skor >= 60
+        ? 'jeton kazanır'
+        : tahmin.skor >= 40
+          ? 'kısmi kazanır'
+          : 'jeton kazanmaz'
 
   /*
     Karakter sayaci her tus vurusunda duyurulursa ekran okuyucu bogulur.
@@ -140,7 +168,7 @@ export function GonderiOlustur({
             id="gonderi-metni"
             value={metin}
             onChange={(e) => setMetin(e.target.value.slice(0, maxKarakter))}
-            placeholder="Neler oluyor?"
+            placeholder="Aklında ne var?"
             className="w-full bg-transparent text-primary text-lg resize-none outline-none min-h-[52px] placeholder:text-secondary mt-1"
           />
 
@@ -222,7 +250,33 @@ export function GonderiOlustur({
             </p>
           )}
 
-          <div className="border-t border-line pt-3 mt-2 flex items-center justify-between gap-3 flex-wrap">
+          {/*
+          Ayar Taşı tahmini kendi satırında: araç çubuğunun içine sıkıştırınca
+          dar ekranda sarıyordu. Odaklanabilir değil ve aria-live taşımıyor —
+          her tuş vuruşunda değişen bir canlı bölge ekran okuyucuyu boğar.
+        */}
+        {tahmin && (
+          <p className="border-t border-line pt-2 mt-2 text-xs text-secondary">
+            metin kademesi tahmini:{' '}
+            <span
+              className={`font-mono font-bold ${
+                tahmin.skor >= 60
+                  ? 'text-success'
+                  : tahmin.skor >= 40
+                    ? 'text-brand'
+                    : 'text-error'
+              }`}
+            >
+              ~{Math.round(tahmin.skor)}
+            </span>
+            <span aria-hidden="true"> · </span>
+            {tahminBandi}
+          </p>
+        )}
+
+        <div
+          className={`${tahmin ? 'pt-3' : 'border-t border-line pt-3 mt-2'} flex items-center justify-between gap-3 flex-wrap`}
+        >
             <div className="flex items-center gap-1 text-interaction">
               <input
                 ref={dosyaRef}
@@ -268,12 +322,8 @@ export function GonderiOlustur({
               </label>
             </div>
 
-            <div className="flex items-center gap-4">
-              <span
-                className={`text-xs font-mono ${metin.length >= maxKarakter ? 'text-error font-bold' : 'text-secondary'}`}
-              >
-                {metin.length}/{maxKarakter}
-              </span>
+            <div className="flex items-center gap-3">
+              <KarakterHalkasi uzunluk={metin.length} sinir={maxKarakter} />
               <span aria-live="polite" className="sr-only">
                 {sayacDuyurusu}
               </span>
@@ -283,12 +333,59 @@ export function GonderiOlustur({
                 disabled={!paylasilabilir}
                 className="bg-brand hover:bg-brand/90 text-brand-ink font-bold py-1.5 px-5 rounded-full disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                Paylaş
+                Gönder
               </button>
             </div>
           </div>
         </div>
       </div>
     </div>
+  )
+}
+
+/**
+ * Karakter sayacı — halka biçiminde.
+ *
+ * NSosyal'ın yazma ekranı sayıyı halka olarak gösteriyor. Halkanın kendisi
+ * aria-hidden ve dekoratif: bilgiyi taşıyan şey içindeki sayı ve bileşenin
+ * dışındaki aria-live duyurusu. Böylece WCAG 1.4.11'in grafik nesneler için
+ * istediği 3:1 yükümlülüğü doğmuyor — halka tek başına hiçbir şey anlatmıyor.
+ *
+ * Sayı yalnızca metin yazılmışken görünür; boşken referanstaki gibi boş bir
+ * daire kalır.
+ */
+function KarakterHalkasi({ uzunluk, sinir }: { uzunluk: number; sinir: number }) {
+  const doluluk = Math.min(1, uzunluk / sinir)
+  const R = 13
+  const CEVRE = 2 * Math.PI * R
+  const doldu = uzunluk >= sinir
+  const yaklasti = doluluk >= 0.8
+
+  return (
+    <span className="relative inline-flex items-center justify-center w-9 h-9 shrink-0">
+      <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true" className="-rotate-90">
+        <circle cx="16" cy="16" r={R} fill="none" strokeWidth="2.5" className="stroke-line" />
+        <circle
+          cx="16"
+          cy="16"
+          r={R}
+          fill="none"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeDasharray={CEVRE}
+          strokeDashoffset={CEVRE * (1 - doluluk)}
+          className={doldu ? 'stroke-error' : yaklasti ? 'stroke-brand' : 'stroke-interaction'}
+        />
+      </svg>
+      {uzunluk > 0 && (
+        <span
+          className={`absolute font-mono leading-none ${
+            doldu ? 'text-error font-bold text-[9px]' : 'text-secondary text-[9px]'
+          }`}
+        >
+          {sinir - uzunluk}
+        </span>
+      )}
+    </span>
   )
 }

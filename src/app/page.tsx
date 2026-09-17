@@ -6,6 +6,12 @@ import { DepoYukleniyor, useStore } from "@/lib/store/kanca"
 import type { Gorunum, DogrulamaSonucu as Sonuc } from "@/lib/store/types"
 import { AkisSekmeleri } from "@/components/AkisSekmeleri"
 import { AltGezinti } from "@/components/AltGezinti"
+import {
+  Bildirimler,
+  okunmamisSayisi,
+  sonZiyaretZamani,
+  ziyaretiIsaretle,
+} from "@/components/Bildirimler"
 import { Cuzdan } from "@/components/Cuzdan"
 import { DogrulamaSonucu } from "@/components/DogrulamaSonucu"
 import { Giris } from "@/components/Giris"
@@ -61,6 +67,18 @@ export default function Home() {
   const [kapsamNotu, setKapsamNotu] = useState<string | null>(null)
 
   /*
+    Bildirimlerin son ziyaret damgası uygulama durumunun DIŞINDA, kendi
+    localStorage anahtarında duruyor (bkz. Bildirimler.tsx). Burada yalnızca
+    bir kopyası tutulur ki ekran açıldığında zil rozeti yeniden hesaplansın;
+    localStorage yazması bileşenlere kendiliğinden haber vermez.
+
+    Değer tembel başlatıcıyla bir kez okunur. Sunucuda depolama yok ve
+    yedeğe düşülür, ama zil hidrasyon tamamlanmadan hiç basılmıyor
+    (önce Giriş, sonra DepoYükleniyor) — uyuşmazlık doğmaz.
+  */
+  const [sonZiyaret, setSonZiyaret] = useState(sonZiyaretZamani)
+
+  /*
     Tur yalnızca ilk girişte açılır. Durumu uygulama durumundan ayrı bir
     anahtarda tutulur; seed sürümü değişip durum sıfırlansa bile tur
     yeniden gösterilmez.
@@ -94,6 +112,14 @@ export default function Home() {
 
   const katmanAcik = gorunum !== 'akis' || cekmeceAcik
 
+  /* Ekranı açmak her şeyi okunmuş sayar; rozet aynı karede sıfırlanır. */
+  const bildirimleriAc = () => {
+    setSonZiyaret(ziyaretiIsaretle())
+    setGorunum('bildirimler')
+  }
+
+  const okunmamis = okunmamisSayisi(state, sonZiyaret)
+
   /*
     "Takip ettiklerin" gerçek bir süzgeç: kendi gönderilerin çıkar, çünkü
     kendini takip etmiyorsun. Sekme değiştirince hiçbir şeyin değişmemesi,
@@ -124,7 +150,11 @@ export default function Home() {
           Gezinti çubuğuna atla
         </a>
 
-        <TopBar onMenu={() => setCekmeceAcik(true)} onKapsamDisi={setKapsamNotu} />
+        <TopBar
+          onMenu={() => setCekmeceAcik(true)}
+          onBildirimler={bildirimleriAc}
+          okunmamis={okunmamis}
+        />
 
         <div className="w-full max-w-lg mx-auto flex-1 flex flex-col">
           <HikayeSeridi />
@@ -183,6 +213,7 @@ export default function Home() {
         <YanCekmece
           onKapat={() => setCekmeceAcik(false)}
           onTanitim={() => setTurIstegi(true)}
+          onBildirimler={bildirimleriAc}
           onKapsamDisi={setKapsamNotu}
         />
       )}
@@ -190,6 +221,7 @@ export default function Home() {
       {gorunum === 'cuzdan' && <Cuzdan onBack={() => setGorunum('akis')} />}
       {gorunum === 'magaza' && <Magaza onBack={() => setGorunum('akis')} />}
       {gorunum === 'profil' && <Profil onBack={() => setGorunum('akis')} />}
+      {gorunum === 'bildirimler' && <Bildirimler onBack={() => setGorunum('akis')} />}
 
       {tanitimAcik && <Tanitim onKapat={() => setTurIstegi(false)} />}
 

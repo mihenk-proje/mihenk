@@ -39,6 +39,17 @@ export const demoMagaza: Urun[] = [
   { id: 'u4c', ad: 'Ametist Çerçeve', aciklama: '30 günlük mor ışıltılı ametist çerçeve.', kategori: 'sezonluk', fiyat: 300, sureGun: 30, efekt: { tur: 'cerceve', deger: 'ametist' } },
   { id: 'u13', ad: 'Kuvars Şerit', aciklama: '30 gün boyunca gönderi kartlarında kuvars kenarlığı.', kategori: 'sezonluk', fiyat: 180, sureGun: 30, efekt: { tur: 'kenarlik', deger: 'kuvars' } },
   { id: 'u14', ad: 'Ametist Zemin', aciklama: 'Profil kapağına 30 günlük ametist dokusu.', kategori: 'sezonluk', fiyat: 220, sureGun: 30, efekt: { tur: 'tema', deger: 'ametist' } },
+  /*
+    KOLEKSİYON ÖDÜLÜ — satın alınamaz.
+
+    Katalogda duruyor ki kullanıcı neyi hedeflediğini önceden görsün; ama
+    `kilit` alanı `urunSatinAl`ın ilk satırında reddedilir. Fiyatı 0: hiç
+    ücretlendirilmiyor. Mağaza kartı bu yüzden fiyat yerine "Set ödülü"
+    çipi gösterir — prestij ürününün üstünde "0 jeton" yazması hata gibi
+    okunurdu. Yeni bir kategori AÇILMADI: beşinci sekme dört sekmelik
+    şeridin dengesini ve klavye denetimini birden bozardı.
+  */
+  { id: 'u15', ad: 'Tunç Mührü', aciklama: 'Tunç Seti tamamlanınca kazanılır; satın alınamaz. Kazanıldığı andan itibaren 30 gün adının yanında durur.', kategori: 'sezonluk', fiyat: 0, sureGun: 30, kilit: 'koleksiyon', efekt: { tur: 'rozet', deger: 'tuncMuhur' } },
 
   { id: 'u5', ad: 'Altın Çerçeve', aciklama: 'Kalıcı ve prestijli altın çerçeve.', kategori: 'kalici', fiyat: 800, sureGun: null, efekt: { tur: 'cerceve', deger: 'altin' } },
   { id: 'u6', ad: 'Külçe Nişanı', aciklama: 'Kalıcı topluluk külçe rozeti.', kategori: 'kalici', fiyat: 1200, sureGun: null, efekt: { tur: 'rozet', deger: 'kulce' } },
@@ -50,6 +61,39 @@ export const demoMagaza: Urun[] = [
   { id: 'u8', ad: 'Geniş Anket', aciklama: '30 gün boyunca 6 seçenekli anketler aç.', kategori: 'islevsel', fiyat: 80, sureGun: 30, efekt: { tur: 'islev', deger: 'gelismis_anket' } },
   { id: 'u17', ad: 'Mika Merceği', aciklama: '30 gün boyunca kendi gönderilerinde doğrulama gerekçesinin tamamını ve skor bandını gör.', kategori: 'islevsel', fiyat: 40, sureGun: 30, efekt: { tur: 'islev', deger: 'ayrintili_rapor' } },
   { id: 'u18', ad: 'Ayar Taşı', aciklama: '30 gün boyunca paylaşmadan önce metnin nitelik tahminini gör.', kategori: 'islevsel', fiyat: 60, sureGun: 30, efekt: { tur: 'islev', deger: 'on_olcum' } },
+]
+
+/**
+ * Bir koleksiyon: üyeleri toplanınca kilitli ödülünü açan ürün kümesi.
+ *
+ * Tür burada tanımlı çünkü koleksiyon kayıtlı duruma HİÇ girmiyor —
+ * `AppState` şeması değişmiyor, DEPO_ANAHTARI v3 kalıyor. Katalog gibi
+ * kod tarafında sabit duran bir veri.
+ */
+export type Koleksiyon = {
+  id: string
+  ad: string
+  /** Üye ürün kimlikleri. Hepsi katalogda bulunmalı. */
+  urunler: string[]
+  /** Tamamlanınca verilen kilitli ürünün kimliği. */
+  odulUrunId: string
+}
+
+/**
+ * Koleksiyonlar.
+ *
+ * KOLEKSİYON, ÜYELERİNE SAHİP OLUNARAK TAMAMLANIR — onları kuşanarak değil.
+ *
+ * Tunç Seti'nin üç üyesi de 24 saatlik süreli ürün. "Üçü de o an açık olsun"
+ * koşulu pratikte hiç sağlanamazdı: ilk alınanın süresi, üçüncüsü alınmadan
+ * dolardı. Sahiplik kaydı ise kalıcı. `urunSatinAl` envanteri önce süzüp
+ * sonra ekliyor (satır asla silinmiyor), `senkronizeEt` de süresi dolan
+ * kaydın yalnızca `aktif` alanını kapatıyor — yani bir envanter satırı
+ * "şu an takılı" değil, "bir kez sahip olundu" demektir. Koleksiyon sayımı
+ * tam olarak buna dayanır.
+ */
+export const KOLEKSIYONLAR: Koleksiyon[] = [
+  { id: 'tunc-seti', ad: 'Tunç Seti', urunler: ['u2c', 'u11', 'u12'], odulUrunId: 'u15' },
 ]
 
 export const BEN_ID = 'ahmet_yilmaz'

@@ -3,7 +3,7 @@
 import { useStore } from "@/lib/store/kanca"
 import { Avatar } from "./Avatar"
 
-type RozetGorunum = { simge: string; sinif: string; etiket: string }
+type RozetGorunum = { simge: string; sinif: string; etiket: string; hareket?: string }
 
 /**
  * Kullanıcının kimlik bileşimi: avatar + çerçeve, ad + ad rengi, rozet.
@@ -52,7 +52,10 @@ export function KimlikOnizleme({
       >
         <span className={`font-bold ${adSinifi || 'text-primary'}`}>{k.adSoyad}</span>
         {rozetGorunum && (
-          <span className={rozetGorunum.sinif} aria-label={rozetGorunum.etiket}>
+          <span
+            className={`${rozetGorunum.sinif} ${rozetGorunum.hareket ?? ''}`}
+            aria-label={rozetGorunum.etiket}
+          >
             {rozetGorunum.simge}
           </span>
         )}
