@@ -10,6 +10,8 @@ import {
   itirazEt,
   mesajGonder,
   resetToDemo,
+  taslakKaydet,
+  taslakSil,
   sunucuGoruntusu,
   urunAcKapa,
   urunSatinAl,
@@ -74,6 +76,8 @@ export function useStore() {
     urunAcKapa,
     itirazEt,
     mesajGonder,
+    taslakKaydet,
+    taslakSil,
     dogrulamaTetikle,
   }
 }

@@ -1,8 +1,9 @@
 /** Depo katmanının bütünleşim testleri: bakiye tutarlılığı, tavan, süre dolumu. */
 import * as depo from '@/lib/store/depo'
-import { KOLEKSIYONLAR, varsayilanDurum } from '@/lib/store/demoData'
+import { KILOMETRE_TASLARI, KOLEKSIYONLAR, varsayilanDurum } from '@/lib/store/demoData'
 import {
   aktifEfekt,
+  kilometreTasiDurumu,
   koleksiyonDurumu,
   suresiDoldu,
   yururluktekiUrunler,
@@ -281,6 +282,47 @@ export async function calistir() {
     yedinciSonuc && !yedinciSonuc.gerekce.some((x) => x.includes('üst sınır')),
     `→ ${yedinciSonuc?.gerekce?.join(' | ')}`)
   kontrol('bakiye defterle tutarlı', d().kullanici.jetonBakiyesi === defterToplami())
+
+  console.log('\n— Kilometre taşları —')
+  /*
+    Bu noktada yedi yeni gönderi doğrulandı; tohumdaki iki doğrulanmışla
+    birlikte "Beş doğrulanmış içerik" taşı aşılmış olmalı ve u31 Mika Damgası
+    doğrulama anında verilmiş olmalı — satın alma anında değil.
+  */
+  const benimDogrulanan = d().gonderiler.filter(
+    (g) => g.yazarId === d().kullanici.id && (g.dogrulamaDurumu === 'gecti' || g.dogrulamaDurumu === 'kismi')
+  ).length
+  kontrol('beşten fazla doğrulanmış içerik var', benimDogrulanan >= 5, `→ ${benimDogrulanan}`)
+  const ilk = KILOMETRE_TASLARI.find((t) => t.id === 'ilk-dogrulama')
+  kontrol('"ilk doğrulama" taşı tamam', kilometreTasiDurumu(d(), ilk).tamam)
+  const bes = KILOMETRE_TASLARI.find((t) => t.id === 'bes-dogrulanan')
+  kontrol('"beş doğrulanmış" taşı tamam', kilometreTasiDurumu(d(), bes).tamam)
+  kontrol('Mika Damgası doğrulama anında verildi', d().kullanici.envanter.some((s) => s.urunId === 'u31'))
+  kontrol('damga deftere 0 jetonla geçti',
+    d().hareketler.some((h) => h.miktar === 0 && h.aciklama.includes('Mika Damgası')))
+  const damga = d().magaza.find((u) => u.id === 'u31')
+  kontrol('damga satın alınamaz', depo.urunSatinAl(damga) === false)
+  const yildonumu = KILOMETRE_TASLARI.find((t) => t.id === 'yildonumu')
+  kontrol('yıldönümü taşı henüz kilitli (birikim, seri değil)', kilometreTasiDurumu(d(), yildonumu).tamam === false)
+
+  console.log('\n— Taslaklar —')
+  kontrol('boş taslak reddedilir', depo.taslakKaydet('   ') === false)
+  kontrol('varsayılan sınır 1', depo.taslakSiniri(d()) === 1)
+  depo.taslakKaydet('Birinci taslak metni.')
+  depo.taslakKaydet('İkinci taslak metni.')
+  kontrol('sınır 1 iken yalnızca en yenisi kalır',
+    d().taslaklar.length === 1 && d().taslaklar[0].metin === 'İkinci taslak metni.')
+  const genisTaslak = d().magaza.find((u) => u.id === 'u35')
+  if (d().kullanici.jetonBakiyesi >= genisTaslak.fiyat) {
+    depo.urunSatinAl(genisTaslak)
+    kontrol('Geniş Taslak ile sınır 5', depo.taslakSiniri(d()) === 5)
+    depo.taslakKaydet('Üçüncü'); depo.taslakKaydet('Dördüncü')
+    kontrol('birden fazla taslak saklanıyor', d().taslaklar.length === 3)
+  } else {
+    console.log('  (bakiye yetersiz, Geniş Taslak atlandı)')
+  }
+  depo.taslakSil(d().taslaklar[0].id)
+  kontrol('taslak silinebiliyor', d().taslaklar.length >= 0)
 
   console.log('\n— Akış içinde kopya tespiti —')
   sustur()

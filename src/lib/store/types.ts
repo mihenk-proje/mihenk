@@ -26,7 +26,14 @@ export type Urun = {
    * İsteğe bağlı olduğu için geriye uyumlu: kayıtlı durum şeması değişmiyor,
    * DEPO_ANAHTARI v3 kalıyor.
    */
-  kilit?: 'koleksiyon'
+  kilit?: 'koleksiyon' | 'kilometre'
+  /**
+   * Sponsorlu ürün: markanın adı. Ürün yine JETONLA alınır; gelir markadan
+   * gelir, jeton hiçbir zaman paraya değmez. Prototipteki markalar
+   * KURGUSALDIR ve arayüzde öyle etiketlenir — anlaşma olmadan gerçek bir
+   * marka adı yazmak hem marka hakkı hem var olmayan bir ortaklık iması olurdu.
+   */
+  marka?: string
   fiyat: number
   /** null = kalıcı ürün */
   sureGun: number | null
@@ -159,6 +166,13 @@ export type Mesaj = {
   zaman: string
 }
 
+/** Yazılmaya başlanmış, henüz paylaşılmamış gönderi metni */
+export type Taslak = {
+  id: string
+  metin: string
+  zaman: string
+}
+
 export type AppState = {
   /**
    * Seed içeriğinden türetilen parmak izi. Kayıtlı durumun hangi demo
@@ -176,4 +190,6 @@ export type AppState = {
    * diziyle dolduruyor, DEPO_ANAHTARI v3 kalıyor.
    */
   mesajlar?: Mesaj[]
+  /** İsteğe bağlı: eski kayıtlı durumlarda yok, hidrasyon boş diziyle doldurur. */
+  taslaklar?: Taslak[]
 }

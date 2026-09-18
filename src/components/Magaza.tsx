@@ -279,7 +279,20 @@ export function Magaza({ onBack }: { onBack: () => void }) {
                           )}
                         </Yuzey>
                       </div>
-                      <p className="text-xs text-secondary mt-0.5">{ETKI_METNI[urun.efekt.tur]}</p>
+                      <p className="text-xs text-secondary mt-0.5">
+                        {ETKI_METNI[urun.efekt.tur]}
+                        {urun.marka && (
+                          /*
+                            Sponsorlu ürün: gelir markadan, ürün yine jetonla.
+                            Marka kurgusal ve etiket bunu söylüyor — anlaşma
+                            olmadan gerçek bir marka adı yazmak var olmayan
+                            bir ortaklık iması olurdu.
+                          */
+                          <span className="ml-2 text-[10px] font-mono uppercase tracking-wide px-1.5 py-0.5 rounded border border-line-strong">
+                            sponsorlu · {urun.marka} (kurgusal)
+                          </span>
+                        )}
+                      </p>
                     </div>
                   </div>
 

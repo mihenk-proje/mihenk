@@ -1,10 +1,11 @@
 "use client"
 
 import { useMemo, useRef, useState } from "react"
-import { BarChart2, Bot, Image as ImageIcon, Plus, X } from "lucide-react"
+import { BarChart2, Bot, FileText, Image as ImageIcon, Plus, X } from "lucide-react"
 import { useStore } from "@/lib/store/kanca"
 import { CERCEVE_SINIFLARI, aktifEfekt, islevAcikMi } from "@/lib/store/efektler"
 import { olcMetinNiteligi } from "@/lib/verification"
+import { taslakSiniri } from "@/lib/store/depo"
 import type { DogrulamaSonucu, Gonderi } from "@/lib/store/types"
 import { Avatar } from "./Avatar"
 
@@ -31,7 +32,7 @@ export function GonderiOlustur({
    */
   idOneki?: string
 }) {
-  const { state, gonderiEkle, dogrulamaTetikle } = useStore()
+  const { state, gonderiEkle, dogrulamaTetikle, taslakKaydet, taslakSil } = useStore()
   const [metin, setMetin] = useState("")
   const [yzBeyani, setYzBeyani] = useState(false)
   const [gorsel, setGorsel] = useState<string | null>(null)
@@ -56,6 +57,15 @@ export function GonderiOlustur({
     kademelerinin 0,55/0,45 ağırlıklı ortalaması. Sonuçla çelişen kesin bir
     sayı, hiç sayı olmamasından kötü olurdu.
   */
+  /*
+    Taslaklar: yazılanı saklayıp sonra geri yükleme. Sınır varsayılan 1,
+    Geniş Taslak (u35) ile 5. Taslak listesi yalnızca taslak varken görünür —
+    boş bir "Taslaklar (0)" satırı gürültü olurdu.
+  */
+  const taslaklar = state.taslaklar ?? []
+  const sinir = taslakSiniri(state)
+  const [taslakBildirimi, setTaslakBildirimi] = useState<string | null>(null)
+
   const onOlcumAcik = islevAcikMi(state, 'on_olcum')
   const tahmin = useMemo(
     () => (onOlcumAcik && metin.trim().length > 0 ? olcMetinNiteligi(metin) : null),
@@ -173,6 +183,37 @@ export function GonderiOlustur({
         />
 
         <div className="flex-1 min-w-0">
+          {taslaklar.length > 0 && (
+            <div className="mb-2 flex flex-wrap items-center gap-1.5">
+              <span className="text-[11px] text-secondary">Taslaklar {taslaklar.length}/{sinir}:</span>
+              {taslaklar.map((t) => (
+                <span key={t.id} className="inline-flex items-center rounded-full border border-line bg-page">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMetin(t.metin.slice(0, maxKarakter))
+                      taslakSil(t.id)
+                    }}
+                    className="pl-2.5 pr-1 py-1 text-[11px] text-primary max-w-[9rem] truncate hover:underline"
+                    title={t.metin}
+                  >
+                    {t.metin}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => taslakSil(t.id)}
+                    aria-label="Taslağı sil"
+                    className="p-1 mr-0.5 rounded-full text-secondary hover:text-error"
+                  >
+                    <X size={12} aria-hidden="true" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+          <span aria-live="polite" className="sr-only">
+            {taslakBildirimi}
+          </span>
           <label htmlFor={`${idOneki}-metni`} className="sr-only">
             Gönderi metni
           </label>
@@ -290,6 +331,22 @@ export function GonderiOlustur({
           className={`${tahmin ? 'pt-3' : 'border-t border-line pt-3 mt-2'} flex items-center justify-between gap-3 flex-wrap`}
         >
             <div className="flex items-center gap-1 text-interaction">
+            <button
+              type="button"
+              onClick={() => {
+                if (taslakKaydet(metin)) {
+                  setMetin('')
+                  setTaslakBildirimi(`Taslak kaydedildi (${Math.min(taslaklar.length + 1, sinir)}/${sinir})`)
+                  window.setTimeout(() => setTaslakBildirimi(null), 3000)
+                }
+              }}
+              disabled={metin.trim().length === 0}
+              title="Taslağa kaydet"
+              aria-label="Taslağa kaydet"
+              className="p-2 hover:bg-interaction/10 rounded-full transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <FileText size={20} aria-hidden="true" />
+            </button>
               <input
                 ref={dosyaRef}
                 type="file"

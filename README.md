@@ -103,7 +103,7 @@ npm run dev     # http://localhost:3000
 | `npm run build` | Üretim derlemesi |
 | `npm start` | Üretim sunucusu |
 | `npm run lint` | ESLint denetimi |
-| `npm test` | Doğrulama ve depo testleri (106 test) |
+| `npm test` | Doğrulama ve depo testleri (117 test) |
 
 Ortam değişkeni gerekmez; uygulama tamamen istemci tarafında çalışır ve arka uç bağlantısı yoktur.
 
@@ -336,7 +336,7 @@ beklediği `localStorage` ve `window` API'lerini taklit eder.
 | Dosya | Kapsam | Test |
 |---|---|---|
 | `test/dogrulama.test.mjs` | Türkçe normalleştirme, n-gram + Jaccard, metin niteliği, anket çeşitliliği, Hamming mesafesi, doğrulama zinciri, yeni hesap koruması | 42 |
-| `test/depo.test.mjs` | Hidrasyon, bakiye–hareket defteri tutarlılığı, satın alma, tür başına tek slot, süre dolumu, günlük tavan ve Gümüş Tavan esnetmesi, akış içinde kopya tespiti, itiraz, koleksiyon ödülü, demo sıfırlama, kopya eşiği ve benzerlik uyarı bandı | 64 |
+| `test/depo.test.mjs` | Hidrasyon, bakiye–hareket defteri tutarlılığı, satın alma, tür başına tek slot, süre dolumu, günlük tavan ve Gümüş Tavan esnetmesi, kilometre taşları, taslaklar, akış içinde kopya tespiti, itiraz, koleksiyon ödülü, demo sıfırlama, kopya eşiği ve benzerlik uyarı bandı | 75 |
 
 Tarayıcı sürerek çalışan iki erişilebilirlik denetimi ayrıca bulunur. Bunlar `puppeteer-core`
 gerektirdiği için `npm test` dışında tutulmuştur; birim testleri bağımlılıksız kalsın diye.

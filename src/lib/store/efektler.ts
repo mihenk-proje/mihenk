@@ -1,4 +1,4 @@
-import type { Koleksiyon } from './demoData'
+import type { KilometreTasi, Koleksiyon } from './demoData'
 import type { AppState, EfektTuru, SahipOlunanUrun, Urun } from './types'
 
 /**
@@ -140,6 +140,8 @@ export const CERCEVE_SINIFLARI: Record<string, string> = {
   tunc: 'ring-2 ring-offset-2 ring-offset-page ring-[var(--kozmetik-tunc)]',
   ametist: 'ring-2 ring-offset-2 ring-offset-page ring-[var(--kozmetik-ametist)]',
   altin: 'ring-2 ring-offset-2 ring-offset-page ring-[var(--kozmetik-altin)]',
+  // Sponsorlu set — mevcut ölçülmüş gümüş, yeni renk değil
+  gumus: 'ring-2 ring-offset-2 ring-offset-page ring-[var(--kozmetik-gumus)]',
 }
 
 export const AD_RENGI_SINIFLARI: Record<string, string> = {
@@ -166,6 +168,7 @@ export const KENARLIK_SINIFLARI: Record<string, string> = {
   tunc: 'border-l-2 border-[var(--kozmetik-tunc)]',
   kuvars: 'border-l-2 border-[var(--kozmetik-kuvars)]',
   altin: 'border-l-2 border-[var(--kozmetik-altin)]',
+  gumus: 'border-l-2 border-[var(--kozmetik-gumus)]',
 }
 
 /**
@@ -214,6 +217,30 @@ export function kullanilabilirCikartmalar(state: AppState): string[] {
     .flatMap((u) => paketCikartmalari(u.efekt.deger))
 }
 
+/**
+ * Bir kilometre taşının durumu — kullanıcının kendi gönderilerinden TÜRETİLİR.
+ *
+ * "tur" ölçüsü kaç farklı gönderi türünde (metin / görsel / anket) doğrulanmış
+ * içerik olduğunu sayar. Raporun "5 farklı konuda üretim" fikri konu etiketi
+ * ister; prototipte konu yok, tür var — dürüst karşılığı bu.
+ */
+export function kilometreTasiDurumu(
+  state: AppState,
+  tas: KilometreTasi
+): { deger: number; hedef: number; tamam: boolean } {
+  const benim = state.gonderiler.filter((g) => g.yazarId === state.kullanici.id)
+  const dogrulanan = benim.filter((g) => g.dogrulamaDurumu === 'gecti' || g.dogrulamaDurumu === 'kismi')
+
+  let deger = 0
+  if (tas.olcu === 'dogrulanan') deger = dogrulanan.length
+  else if (tas.olcu === 'anket') deger = benim.filter((g) => g.tur === 'anket').length
+  else if (tas.olcu === 'tur') deger = new Set(dogrulanan.map((g) => g.tur)).size
+  else if (tas.olcu === 'gun')
+    deger = Math.floor((Date.now() - new Date(state.kullanici.hesapOlusturmaTarihi).getTime()) / 86_400_000)
+
+  return { deger: Math.min(deger, tas.hedef), hedef: tas.hedef, tamam: deger >= tas.hedef }
+}
+
 export const ROZET_SIMGELERI: Record<
   string,
   { simge: string; sinif: string; etiket: string; hareket?: string }
@@ -227,6 +254,10 @@ export const ROZET_SIMGELERI: Record<
     hiçbirine benzemiyor: satın alınabilen rozetlerle karıştırılmamalı.
     Rengi tunç ailesinin ölçülmüş değeri — yeni bir ton eklenmedi.
   */
+  kuvarsMuhur: { simge: '⬢', sinif: 'text-[var(--kozmetik-kuvars)]', etiket: 'Kuvars Mührü', hareket: 'mihenk-parilti' },
+  meridyen: { simge: '⬡', sinif: 'text-[var(--kozmetik-gumus)]', etiket: 'Meridyen Nişanı', hareket: 'mihenk-parilti' },
+  mikaDamga: { simge: '◉', sinif: 'text-[var(--kozmetik-mika)]', etiket: 'Mika Damgası' },
+  altinDamga: { simge: '◉', sinif: 'text-[var(--kozmetik-altin)]', etiket: 'Altın Damga' },
   tuncMuhur: {
     simge: '⬢',
     sinif: 'text-[var(--kozmetik-tunc)]',

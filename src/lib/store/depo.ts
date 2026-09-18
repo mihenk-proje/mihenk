@@ -16,8 +16,8 @@ import {
   dogrula,
   hesapYasiGun,
 } from '@/lib/verification'
-import { KOLEKSIYONLAR, SEED_SURUMU, varsayilanDurum } from './demoData'
-import { islevAcikMi, suresiDoldu, tekSlotUygula } from './efektler'
+import { KILOMETRE_TASLARI, KOLEKSIYONLAR, SEED_SURUMU, varsayilanDurum } from './demoData'
+import { islevAcikMi, kilometreTasiDurumu, suresiDoldu, tekSlotUygula } from './efektler'
 import type { AppState, DogrulamaSonucu, Gonderi, HareketKaydi, Mesaj, SahipOlunanUrun, Urun } from './types'
 
 /*
@@ -179,7 +179,11 @@ export function hidratla(): Promise<void> {
           kaydedilmiş bir durumda olmayabilir. Eksikse tohum sohbetlerle
           dolar — şema sürümü (v3) değişmeden geriye uyumluluk.
         */
-        veri = { ...cozulen, mesajlar: cozulen.mesajlar ?? varsayilanDurum().mesajlar }
+        veri = {
+          ...cozulen,
+          mesajlar: cozulen.mesajlar ?? varsayilanDurum().mesajlar,
+          taslaklar: cozulen.taslaklar ?? [],
+        }
       }
     }
   } catch (err) {
@@ -241,6 +245,38 @@ export function gonderiEkle(gonderi: Gonderi) {
  * gelip aynı türden ikincisini açık bırakırsa cüzdan iki rozeti birden
  * yeşil "Açık" gösterir ama ekranda yalnızca biri görünür.
  */
+/**
+ * Kilitli bir ödülü envantere ekler.
+ *
+ * Ödül YALNIZCA aynı türden takılı bir şey yoksa açık gelir. Koşulsuz açmak
+ * sessiz bir düşürme olurdu: 1500 jetonluk Ayar Rozeti takılıyken bedelsiz
+ * gelen bir mühür tek slot kuralı gereği onu kapatırdı. Bir ödül, kullanıcının
+ * kendi tercihini haberi olmadan geri alamaz. Takılı bir şey yoksa açık gelir —
+ * set tamamlandığında hiçbir şey olmamış gibi görünmesin.
+ *
+ * Ödül deftere 0 jetonla geçer. Defter yalnızca jeton akışının değil,
+ * kazanımların kaydı: reddedilen doğrulamalar da 0 jetonla yazılıyor.
+ */
+function odulEkle(
+  envanter: SahipOlunanUrun[],
+  magaza: Urun[],
+  odul: Urun,
+  zaman: string
+): SahipOlunanUrun[] {
+  const ayniTurTakili = envanter.some((s) => {
+    if (!s.aktif) return false
+    const u = magaza.find((m) => m.id === s.urunId)
+    return u?.efekt.tur === odul.efekt.tur && !suresiDoldu(u, s)
+  })
+  return ayniTurTakili
+    ? [...envanter, { urunId: odul.id, satinAlmaZamani: zaman, aktif: false }]
+    : tekSlotUygula(
+        [...envanter, { urunId: odul.id, satinAlmaZamani: zaman, aktif: true }],
+        magaza,
+        odul.id
+      )
+}
+
 function koleksiyonOdulleri(
   envanter: SahipOlunanUrun[],
   magaza: Urun[],
@@ -257,40 +293,42 @@ function koleksiyonOdulleri(
     const odul = magaza.find((u) => u.id === koleksiyon.odulUrunId)
     if (!odul) continue
 
-    /*
-      Ödül YALNIZCA aynı türden takılı bir şey yoksa açık gelir.
-
-      Koşulsuz açmak sessiz bir düşürme olurdu: kullanıcı 1500 jetonluk Ayar
-      Rozeti takılıyken seti tamamlarsa, bedelsiz gelen Tunç Mührü tek slot
-      kuralı gereği onu kapatırdı. Bir ödül, kullanıcının kendi tercihini
-      haberi olmadan geri alamaz.
-
-      Takılı bir şey yoksa açık gelir — set tamamlandığında hiçbir şey
-      olmamış gibi görünmesin.
-    */
-    const ayniTurTakili = sonuc.some((s) => {
-      if (!s.aktif) return false
-      const u = magaza.find((m) => m.id === s.urunId)
-      return u?.efekt.tur === odul.efekt.tur && !suresiDoldu(u, s)
-    })
-
-    sonuc = ayniTurTakili
-      ? [...sonuc, { urunId: odul.id, satinAlmaZamani: zaman, aktif: false }]
-      : tekSlotUygula(
-          [...sonuc, { urunId: odul.id, satinAlmaZamani: zaman, aktif: true }],
-          magaza,
-          odul.id
-        )
-    /*
-      Ödül de deftere geçer — 0 jetonla. Defter yalnızca jeton akışının
-      değil, kazanımların kaydı: reddedilen doğrulamalar da 0 jetonla
-      buraya yazılıyor. Ödül bedelsiz diye görünmez kalırsa kullanıcı
-      envanterinde nereden geldiğini bilmediği bir rozet bulur.
-    */
+    sonuc = odulEkle(sonuc, magaza, odul, zaman)
     kayitlar.push(yeniHareket(`${koleksiyon.ad} tamamlandı — ${odul.ad} açıldı`, 0, zaman))
   }
 
   return { envanter: sonuc, kayitlar }
+}
+
+/**
+ * Kilometre taşı ödülleri — doğrulama sonuçlandıktan sonra kontrol edilir.
+ *
+ * Koleksiyondan farkı: koşul satın almaya değil, kullanıcının kendi
+ * gönderilerine bağlı; o yüzden satın alma anında değil doğrulama anında
+ * bakılır. Durumun tamamı verilir çünkü ölçü gönderileri okur.
+ */
+function kilometreOdulleri(durum: AppState, zaman: string): AppState {
+  let envanter = durum.kullanici.envanter
+  const kayitlar: HareketKaydi[] = []
+
+  for (const tas of KILOMETRE_TASLARI) {
+    if (!tas.odulUrunId) continue
+    if (envanter.some((s) => s.urunId === tas.odulUrunId)) continue
+    if (!kilometreTasiDurumu(durum, tas).tamam) continue
+
+    const odul = durum.magaza.find((u) => u.id === tas.odulUrunId)
+    if (!odul) continue
+
+    envanter = odulEkle(envanter, durum.magaza, odul, zaman)
+    kayitlar.push(yeniHareket(`${tas.ad} — ${odul.ad} açıldı`, 0, zaman))
+  }
+
+  if (kayitlar.length === 0) return durum
+  return {
+    ...durum,
+    kullanici: { ...durum.kullanici, envanter },
+    hareketler: [...kayitlar, ...durum.hareketler],
+  }
 }
 
 /**
@@ -409,6 +447,31 @@ export function mesajGonder(sohbetId: string, icerik: { metin: string } | { cika
   }
   if (!mesaj.metin && !mesaj.cikartma) return
   guncelle((onceki) => ({ ...onceki, mesajlar: [...(onceki.mesajlar ?? []), mesaj] }))
+}
+
+/** Kaç taslak saklanabilir — Geniş Taslak (u35) sınırı 1'den 5'e çıkarır. */
+export function taslakSiniri(durum: AppState): number {
+  return islevAcikMi(durum, 'genis_taslak') ? 5 : 1
+}
+
+/**
+ * Taslak kaydeder. Sınır doluysa en eskisi düşer — sessizce silmek yerine
+ * arayüz sınırı ve kaçıncı taslakta olduğunu gösteriyor.
+ */
+export function taslakKaydet(metin: string): boolean {
+  const temiz = metin.trim()
+  if (!temiz) return false
+  const sinir = taslakSiniri(mevcut.veri)
+  guncelle((onceki) => {
+    const mevcutlar = onceki.taslaklar ?? []
+    const yeni = { id: `t_${Date.now().toString(36)}`, metin: temiz, zaman: new Date().toISOString() }
+    return { ...onceki, taslaklar: [...mevcutlar, yeni].slice(-sinir) }
+  })
+  return true
+}
+
+export function taslakSil(id: string) {
+  guncelle((onceki) => ({ ...onceki, taslaklar: (onceki.taslaklar ?? []).filter((t) => t.id !== id) }))
 }
 
 export function itirazEt(gonderiId: string) {
@@ -537,7 +600,8 @@ async function dogrulamaCalistir(
       kazanilanJeton = eklenebilir
     }
 
-    guncelle((onceki) => ({
+    guncelle((onceki) => {
+      const guncel: AppState = {
       ...onceki,
       gonderiler: onceki.gonderiler.map((g) =>
         g.id === gonderiId
@@ -569,7 +633,13 @@ async function dogrulamaCalistir(
             ...onceki.hareketler,
           ]
         : onceki.hareketler,
-    }))
+      }
+      /*
+        Kilometre taşları kendi gönderilerinden türediği için tam burada,
+        gönderinin durumu kesinleştikten sonra kontrol edilir.
+      */
+      return benimGonderim ? kilometreOdulleri(guncel, new Date().toISOString()) : guncel
+    })
 
     isleniyor.delete(gonderiId)
     onResult?.({ ...cikti, gerekce, kazanilanJeton, gonderiId })

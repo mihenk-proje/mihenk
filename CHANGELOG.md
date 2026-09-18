@@ -1,5 +1,66 @@
 # Değişiklik Kaydı
 
+## 2026-09-18 — Danışman önerileri: kilometre taşları, işlevsel ürünler, koleksiyon defteri, sponsorlu set
+
+Dört öneri, dördü de mevcut mimariyle ve kırmızı çizgilerle uyumlu. Bir öneri
+(gerçek marka kuponu) ilkesel olarak reddedildi — aşağıda.
+
+### Kilometre taşları — birikim, seri DEĞİL
+
+Rapor günlük hedef vermemeyi ilke edindi; "her gün paylaş" gibi seriler bu
+ilkeyle çelişir. Ömürlük birikim taşları çelişmez: kaçırılan bir gün hiçbir
+şeyi sıfırlamaz. Altı taş, hepsi kullanıcının kendi gönderilerinden
+**türetilir** — yeni durum alanı yok. İkisi kilitli bir damga verir; ödül
+doğrulama anında, satın alma anında değil.
+
+"5 farklı konuda üretim" fikri konu etiketi ister; prototipte konu yok, tür
+var — dürüst karşılığı "üç türde üretim".
+
+### İşlevsel ürünler — görünürlük değil yetenek
+
+| Ürün | Ne yapar |
+|---|---|
+| **Mika Aynası** | Profilde analitik: ortalama skor, tür bazında doğrulanma, en sık sinyaller |
+| **Kuvars Vitrin** | Profilin başında en iyi üç doğrulanmış içerik |
+| **Geniş Taslak** | Taslak sınırını 1'den 5'e çıkarır |
+
+Üçü de üreticiye yarar, **akış sıralamasına dokunmaz** — kırmızı çizgi korundu.
+
+**Gönderi zamanlama yapılmadı.** Sunucusuz prototipte zamanlanmış gönderi
+ancak uygulama açıkken yayınlanır; "saat 21:00'de paylaşılacak" vaadi
+tutulamaz. Yanlış vaat eklenmedi.
+
+### Koleksiyon defteri
+
+Üç set: Tunç, Kuvars ve sponsorlu Meridyen Sezonu. Profilde her setin üyeleri,
+sahiplik durumu ve ödülü. Süreli ürünlerin yanında ikinci jeton gideri.
+
+### Sponsorlu set — gelir markadan, ürün yine jetonla
+
+Gelir modelindeki "kozmetik marka iş birliği"nin mağazadaki karşılığı. Ürünler
+jetonla alınır, gelir markadan gelir; **jeton hiçbir zaman paraya değmez.**
+Marka KURGUSAL (Meridyen Robotik) ve arayüz "kurgusal" diye etiketliyor:
+anlaşma olmadan gerçek bir marka adı yazmak hem marka hakkı hem var olmayan
+bir ortaklık iması olurdu. Renkler mevcut ölçülmüş gümüş — yeni renk yok.
+
+### Reddedilen: jetonla gerçek marka kuponu
+
+"Trendyol kuponu jetonla alınsın" önerisi reddedildi, üç gerekçeyle:
+
+1. **Düşman modeli değişir.** Jaccard 0,35'te duyarlılık %83,6; ödül
+   kozmetikken kabul edilebilir, ödül para değerindeyken o %16 bot ile kazınır.
+   Günlük tavan hesap başına gelire dönüşür, hesap sayısı katlanır.
+2. **Hukuki yüzey.** Gerçek mala dönüşen platform jetonu sadakat/promosyon
+   programı sayılır; devredilebilirse e-para düzenlemesi. Rapor bunları ele
+   almıyor.
+3. **Tez sulanır.** "Niceliği değil niteliği, tanınmayla ödüllendir" — kupon
+   eklenince bu, herhangi bir cashback programından ayırt edilemez.
+
+Sponsorlu set aynı ortaklık gelirini kırmızı çizgiyi geçmeden sağlıyor.
+
+Katalog 31 → 41. Denetimler: **117 birim** · klavye 31/31 · hareket 8/8 ·
+axe 48 ekran 0 ihlal.
+
 ## 2026-09-18 — Düşük çaba kademesi ölçüldü
 
 `results/metrics.json` bu kademeyi `"durum": "ölçülmedi"` diye işaretliyordu:

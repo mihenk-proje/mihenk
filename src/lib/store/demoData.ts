@@ -43,6 +43,15 @@ export const demoMagaza: Urun[] = [
   { id: 'u14', ad: 'Ametist Zemin', aciklama: 'Profil kapağına 30 günlük ametist dokusu.', kategori: 'sezonluk', fiyat: 220, sureGun: 30, efekt: { tur: 'tema', deger: 'ametist' } },
   { id: 'u22', ad: 'Somaki Sohbet Zemini', aciklama: 'Sohbet ekranının zeminine 30 günlük somaki dokusu.', kategori: 'sezonluk', fiyat: 180, sureGun: 30, efekt: { tur: 'sohbetZemini', deger: 'somaki' } },
   { id: 'u23', ad: 'Tunç Çıkartmaları', aciklama: '30 gün boyunca sohbette altı tunç kristali çıkartması.', kategori: 'sezonluk', fiyat: 220, sureGun: 30, efekt: { tur: 'cikartma', deger: 'tunc' } },
+  { id: 'u26', ad: 'Kuvars Mührü', aciklama: 'Kuvars Seti tamamlanınca kazanılır; satın alınamaz. 30 gün adının yanında durur.', kategori: 'sezonluk', fiyat: 0, sureGun: 30, kilit: 'koleksiyon', efekt: { tur: 'rozet', deger: 'kuvarsMuhur' } },
+  /*
+    Sponsorlu set. Renkler mevcut ölçülmüş gümüş değeri — yeni renk yok.
+    Marka KURGUSAL; arayüz "kurgusal marka" diye etiketler.
+  */
+  { id: 'u27', ad: 'Meridyen Çerçevesi', aciklama: 'Sponsorlu: 30 günlük gümüş çerçeve.', kategori: 'sezonluk', fiyat: 120, sureGun: 30, marka: 'Meridyen Robotik', efekt: { tur: 'cerceve', deger: 'gumus' } },
+  { id: 'u28', ad: 'Meridyen Şeridi', aciklama: 'Sponsorlu: 30 günlük gümüş gönderi kenarlığı.', kategori: 'sezonluk', fiyat: 100, sureGun: 30, marka: 'Meridyen Robotik', efekt: { tur: 'kenarlik', deger: 'gumus' } },
+  { id: 'u29', ad: 'Meridyen Zemini', aciklama: 'Sponsorlu: profil kapağına 30 günlük bazalt dokusu.', kategori: 'sezonluk', fiyat: 150, sureGun: 30, marka: 'Meridyen Robotik', efekt: { tur: 'tema', deger: 'bazalt' } },
+  { id: 'u30', ad: 'Meridyen Nişanı', aciklama: 'Meridyen Sezonu tamamlanınca kazanılır; satın alınamaz.', kategori: 'sezonluk', fiyat: 0, sureGun: 30, kilit: 'koleksiyon', marka: 'Meridyen Robotik', efekt: { tur: 'rozet', deger: 'meridyen' } },
   /*
     KOLEKSİYON ÖDÜLÜ — satın alınamaz.
 
@@ -62,6 +71,9 @@ export const demoMagaza: Urun[] = [
   { id: 'u16', ad: 'Altın Şerit', aciklama: 'Kalıcı altın kenarlık; her gönderi kartında görünür.', kategori: 'kalici', fiyat: 900, sureGun: null, efekt: { tur: 'kenarlik', deger: 'altin' } },
   { id: 'u24', ad: 'Mermer Sohbet Zemini', aciklama: 'Sohbet ekranının zeminine kalıcı mermer dokusu.', kategori: 'kalici', fiyat: 900, sureGun: null, efekt: { tur: 'sohbetZemini', deger: 'mermer' } },
   { id: 'u25', ad: 'Altın Çıkartmaları', aciklama: 'Kalıcı altı altın kristali çıkartması.', kategori: 'kalici', fiyat: 1000, sureGun: null, efekt: { tur: 'cikartma', deger: 'altin' } },
+  /* Kilometre taşı damgaları — kalıcı, satın alınamaz */
+  { id: 'u31', ad: 'Mika Damgası', aciklama: 'Beş doğrulanmış içerikle kazanılır; satın alınamaz. Kalıcı.', kategori: 'kalici', fiyat: 0, sureGun: null, kilit: 'kilometre', efekt: { tur: 'rozet', deger: 'mikaDamga' } },
+  { id: 'u32', ad: 'Altın Damga', aciklama: 'Yirmi beş doğrulanmış içerikle kazanılır; satın alınamaz. Kalıcı.', kategori: 'kalici', fiyat: 0, sureGun: null, kilit: 'kilometre', efekt: { tur: 'rozet', deger: 'altinDamga' } },
 
   { id: 'u7', ad: 'Geniş Karakter', aciklama: '30 gün boyunca 1000 karakterlik gönderi paylaş.', kategori: 'islevsel', fiyat: 50, sureGun: 30, efekt: { tur: 'islev', deger: 'uzun_gonderi' } },
   { id: 'u8', ad: 'Geniş Anket', aciklama: '30 gün boyunca 6 seçenekli anketler aç.', kategori: 'islevsel', fiyat: 80, sureGun: 30, efekt: { tur: 'islev', deger: 'gelismis_anket' } },
@@ -71,6 +83,9 @@ export const demoMagaza: Urun[] = [
     Net zararlı: 60 jetona bir gün için en çok +20. Alan hiçbir zaman ödediğinden
     fazlasını geri alamaz. Açıklama bunu gizlemiyor — bkz. depo.ts gunlukTavan.
   */
+  { id: 'u33', ad: 'Mika Aynası', aciklama: '30 gün boyunca profilinde içerik analitiği: hangi nitelik sinyallerinden geçtiğin, tür bazında başarı.', kategori: 'islevsel', fiyat: 45, sureGun: 30, efekt: { tur: 'islev', deger: 'analitik' } },
+  { id: 'u34', ad: 'Kuvars Vitrin', aciklama: '30 gün boyunca profilinin başında en iyi üç doğrulanmış içeriğin sergilenir.', kategori: 'islevsel', fiyat: 55, sureGun: 30, efekt: { tur: 'islev', deger: 'vitrin' } },
+  { id: 'u35', ad: 'Geniş Taslak', aciklama: '30 gün boyunca beş taslak sakla; varsayılan bir.', kategori: 'islevsel', fiyat: 30, sureGun: 30, efekt: { tur: 'islev', deger: 'genis_taslak' } },
   { id: 'u19', ad: 'Gümüş Tavan', aciklama: 'Bir gün için günlük üst sınırı 70 jetona çıkarır. Maliyeti, kazandırabileceğinden yüksektir.', kategori: 'islevsel', fiyat: 60, sureGun: 1, efekt: { tur: 'islev', deger: 'tavan_artisi' } },
 ]
 
@@ -84,10 +99,13 @@ export const demoMagaza: Urun[] = [
 export type Koleksiyon = {
   id: string
   ad: string
+  aciklama: string
   /** Üye ürün kimlikleri. Hepsi katalogda bulunmalı. */
   urunler: string[]
   /** Tamamlanınca verilen kilitli ürünün kimliği. */
   odulUrunId: string
+  /** Sponsorlu set — bkz. Urun.marka. */
+  marka?: string
 }
 
 /**
@@ -104,7 +122,40 @@ export type Koleksiyon = {
  * tam olarak buna dayanır.
  */
 export const KOLEKSIYONLAR: Koleksiyon[] = [
-  { id: 'tunc-seti', ad: 'Tunç Seti', urunler: ['u2c', 'u11', 'u12'], odulUrunId: 'u15' },
+  { id: 'tunc-seti', ad: 'Tunç Seti', aciklama: 'Üç tunç ürününü bir araya getir.', urunler: ['u2c', 'u11', 'u12'], odulUrunId: 'u15' },
+  { id: 'kuvars-seti', ad: 'Kuvars Seti', aciklama: 'Rozet, şerit ve çıkartma — kuvarsın üç hâli.', urunler: ['u2b', 'u13', 'u21'], odulUrunId: 'u26' },
+  /*
+    SPONSORLU SET — gelir modelindeki "kozmetik marka iş birliği"nin
+    mağazadaki karşılığı. Ürünler yine jetonla alınır, gelir markadan gelir;
+    jeton hiçbir zaman paraya değmez. Marka KURGUSALDIR ve arayüzde öyle yazar.
+  */
+  { id: 'meridyen-seti', ad: 'Meridyen Sezonu', aciklama: 'Sponsorlu sezonluk set; ürünler jetonla alınır, gelir markadan gelir.', urunler: ['u27', 'u28', 'u29'], odulUrunId: 'u30', marka: 'Meridyen Robotik' },
+]
+
+/*
+  Kilometre taşları — birikim, seri DEĞİL.
+
+  Rapor günlük hedef vermemeyi ilke edindi; "her gün paylaş" gibi seriler bu
+  ilkeyle çelişir. Ömürlük birikim taşları çelişmez: kaçırılan bir gün hiçbir
+  şeyi sıfırlamaz. Hepsi kullanıcının kendi gönderilerinden TÜRETİLİR — yeni
+  durum alanı yok. Bazıları kilitli bir damga verir.
+*/
+export type KilometreTasi = {
+  id: string
+  ad: string
+  aciklama: string
+  olcu: 'dogrulanan' | 'anket' | 'tur' | 'gun'
+  hedef: number
+  odulUrunId?: string
+}
+
+export const KILOMETRE_TASLARI: KilometreTasi[] = [
+  { id: 'ilk-dogrulama', ad: 'İlk doğrulama', aciklama: 'Doğrulamayı geçen ilk gönderin.', olcu: 'dogrulanan', hedef: 1 },
+  { id: 'ilk-anket', ad: 'İlk anket', aciklama: 'İlk anketini paylaştın.', olcu: 'anket', hedef: 1 },
+  { id: 'uc-tur', ad: 'Üç türde üretim', aciklama: 'Metin, görsel ve anket — üçünde de doğrulanmış içerik.', olcu: 'tur', hedef: 3 },
+  { id: 'bes-dogrulanan', ad: 'Beş doğrulanmış içerik', aciklama: 'Doğrulamayı geçen beş gönderi.', olcu: 'dogrulanan', hedef: 5, odulUrunId: 'u31' },
+  { id: 'yirmibes-dogrulanan', ad: 'Yirmi beş doğrulanmış içerik', aciklama: 'Doğrulamayı geçen yirmi beş gönderi.', olcu: 'dogrulanan', hedef: 25, odulUrunId: 'u32' },
+  { id: 'yildonumu', ad: 'Yıldönümü', aciklama: 'Hesabın bir yaşında.', olcu: 'gun', hedef: 365 },
 ]
 
 export const BEN_ID = 'ahmet_yilmaz'
@@ -337,5 +388,6 @@ export function varsayilanDurum(): AppState {
     hareketler: demoHareketler,
     magaza: demoMagaza,
     mesajlar: demoMesajlar,
+    taslaklar: [],
   })
 }
