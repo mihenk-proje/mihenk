@@ -7,7 +7,9 @@ import { useStore } from "@/lib/store/kanca"
 import {
   AD_RENGI_SINIFLARI,
   CERCEVE_SINIFLARI,
+  CIKARTMA_YOLLARI,
   KENARLIK_SINIFLARI,
+  SOHBET_ZEMINI_SINIFLARI,
   ROZET_SIMGELERI,
   TEMA_SINIFLARI,
   kalanSure,
@@ -117,6 +119,8 @@ export function Magaza({ onBack }: { onBack: () => void }) {
     if (urun.efekt.tur === 'islev') return `${urun.ad} alındı, ${sure} kullanabilirsin.`
     if (urun.efekt.tur === 'kenarlik')
       return `${urun.ad} alındı, ${sure} gönderi kartlarında görünecek.`
+    if (urun.efekt.tur === 'sohbetZemini' || urun.efekt.tur === 'cikartma')
+      return `${urun.ad} alındı, ${sure} sohbetlerinde kullanabilirsin.`
     return `${urun.ad} alındı, ${sure} profilinde görünecek.`
   }
 
@@ -462,7 +466,9 @@ function UrunOnizleme({
             ? 'Bu bir önizlemedir; satın alındığında hangi işlevi kazanacağını gösterir.'
             : efekt.tur === 'kenarlik'
               ? 'Bu bir önizlemedir; kenarlık gönderi kartlarınızın sol kenarında görünür.'
-              : 'Bu bir önizlemedir; satın alma yapılmadan profilinizde nasıl görüneceğini gösterir.'}
+              : efekt.tur === 'sohbetZemini' || efekt.tur === 'cikartma'
+                ? 'Bu bir önizlemedir; sohbet ekranında nasıl görüneceğini gösterir.'
+                : 'Bu bir önizlemedir; satın alma yapılmadan profilinizde nasıl görüneceğini gösterir.'}
         </p>
       </div>
 
@@ -483,6 +489,39 @@ function UrunOnizleme({
           <p className="mt-6 text-secondary text-sm text-center">
             Profil kapağına {urun.ad.toLowerCase()} dokusu uygulanır.
           </p>
+        )}
+
+        {efekt.tur === 'sohbetZemini' && (
+          /* Sohbet ekranının minyatürü: zemin + iki baloncuk */
+          <div
+            className={`mt-6 w-full rounded-xl border border-line p-3 flex flex-col gap-2 ${
+              SOHBET_ZEMINI_SINIFLARI[efekt.deger] ?? ''
+            }`}
+            aria-hidden="true"
+          >
+            <span className="self-start rounded-2xl rounded-bl-md bg-card border border-line px-3 py-1.5 text-sm text-primary">
+              Selam!
+            </span>
+            <span className="self-end rounded-2xl rounded-br-md bg-brand text-brand-ink px-3 py-1.5 text-sm">
+              Zemini beğendin mi?
+            </span>
+          </div>
+        )}
+
+        {efekt.tur === 'cikartma' && (
+          /* Paketin altı kristali, paketin renginde */
+          <div
+            className="mt-6 grid grid-cols-6 gap-2 w-full"
+            role="img"
+            aria-label={`${urun.ad}: altı çıkartma`}
+            style={{ color: `var(--kozmetik-${efekt.deger})` }}
+          >
+            {CIKARTMA_YOLLARI.map((yol, i) => (
+              <svg key={i} viewBox="0 0 24 24" className="w-full aspect-square" fill="currentColor" aria-hidden="true">
+                <path d={yol} />
+              </svg>
+            ))}
+          </div>
         )}
 
         {efekt.tur === 'kenarlik' && (
