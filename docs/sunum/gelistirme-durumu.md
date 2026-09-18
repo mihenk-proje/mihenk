@@ -1,14 +1,15 @@
 # Prototip / Uygulama Geliştirme Durumu
 
 > Sunum için tek sayfalık metin. Görseller `ekranlar/` altında; `akis-5.png` kullanıcı
-> akışını, `ekonomi-4.png` jeton ekonomisini gösterir. Koyu zeminli slayt için
-> `-koyu-slayt` sonekli sürümler.
+> akışını, `ekonomi-5.png` jeton ekonomisini gösterir. Koyu zeminli slayt için
+> `-koyu-slayt` sonekli sürümler. Hepsi tek bir oturumda alındı; bakiye tutarlı.
 
 ## Prototip var mı?
 
 Evet — çalışan, yayında ve telefona kurulabilen bir prototip: **mihenk-proje.vercel.app**.
 Mevcut mikroblog platformu NSosyal üzerine oturan bir özellik katmanı olarak tasarlandı.
-Beş doğrulama kademesi, jeton ekonomisi, mağaza, profil, bildirimler ve sohbet çalışıyor.
+Beş doğrulama kademesi, jeton ekonomisi (41 ürün, dört kategori), kilometre taşları,
+koleksiyon defteri, sponsorlu set, mağaza, profil, bildirimler ve sohbet çalışıyor.
 Doğrulama mantığının tamamı istemci tarafında çalışır; hiçbir içerik dış servise gitmez.
 Uygulama aşamalı web uygulaması (PWA) olarak Android'e kurulur ve **çevrimdışı çalışır**.
 
@@ -19,7 +20,7 @@ Uygulama aşamalı web uygulaması (PWA) olarak Android'e kurulur ve **çevrimd�
 | **Tasarım** | Tamamlandı | İki yüzey ilkesi: ev sahibi (NSosyal) kroması nötr, MİHENK'in ürettiği değer pirinç. Ayrım CSS değişkeni kapsamıyla, bileşen sınıflarına dokunmadan. Ürün adları mineral ailesinden. |
 | **Geliştirme** | Tamamlandı | Next.js 16 + TypeScript. Doğrulama motoru saf fonksiyon; yayınlama ve doğrulama ayrık, doğrulama arayüzü bloklamaz. Durum tarayıcıda, sunucusuz. |
 | **Entegrasyon** | Tamamlandı | Ölçüm boru hattı çalışma zamanı kodunu doğrudan içe aktarır — algoritmanın ikinci bir kopyası yok. CI her push'ta tip, lint, test ve derleme kapılarını çalıştırır. |
-| **Test** | Tamamlandı | 106 birim testi · 31 klavyeyle uçtan uca kontrol · 8 hareket kontrolü · axe-core 48 ekranda sıfır ihlal · Lighthouse canlı masaüstü 100/100/100/100, mobil 95/100/100/100. |
+| **Test** | Tamamlandı | 117 birim testi · 31 klavyeyle uçtan uca kontrol · 8 hareket kontrolü · axe-core 48 ekranda sıfır ihlal · Lighthouse canlı masaüstü 100/100/100/100, mobil 95/100/100/100. |
 
 **Üzerinde çalışılan:** metin niteliği kademesinin insan etiketli ölçümü (iki bağımsız
 etiketleyici, Cohen's κ ≥ 0,70 kapısı). Araçlar hazır, pilot etiketleme İP7'de.
@@ -38,8 +39,11 @@ gerçek bir ekrana gider.
 - **Yanlış vaat yok.** Çalışmayan hiçbir düğme yok; kapsam dışı bölümler bunu söyler,
   sohbette karşı tarafın yanıt yazmadığı ekranda yazılıdır.
 - **Tür başına tek slot.** Aynı türden iki kozmetik birbirini sessizce ezemez.
-- **Jeton parayla satın alınamaz.** Yalnızca doğrulamayı geçen içerikle kazanılır;
-  günlük üst sınır çiftlik döngüsünü keser.
+- **Jeton parayla satın alınamaz, paraya da dönüşmez.** Yalnızca doğrulamayı geçen
+  içerikle kazanılır; günlük üst sınır çiftlik döngüsünü keser. Marka iş birliği
+  sponsorlu set olarak mağazada: ürün jetonla alınır, gelir markadan gelir.
+- **Birikim, seri değil.** Kilometre taşları ömürlük; kaçırılan gün hiçbir şeyi
+  sıfırlamaz. Rapor günlük hedef vermemeyi ilke edindi, arayüz buna uyar.
 
 ## Erişilebilirlik yaklaşımı
 
