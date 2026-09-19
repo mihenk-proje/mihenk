@@ -28,7 +28,7 @@ etiketleyici, Cohen's κ ≥ 0,70 kapısı). Araçlar hazır, pilot etiketleme �
 ## Kullanıcı akışı
 
 Giriş → akış (nötr NSosyal kartı, yalnızca doğrulama rozeti pirinç) → gönderi paylaşımı →
-doğrulama sonucu (skor, gerekçe, kazanılan jeton) → mağaza (31 ürün, satır içi önizleme) →
+doğrulama sonucu (skor, gerekçe, kazanılan jeton) → mağaza (41 ürün, satır içi önizleme) →
 profil (kuşanılmış kozmetikler) → sohbet (zemin ve çıkartmalar). Beş sekmenin beşi de
 gerçek bir ekrana gider.
 
